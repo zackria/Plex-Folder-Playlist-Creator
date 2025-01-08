@@ -87,6 +87,12 @@ This app leverages the following key libraries to deliver its functionality:
 4. Start the app:
      `npm start`
 
+
+## Electron Build Instructions
+`npm install --save-dev electron`
+
+`npm run make`
+
 ## Roadmap
 - Add support for custom playlist formats.
 - Advanced media file filtering and categorization.
