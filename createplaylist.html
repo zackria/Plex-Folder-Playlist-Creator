@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plex Folder Playlist</title>
+    <link href="./css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
+
+    <link href="./css/toggle.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Placeholder for Navbar -->
+    <div id="navbar"></div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+      <!-- Main Screen -->
+      <div id="mainScreen" class="content-screen">
+        <h2>Create Playlist from folder</h2>
+
+        <form
+          id="playlist-form"
+          name="playlist-form"
+          class="needs-validation"
+          novalidate
+        >
+          <div class="mb-3">
+            <div class="input-group has-validation">
+              <label for="folderPath" class="form-label"
+                >Folder Path &nbsp;</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="folderPath"
+                placeholder="Enter Folder Path to create playlist"
+                required
+              />
+              <div class="invalid-feedback alert alert-danger">
+                Folder Path is required to create playlist
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Create Playlist</button>
+
+          <button type="reset" class="btn btn-primary">Reset</button>
+
+          <button type="button" id="go-toconfig" class="btn btn-primary">
+            Update Configuration
+          </button>
+        </form>
+        <br />
+
+        <div>
+          <br />
+
+          <span id="progressbar" style="display: none"
+            >Processing please wait... &nbsp; <i class="loading"> </i>
+          </span>
+
+          <div id="test-result" class="alert alert-success" style="display: none"></div>
+          <div id="test-result-fail" class="alert alert-danger" style="display: none"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/loadNavbar.js"></script>
+  </body>
+</html>

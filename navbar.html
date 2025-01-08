@@ -1,0 +1,89 @@
+<!-- Navbar -->
+<nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Plex Folder Playlist
+
+
+    <label class="nav-link toggle-button ms-3">
+      <input type="checkbox" id="themeToggle" />
+      <i
+        class="bi bi-sun toggle-icon me-2 btn-outline-light"
+        id="sunIcon"
+      ></i>
+      <i
+        class="bi bi-moon toggle-icon btn-outline-light"
+        id="moonIcon"
+      ></i>
+    </label>
+
+    </a> 
+    
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+
+    <div id="navbarNav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            data-bs-dismiss="offcanvas"
+            id="go-to-config"
+            onclick="location.href='#mainScreen'"
+          >
+            Configuration
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            data-bs-dismiss="offcanvas"
+            id="go-to-action"
+            onclick="location.href='#secondScreen'"
+          >
+            Get Playlist
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link"
+            data-bs-dismiss="offcanvas"
+            id="go-to-refresh"
+            onclick="location.href='#secondScreen'"
+          >
+            Refresh
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+          class="nav-link"
+          data-bs-dismiss="offcanvas"
+          id="go-to-create-playlist"
+          onclick="location.href='#secondScreen'"
+        >
+          Create Playlist from Folder
+        </button>
+        </li>
+        <li class="nav-item">
+          <button
+          class="nav-link"
+          data-bs-dismiss="offcanvas"
+          id="go-to-bulk-playlist"
+          onclick="location.href='#secondScreen'"
+        >
+          Bulk Folder Playlist
+        </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

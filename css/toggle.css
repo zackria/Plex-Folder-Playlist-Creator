@@ -1,0 +1,44 @@
+.toggle-button {
+  display: inline-flex;
+  /* align-items: center; */
+  cursor: pointer;
+}
+.toggle-icon {
+  font-size: 1.5rem;
+  transition: color 0.3s ease-in-out;
+}
+input[type="checkbox"] {
+  display: none;
+}
+input[type="checkbox"]:checked ~ .bi-sun {
+  color: gray;
+}
+input[type="checkbox"]:not(:checked) ~ .bi-moon {
+  color: gray;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  animation: spin 1s linear infinite;
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+
+  border: 4px solid red;
+  border-top-color: transparent;
+  border-radius: 50%;
+}
+
+
+textarea {
+  width: 100%;
+  height: 150px;
+}

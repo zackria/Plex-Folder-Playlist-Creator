@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plex Folder Playlist</title>
+    <link href="./css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
+
+    <link href="./css/toggle.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Placeholder for Navbar -->
+    <div id="navbar"></div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+      <!-- Main Screen -->
+      <div id="mainScreen" class="content-screen">
+        <h2>Refresh Playlist</h2>
+        <form id="config-form" name="config-form">
+          <div>
+            <button
+              type="button"
+              id="refresh-playlists"
+              class="btn btn-primary"
+            >
+              Refresh Playlists
+            </button>
+            <button type="button" id="go-toconfig" class="btn btn-primary">
+              Update Configuration
+            </button>
+          </div>
+          <div>
+            <br />
+            <span id="progressbar" style="display: none"
+              >Processing please wait... &nbsp; <i class="loading"> </i>
+            </span>
+
+            <div id="test-result" class="alert alert-success" style="display: none"></div>
+            <div id="test-result-fail" class="alert alert-danger" style="display: none"></div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/loadNavbar.js"></script>
+
+    <script></script>
+  </body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plex Folder Playlist</title>
+    <link href="./css/bootstrap.min.css" rel="stylesheet" />
+    <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
+
+    <link href="./css/toggle.css" rel="stylesheet" />
+    <style>
+      /* Style for fixed header */
+      .table-responsive {
+        position: relative;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .table-responsive thead {
+        position: sticky;
+        top: 0;
+        z-index: 1020; /* Higher z-index to appear above rows */
+        background-color: #343a40; /* Match the header background color */
+        color: #fff; /* Text color for visibility */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Placeholder for Navbar -->
+    <div id="navbar"></div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+      <!-- Main Screen -->
+      <div id="mainScreen" class="content-screen">
+        <h2>Retrieve All Playlists</h2>
+        <form id="config-form" name="config-form">
+          <div>
+            <button type="button" id="get-playlists" class="btn btn-primary">
+              Get Playlists
+            </button>
+            <button type="button" id="go-toconfig" class="btn btn-primary">
+              Update Configuration
+            </button>
+          </div>
+          <div>
+            <br />
+            <span id="progressbar" style="display: none"
+              >Processing please wait... &nbsp; <i class="loading"> </i>
+            </span>
+
+            <div id="test-result" class="alert alert-success" style="display: none"></div>
+            <div id="test-result-fail" class="alert alert-danger" style="display: none"></div>
+
+            <div class="container my-5">
+              <h2 class="text-center mb-4">Playlists</h2>
+              <div
+                class="table-responsive"
+                style="max-height: 400px; overflow-y: auto"
+              >
+                <table
+                  class="table table-striped table-bordered table-light"
+                  id="dataTable"
+                >
+                  <thead class="table-light">
+                    <tr>
+                      <th class="table-light">#</th>
+                      <th class="table-light">Title</th>
+                      <th class="table-light">Playlist ID</th>
+                      <th class="table-light"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Rows will be dynamically added here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/loadNavbar.js"></script>
+
+    <script></script>
+  </body>
+</html>
