@@ -112,7 +112,7 @@ This app leverages the following key libraries to deliver its functionality:
 
 `npm install electron-packager -g`
 
-`electron-packager ./out/PlexFolderPlaylistCreator-win32-x64 PlexFolderPlaylistCreator --platform=win32 --arch=universal`
+`electron-packager ./out/PlexFolderPlaylistCreator-win32-x64 PlexFolderPlaylistCreator --platform=win32 --arch=x64`
 
 ## Roadmap
 - Add support for custom playlist formats.
