@@ -22,20 +22,23 @@
   "devDependencies": {
     "@electron-forge/cli": "7.4.0",
     "@electron-forge/maker-deb": "7.4.0",
+    "@electron-forge/maker-dmg": "7.4.0",
     "@electron-forge/maker-rpm": "7.4.0",
     "@electron-forge/maker-squirrel": "7.4.0",
+    "@electron-forge/maker-wix": "^7.4.0",
     "@electron-forge/maker-zip": "7.4.0",
-    "@electron-forge/maker-dmg": "7.4.0",
-    "@electron-forge/maker-wix": "7.4.0",
-    "electron": "31.1.0",
-    "electron-squirrel-startup": "1.0.1",
+    "electron": "^31.7.6",
     "electron-builder": "24.13.3",
-    "electron-updater": ">=6.3.0-alpha.6",
-    "electron-reload": "2.0.0-alpha.1"
+    "electron-packager": "^17.1.2",
+    "electron-reload": "2.0.0-alpha.1",
+    "electron-squirrel-startup": "1.0.1",
+    "electron-updater": ">=6.3.0-alpha.6"
   },
   "config": {
     "forge": {
-      "packagerConfig": {"icon": "assets/PlexFolderPlaylistCreator.png"},
+      "packagerConfig": {
+        "icon": "assets/PlexFolderPlaylistCreator.png"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
@@ -44,8 +47,6 @@
             "authors": "Zack Dawood",
             "description": "PlexFolderPlaylistCreator",
             "setupIcon": "assets/PlexFolderPlaylistCreator.ico"
-
-
           }
         },
         {
@@ -55,30 +56,30 @@
             "authors": "Zack Dawood",
             "description": "PlexFolderPlaylistCreator",
             "setupIcon": "assets/PlexFolderPlaylistCreator.ico"
-
-
           },
           "platforms": [
             "darwin"
           ]
-          
         },
         {
           "name": "@electron-forge/maker-deb",
           "config": {
-             "options": {
-            "icon": "assets/PlexFolderPlaylistCreator.png"
-          }}
+            "options": {
+              "icon": "assets/PlexFolderPlaylistCreator.png"
+            }
+          }
         },
         {
           "name": "@electron-forge/maker-rpm",
           "config": {}
-        },{
+        },
+        {
           "name": "@electron-forge/maker-dmg",
           "config": {
             "icon": "assets/PlexFolderPlaylistCreator.icns"
           }
-        },{
+        },
+        {
           "name": "@electron-forge/maker-wix",
           "config": {
             "icon": "assets/PlexFolderPlaylistCreator.ico"

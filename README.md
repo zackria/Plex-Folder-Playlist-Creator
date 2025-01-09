@@ -91,7 +91,28 @@ This app leverages the following key libraries to deliver its functionality:
 ## Electron Build Instructions
 `npm install --save-dev electron`
 
+`npm install --save-dev @electron-forge/maker-wix`
+
 `npm run make`
+
+## Windows specific Build
+
+### Install DotNet
+[https://aka.ms/dotnet/download](https://aka.ms/dotnet/download)
+
+### Install Wix
+[https://wixtoolset.org/docs/intro/](https://wixtoolset.org/docs/intro/)
+
+`dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org`
+`dotnet tool install --global wix`
+
+`wix --version`
+
+`npm install electron-packager --save-dev`
+
+`npm install electron-packager -g`
+
+`electron-packager ./out/PlexFolderPlaylistCreator-win32-x64 PlexFolderPlaylistCreator --platform=win32 --arch=universal`
 
 ## Roadmap
 - Add support for custom playlist formats.
