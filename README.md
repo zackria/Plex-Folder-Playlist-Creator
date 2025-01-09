@@ -95,6 +95,10 @@ This app leverages the following key libraries to deliver its functionality:
 
 `npm run make`
 
+`npm run make -- --platform win32`
+`npm run make -- --platform linux`
+`npm run make -- --platform darwin`
+
 ## Windows specific Build
 
 ### Install DotNet
