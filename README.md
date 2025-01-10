@@ -2,6 +2,8 @@
 
 Plex Folder Playlist Creator is a modern desktop application built with Electron JS that generates playlists for media files in a selected folder. This cross-platform app simplifies playlist creation by scanning your folder, extracting metadata, and structuring playlists for easy playback. It integrates seamlessly with the Plex API for advanced media management features and provides a sleek user interface using Bootstrap and Bootstrap Icons.
 
+## App Supports Windows / Linux / MacOS Checkout the [Releases](https://github.com/zackria/Plex-Folder-Playlist-Creator/releases)
+
 ![alt text](./img/01PlexFolderPlaylist.png)
 
 ## Features
@@ -24,6 +26,8 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 - Plex Integration: Optionally connect to a Plex Media Server to fetch metadata and sync playlists.
 
 ### Build using Node JS v22.13.0 (lts/jod)
+
+
 
 #### How to find Host IP, PORT, and PLEX TOKEN 
 - How to find HOST IP [Refer to this Link](FINDHOST_PORT.md)
