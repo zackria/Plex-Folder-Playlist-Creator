@@ -94,6 +94,10 @@ This app leverages the following key libraries to deliver its functionality:
 
 `rm -rf node_modules`
 
+`rm -rf out`
+
+`rm -rf dist`
+
 `npm install`
 
 ## Electron Build Instructions
