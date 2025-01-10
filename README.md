@@ -105,9 +105,13 @@ This app leverages the following key libraries to deliver its functionality:
 
 
 `npm run package-linux`
+
 `npm run package-linux-deb`
+
 `npm run package-linux-rpm`
+
 `npm run package-win`
+
 `npm run package-mac`
 
 ## Roadmap
