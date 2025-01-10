@@ -88,10 +88,25 @@ This app leverages the following key libraries to deliver its functionality:
      `npm start`
 
 
+```NOTE: Rebuild instructions```
+
+`rm package-lock.json`
+
+`rm -rf node_modules`
+
+`npm install`
+
 ## Electron Build Instructions
 `npm install --save-dev electron`
 
 `npm run make`
+
+
+`npm run package-linux`
+`npm run package-linux-deb`
+`npm run package-linux-rpm`
+`npm run package-win`
+`npm run package-mac`
 
 ## Roadmap
 - Add support for custom playlist formats.

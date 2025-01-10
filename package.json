@@ -6,36 +6,43 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "package-linux": "electron-builder --linux --config.icon=assets/PlexFolderPlaylistCreator.png",
+    "package-linux-deb": "electron-builder --linux deb --config.icon=assets/PlexFolderPlaylistCreator.png",
+    "package-linux-rpm": "electron-builder --linux rpm --config.icon=assets/PlexFolderPlaylistCreator.png",
+    "package-win": "electron-builder --win --config.icon=assets/PlexFolderPlaylistCreator-256.ico",
+    "package-mac": "electron-builder --mac --config.icon=assets/PlexFolderPlaylistCreator.icns"
   },
   "keywords": [
     "electron",
     "plex",
     "playlist"
   ],
-  "author": "Zack Dawood",
+  "author": "Zack Dawood <zack@zackdawood.com>",
   "license": "MIT",
   "dependencies": {
-    "electron-settings": "^4.0.4",
-    "plex-api": "^5.3.2"
+    "electron-settings": "4.0.4",
+    "plex-api": "5.3.2"
   },
   "devDependencies": {
-    "@electron-forge/cli": "7.4.0",
-    "@electron-forge/maker-deb": "7.4.0",
-    "@electron-forge/maker-rpm": "7.4.0",
-    "@electron-forge/maker-squirrel": "7.4.0",
-    "@electron-forge/maker-zip": "7.4.0",
-    "@electron-forge/maker-dmg": "7.4.0",
-    "@electron-forge/maker-wix": "7.4.0",
-    "electron": "31.1.0",
+    "@electron-forge/cli": "7.6.0",
+    "@electron-forge/maker-deb": "7.6.0",
+    "@electron-forge/maker-dmg": "7.6.0",
+    "@electron-forge/maker-rpm": "7.6.0",
+    "@electron-forge/maker-squirrel": "7.6.0",
+    "@electron-forge/maker-wix": "7.6.0",
+    "@electron-forge/maker-zip": "7.6.0",
+    "electron": "33.3.1",
+    "electron-builder": "25.1.8",
+    "electron-reload": "2.0.0-alpha.1",
     "electron-squirrel-startup": "1.0.1",
-    "electron-builder": "24.13.3",
-    "electron-updater": ">=6.3.0-alpha.6",
-    "electron-reload": "2.0.0-alpha.1"
+    "electron-updater": "6.3.9"
   },
   "config": {
     "forge": {
-      "packagerConfig": {"icon": "assets/PlexFolderPlaylistCreator.png"},
+      "packagerConfig": {
+        "icon": "assets/PlexFolderPlaylistCreator.png"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
@@ -44,8 +51,6 @@
             "authors": "Zack Dawood",
             "description": "PlexFolderPlaylistCreator",
             "setupIcon": "assets/PlexFolderPlaylistCreator.ico"
-
-
           }
         },
         {
@@ -55,30 +60,30 @@
             "authors": "Zack Dawood",
             "description": "PlexFolderPlaylistCreator",
             "setupIcon": "assets/PlexFolderPlaylistCreator.ico"
-
-
           },
           "platforms": [
             "darwin"
           ]
-          
         },
         {
           "name": "@electron-forge/maker-deb",
           "config": {
-             "options": {
-            "icon": "assets/PlexFolderPlaylistCreator.png"
-          }}
+            "options": {
+              "icon": "assets/PlexFolderPlaylistCreator.png"
+            }
+          }
         },
         {
           "name": "@electron-forge/maker-rpm",
           "config": {}
-        },{
+        },
+        {
           "name": "@electron-forge/maker-dmg",
           "config": {
             "icon": "assets/PlexFolderPlaylistCreator.icns"
           }
-        },{
+        },
+        {
           "name": "@electron-forge/maker-wix",
           "config": {
             "icon": "assets/PlexFolderPlaylistCreator.ico"
