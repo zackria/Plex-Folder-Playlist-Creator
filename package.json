@@ -43,6 +43,9 @@
       "packagerConfig": {
         "icon": "assets/PlexFolderPlaylistCreator.png"
       },
+      "packagerConfig": {
+        "icon": "assets/PlexFolderPlaylistCreator.png"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
@@ -72,16 +75,24 @@
               "icon": "assets/PlexFolderPlaylistCreator.png"
             }
           }
+            "options": {
+              "icon": "assets/PlexFolderPlaylistCreator.png"
+            }
+          }
         },
         {
           "name": "@electron-forge/maker-rpm",
           "config": {}
         },
         {
+        },
+        {
           "name": "@electron-forge/maker-dmg",
           "config": {
             "icon": "assets/PlexFolderPlaylistCreator.icns"
           }
+        },
+        {
         },
         {
           "name": "@electron-forge/maker-wix",

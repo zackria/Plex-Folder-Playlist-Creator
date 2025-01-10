@@ -99,6 +99,8 @@ This app leverages the following key libraries to deliver its functionality:
 ## Electron Build Instructions
 `npm install --save-dev electron`
 
+`npm install --save-dev @electron-forge/maker-wix`
+
 `npm run make`
 
 
