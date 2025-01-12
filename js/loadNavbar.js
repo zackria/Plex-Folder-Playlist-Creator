@@ -121,7 +121,7 @@ async function handlePlaylistFormSubmit(e) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("create-playlist", document.getElementById("folderPath").value);
+    const result = await window.ipcRenderer.invoke("create-playlist", document.getElementById("folderPath").value.trim());
     displayMessage("progressbar", "none");
 
     if (result.status === "error") {

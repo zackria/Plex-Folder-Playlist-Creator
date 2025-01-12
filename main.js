@@ -80,7 +80,7 @@ ipcMain.handle("create-playlist", async (event, data) => {
     apiData.ipaddress,
     apiData.port,
     apiData.key,
-    data
+    data.trim()
   );
 
   //console.log(`Connection ${result ? "Result" : "Error Result"} - ${result}`);
