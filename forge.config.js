@@ -47,13 +47,13 @@ module.exports = {
         icon: "assets/PlexFolderPlaylistCreator.icns",
       },
     },
-    {
-      name: "@electron-forge/maker-wix",
-      config: {
-        icon: "assets/PlexFolderPlaylistCreator.ico",
-        language: 1033,
-        manufacturer: 'Zack Dawood'
-      },
-    },
+    // {
+    //   name: "@electron-forge/maker-wix",
+    //   config: {
+    //     icon: "assets/PlexFolderPlaylistCreator.ico",
+    //     language: 1033,
+    //     manufacturer: 'Zack Dawood'
+    //   },
+    // },
   ],
 };
