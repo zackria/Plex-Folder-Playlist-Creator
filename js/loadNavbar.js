@@ -48,10 +48,11 @@ function addEventListeners() {
     { id: "go-toconfig", event: "click", handler: () => navigateTo("index") },
     { id: "go-to-create-playlist", event: "click", handler: () => navigateTo("createplaylist") },
     { id: "go-to-bulk-playlist", event: "click", handler: () => navigateTo("bulkplaylist") },
-    { id: "go-to-refresh", event: "click", handler: () => navigateTo("refresh") },
+    { id: "go-to-m3u", event: "click", handler: () => navigateTo("m3uplaylist") },
     { id: "config-form", event: "submit", handler: handleFormSubmit },
     { id: "playlist-form", event: "submit", handler: handlePlaylistFormSubmit },
     { id: "bulk-playlist-form", event: "submit", handler: handleBulkPlaylistFormSubmit },
+    { id: "m3uplaylist-form", event: "submit", handler: handleM3UPlaylistFormSubmit },
     { id: "test-connection", event: "click", handler: testConnection },
     { id: "refresh-playlists", event: "click", handler: refreshPlaylist },
     { id: "get-playlists", event: "click", handler: getPlaylist },
@@ -105,6 +106,37 @@ async function handleFormSubmit(e) {
     displayMessage("progressbar", "none");
     displayMessage("test-result-fail", "block", "Connection Error!!! <br/> Please check your settings and try again.");
   }
+}
+
+async function handleM3UPlaylistFormSubmit(e){
+  e.preventDefault();
+  const form = document.getElementById("m3uplaylist-form");
+
+  if (!form.checkValidity()) {
+    form.classList.add("was-validated");
+    return;
+  }
+
+  displayMessage("test-result-fail", "none", "none");
+  displayMessage("test-result", "none", "none");
+  form.classList.add("was-validated");
+  displayMessage("progressbar", "block");
+
+  try {
+    const result = await window.ipcRenderer.invoke("create-m3u-playlist", document.getElementById("folderPath").value.replace(/['"]+/g, '').trim());
+    displayMessage("progressbar", "none");
+
+    if (result.status === "error") {
+      displayMessage("test-result-fail", "block", "Playlist not created !!! <br/>"+result.message);
+    } else {
+      displayMessage("test-result", "block", result.message);
+    }
+  } catch (error) {
+    console.error("Error testing connection:", error);
+    displayMessage("progressbar", "none");
+    displayMessage("test-result-fail", "block", "Playlist not created !!! <br/> Please check your folder path & connection settings and try again.");
+  }
+
 }
 
 async function handlePlaylistFormSubmit(e) {

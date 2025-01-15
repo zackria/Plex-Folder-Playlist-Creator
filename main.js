@@ -74,6 +74,19 @@ ipcMain.handle("get-playlists", async () => {
   return result;
 });
 
+ipcMain.handle("create-m3u-playlist", async (event, data) => {
+  let apiData = await getAPIData();
+  let result = await plexLocalAPI.createM3UPlaylist(
+    apiData.ipaddress,
+    apiData.port,
+    apiData.key,
+    data.trim()
+  );
+
+  //console.log(`Connection ${result ? "Result" : "Error Result"} - ${result}`);
+  return result;
+});
+
 ipcMain.handle("create-playlist", async (event, data) => {
   let apiData = await getAPIData();
   let result = await plexLocalAPI.createPlaylist(

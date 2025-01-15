@@ -65,6 +65,36 @@ async function refreshPlaylist(hostname, port, plextoken ) {
   }
 }
 
+async function createM3UPlaylist( hostname, port, plextoken, playlistPath ) {
+  const client = createPlexClient(hostname, port, plextoken );
+  let retunMessage = {status: "success", message: ""};
+
+  try {
+
+    const sections = await client.query("/library/sections");
+    const musicLibrary = sections.MediaContainer.Directory.find(
+      (section) => section.title === "Music"
+    );
+
+    if (!musicLibrary) {
+      console.error(`Music library "Music" not found.`);
+      retunMessage.message += `Music library "Music" not found. <br/>`;
+      retunMessage.status = "error";
+      return retunMessage;
+    }
+
+    await client.postQuery(`/playlists/upload?sectionID=${musicLibrary.key}&path=${playlistPath}`);
+    retunMessage.message = "Playlist will be created if path exists";
+
+    return retunMessage;
+  } catch (error) {
+    console.error(`Error creating playlist with name ${playlistPath}:`, error.message);
+    retunMessage.status = "error";
+    retunMessage.message += `Error creating playlist with name ${playlistPath}: ${error.message}`;
+    return retunMessage;
+  }
+}
+
 async function createPlaylist( hostname, port, plextoken, playlistPath ) {
   const client = createPlexClient(hostname, port, plextoken );
   let retunMessage = {status: "success", message: ""};
@@ -221,4 +251,5 @@ module.exports = {
   refreshPlaylist,
   createPlaylist,
   bulkPlaylist,
+  createM3UPlaylist,
 };

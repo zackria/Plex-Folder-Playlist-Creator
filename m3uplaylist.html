@@ -18,18 +18,40 @@
       <!-- Main Screen -->
       <div id="mainScreen" class="content-screen">
         <h2>Refresh Playlist</h2>
-        <form id="config-form" name="config-form">
+        <form id="m3uplaylist-form" name="config-form">
           <div>
-            <button
-              type="button"
-              id="refresh-playlists"
-              class="btn btn-primary"
-            >
-              Refresh Playlists
-            </button>
+
+            <div class="mb-3">
+              <div class="input-group has-validation">
+                <label for="folderPath" class="form-label"
+                  >M3U Path &nbsp;</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="folderPath"
+                  placeholder="Enter M3U Path to create playlist"
+                  required
+                />
+                <div class="invalid-feedback alert alert-danger">
+                  M3U Path is required to create playlist
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create M3U Playlist</button>
+            <button type="reset" class="btn btn-primary">Reset</button>
+
             <button type="button" id="go-toconfig" class="btn btn-primary">
               Update Configuration
             </button>
+            <button
+            type="button"
+            id="refresh-playlists"
+            class="btn btn-primary"
+          >
+            Refresh Playlists
+          </button>
           </div>
           <div>
             <br />
