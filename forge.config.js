@@ -6,7 +6,9 @@ module.exports = {
     osxSign: {},
     icon: "assets/PlexFolderPlaylistCreator.png",
   },
-  rebuildConfig: {},
+  rebuildConfig: {
+    force: true,
+  },
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
@@ -49,6 +51,8 @@ module.exports = {
       name: "@electron-forge/maker-wix",
       config: {
         icon: "assets/PlexFolderPlaylistCreator.ico",
+        language: 1033,
+        manufacturer: 'Zack Dawood'
       },
     },
   ],

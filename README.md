@@ -90,6 +90,11 @@ This app leverages the following key libraries to deliver its functionality:
 3. Install dependencies:
      `npm install`
 
+     #### Note: If npm install do not work in Windows 
+     `Set-ExecutionPolicy RemoteSigned`
+
+     `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`
+
 4. Start the app:
      `npm start`
 
@@ -118,12 +123,25 @@ This app leverages the following key libraries to deliver its functionality:
 
 `npm install --save-dev @electron-forge/maker-zip`
 
+
+### Download dotnet tool on Windows Only [https://dotnet.microsoft.com/en-us/download](https://dotnet.microsoft.com/en-us/download)
+
+### Install WIX Tool Kit on Windows Only [https://wixtoolset.org/](https://wixtoolset.org/)
+
+`dotnet tool install --global wix`
+
+### Documentation for Electron WIX [https://github.com/electron-userland/electron-wix-msi](https://github.com/electron-userland/electron-wix-msi)
+
 `npm install --save-dev @electron-forge/maker-wix`
+
+`npm i --save-dev electron-wix-msi`
 
 ## Or Run in single shot
 `npm install --save-dev @electron-forge/cli @electron-forge/maker-squirrel @electron-forge/maker-deb @electron-forge/maker-zip @electron-forge/maker-wix`
 
 `npm exec --package=@electron-forge/cli -c "electron-forge import"`
+
+`npm i electron-squirrel-startup`
 
 `npm install --save-dev electron-builder`
 
