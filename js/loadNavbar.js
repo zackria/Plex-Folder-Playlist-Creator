@@ -103,7 +103,7 @@ function addEventListeners() {
       handler: handleBulkPlaylistFormSubmit,
     },
     {
-      id: "m3uplaylist-form",
+      id: "mthreeuplaylist-form",
       event: "submit",
       handler: handleM3UPlaylistFormSubmit,
     },
@@ -176,7 +176,7 @@ async function handleFormSubmit(e) {
 
 async function handleM3UPlaylistFormSubmit(e) {
   e.preventDefault();
-  const form = document.getElementById("m3uplaylist-form");
+  const form = document.getElementById("mthreeuplaylist-form");
 
   if (!form.checkValidity()) {
     form.classList.add("was-validated");
@@ -191,7 +191,7 @@ async function handleM3UPlaylistFormSubmit(e) {
   try {
     const result = await window.ipcRenderer.invoke(
       "create-m3u-playlist",
-      document.getElementById("folderPath").value.replace(/['"]+/g, "").trim()
+      document.getElementById("mthreeuPath").value.replace(/['"]+/g, "").trim()
     );
     displayMessage("progressbar", "none");
 
