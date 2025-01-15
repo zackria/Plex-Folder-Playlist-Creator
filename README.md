@@ -109,7 +109,19 @@ This app leverages the following key libraries to deliver its functionality:
 ## Electron Build Instructions
 `npm install --save-dev electron`
 
+`npm install --save-dev @electron-forge/cli`
+
+`npm install --save-dev @electron-forge/maker-squirrel`
+
+`npm install --save-dev @electron-forge/maker-deb`
+
+`npm install --save-dev @electron-forge/maker-zip`
+
 `npm install --save-dev @electron-forge/maker-wix`
+
+`npm install --save-dev electron-builder`
+
+`npm exec --package=@electron-forge/cli -c "electron-forge import"`
 
 `npm run make`
 

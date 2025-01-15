@@ -25,17 +25,20 @@
     "plex-api": "5.3.2"
   },
   "devDependencies": {
-    "@electron-forge/cli": "7.6.0",
-    "@electron-forge/maker-deb": "7.6.0",
+    "@electron-forge/cli": "^7.6.0",
+    "@electron-forge/maker-deb": "^7.6.0",
     "@electron-forge/maker-dmg": "7.6.0",
-    "@electron-forge/maker-rpm": "7.6.0",
-    "@electron-forge/maker-squirrel": "7.6.0",
-    "@electron-forge/maker-wix": "7.6.0",
-    "@electron-forge/maker-zip": "7.6.0",
+    "@electron-forge/maker-rpm": "^7.6.0",
+    "@electron-forge/maker-squirrel": "^7.6.0",
+    "@electron-forge/maker-wix": "^7.6.0",
+    "@electron-forge/maker-zip": "^7.6.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.6.0",
+    "@electron-forge/plugin-fuses": "^7.6.0",
+    "@electron/fuses": "^1.8.0",
     "electron": "33.3.1",
-    "electron-builder": "25.1.8",
+    "electron-builder": "^25.1.8",
     "electron-reload": "2.0.0-alpha.1",
-    "electron-squirrel-startup": "1.0.1",
+    "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "6.3.9"
   },
   "config": {
