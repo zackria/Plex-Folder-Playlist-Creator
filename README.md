@@ -109,6 +109,7 @@ This app leverages the following key libraries to deliver its functionality:
 ## Electron Build Instructions
 `npm install --save-dev electron`
 
+## Install individually
 `npm install --save-dev @electron-forge/cli`
 
 `npm install --save-dev @electron-forge/maker-squirrel`
@@ -119,9 +120,12 @@ This app leverages the following key libraries to deliver its functionality:
 
 `npm install --save-dev @electron-forge/maker-wix`
 
-`npm install --save-dev electron-builder`
+## Or Run in single shot
+`npm install --save-dev @electron-forge/cli @electron-forge/maker-squirrel @electron-forge/maker-deb @electron-forge/maker-zip @electron-forge/maker-wix`
 
 `npm exec --package=@electron-forge/cli -c "electron-forge import"`
+
+`npm install --save-dev electron-builder`
 
 `npm run make`
 
