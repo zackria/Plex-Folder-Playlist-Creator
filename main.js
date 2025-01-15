@@ -100,7 +100,6 @@ ipcMain.handle("create-playlist", async (event, data) => {
   return result;
 });
 
-
 ipcMain.handle("bulk-playlist", async (event, data) => {
   let apiData = await getAPIData();
   let result = await plexLocalAPI.bulkPlaylist(

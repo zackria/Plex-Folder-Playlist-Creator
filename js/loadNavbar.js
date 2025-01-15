@@ -8,7 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const themeData = window.electronData.data;
 
       if (themeData.theme === "dark") {
-        document.getElementById("themeToggle").dispatchEvent(new Event("change"));
+        document
+          .getElementById("themeToggle")
+          .dispatchEvent(new Event("change"));
       }
     })
     .catch((error) => console.error("Error loading navbar:", error));
@@ -21,19 +23,43 @@ function toggleTheme() {
   const moonIcon = document.getElementById("moonIcon");
 
   const toggleClasses = (elements, oldClass, newClass) => {
-    Array.from(elements).forEach((el) => el.classList.replace(oldClass, newClass));
+    Array.from(elements).forEach((el) =>
+      el.classList.replace(oldClass, newClass)
+    );
   };
 
   toggle.addEventListener("change", () => {
     const isDarkMode = body.classList.toggle("bg-dark");
     body.classList.toggle("text-light", isDarkMode);
 
-    sunIcon.classList.replace(isDarkMode ? "bi-sun-fill" : "bi-sun", isDarkMode ? "bi-sun" : "bi-sun-fill");
-    moonIcon.classList.replace(isDarkMode ? "bi-moon" : "bi-moon-fill", isDarkMode ? "bi-moon-fill" : "bi-moon");
+    sunIcon.classList.replace(
+      isDarkMode ? "bi-sun-fill" : "bi-sun",
+      isDarkMode ? "bi-sun" : "bi-sun-fill"
+    );
+    moonIcon.classList.replace(
+      isDarkMode ? "bi-moon" : "bi-moon-fill",
+      isDarkMode ? "bi-moon-fill" : "bi-moon"
+    );
 
-    toggleClasses(document.getElementsByClassName(isDarkMode ? "table-light" : "table-dark"), isDarkMode ? "table-light" : "table-dark", isDarkMode ? "table-dark" : "table-light");
-    toggleClasses(document.getElementsByClassName(isDarkMode ? "bg-light" : "bg-dark"), isDarkMode ? "bg-light" : "bg-dark", isDarkMode ? "bg-dark" : "bg-light");
-    toggleClasses(document.getElementsByClassName(isDarkMode ? "navbar-light" : "navbar-dark"), isDarkMode ? "navbar-light" : "navbar-dark", isDarkMode ? "navbar-dark" : "navbar-light");
+    toggleClasses(
+      document.getElementsByClassName(
+        isDarkMode ? "table-light" : "table-dark"
+      ),
+      isDarkMode ? "table-light" : "table-dark",
+      isDarkMode ? "table-dark" : "table-light"
+    );
+    toggleClasses(
+      document.getElementsByClassName(isDarkMode ? "bg-light" : "bg-dark"),
+      isDarkMode ? "bg-light" : "bg-dark",
+      isDarkMode ? "bg-dark" : "bg-light"
+    );
+    toggleClasses(
+      document.getElementsByClassName(
+        isDarkMode ? "navbar-light" : "navbar-dark"
+      ),
+      isDarkMode ? "navbar-light" : "navbar-dark",
+      isDarkMode ? "navbar-dark" : "navbar-light"
+    );
 
     const theme = isDarkMode ? "dark" : "light";
     window.ipcRenderer.send("save-theme", theme);
@@ -42,17 +68,45 @@ function toggleTheme() {
 
 function addEventListeners() {
   const events = [
-    { id: "go-to-actions", event: "click", handler: () => navigateTo("actions") },
-    { id: "go-to-action", event: "click", handler: () => navigateTo("actions") },
+    {
+      id: "go-to-actions",
+      event: "click",
+      handler: () => navigateTo("actions"),
+    },
+    {
+      id: "go-to-action",
+      event: "click",
+      handler: () => navigateTo("actions"),
+    },
     { id: "go-to-config", event: "click", handler: () => navigateTo("index") },
     { id: "go-toconfig", event: "click", handler: () => navigateTo("index") },
-    { id: "go-to-create-playlist", event: "click", handler: () => navigateTo("createplaylist") },
-    { id: "go-to-bulk-playlist", event: "click", handler: () => navigateTo("bulkplaylist") },
-    { id: "go-to-m3u", event: "click", handler: () => navigateTo("m3uplaylist") },
+    {
+      id: "go-to-create-playlist",
+      event: "click",
+      handler: () => navigateTo("createplaylist"),
+    },
+    {
+      id: "go-to-bulk-playlist",
+      event: "click",
+      handler: () => navigateTo("bulkplaylist"),
+    },
+    {
+      id: "go-to-m3u",
+      event: "click",
+      handler: () => navigateTo("m3uplaylist"),
+    },
     { id: "config-form", event: "submit", handler: handleFormSubmit },
     { id: "playlist-form", event: "submit", handler: handlePlaylistFormSubmit },
-    { id: "bulk-playlist-form", event: "submit", handler: handleBulkPlaylistFormSubmit },
-    { id: "m3uplaylist-form", event: "submit", handler: handleM3UPlaylistFormSubmit },
+    {
+      id: "bulk-playlist-form",
+      event: "submit",
+      handler: handleBulkPlaylistFormSubmit,
+    },
+    {
+      id: "m3uplaylist-form",
+      event: "submit",
+      handler: handleM3UPlaylistFormSubmit,
+    },
     { id: "test-connection", event: "click", handler: testConnection },
     { id: "refresh-playlists", event: "click", handler: refreshPlaylist },
     { id: "get-playlists", event: "click", handler: getPlaylist },
@@ -97,18 +151,30 @@ async function handleFormSubmit(e) {
     displayMessage("progressbar", "none");
 
     if (result === false) {
-      displayMessage("test-result-fail", "block", "Connection Error!!! <br/> Please check your settings and try again.");
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Connection Error!!! <br/> Please check your settings and try again."
+      );
     } else {
-      displayMessage("test-result", "block", "Configuration Saved Successfully !!! <br/>");
+      displayMessage(
+        "test-result",
+        "block",
+        "Configuration Saved Successfully !!! <br/>"
+      );
     }
   } catch (error) {
     console.error("Error testing connection:", error);
     displayMessage("progressbar", "none");
-    displayMessage("test-result-fail", "block", "Connection Error!!! <br/> Please check your settings and try again.");
+    displayMessage(
+      "test-result-fail",
+      "block",
+      "Connection Error!!! <br/> Please check your settings and try again."
+    );
   }
 }
 
-async function handleM3UPlaylistFormSubmit(e){
+async function handleM3UPlaylistFormSubmit(e) {
   e.preventDefault();
   const form = document.getElementById("m3uplaylist-form");
 
@@ -123,20 +189,30 @@ async function handleM3UPlaylistFormSubmit(e){
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("create-m3u-playlist", document.getElementById("folderPath").value.replace(/['"]+/g, '').trim());
+    const result = await window.ipcRenderer.invoke(
+      "create-m3u-playlist",
+      document.getElementById("folderPath").value.replace(/['"]+/g, "").trim()
+    );
     displayMessage("progressbar", "none");
 
     if (result.status === "error") {
-      displayMessage("test-result-fail", "block", "Playlist not created !!! <br/>"+result.message);
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Playlist not created !!! <br/>" + result.message
+      );
     } else {
       displayMessage("test-result", "block", result.message);
     }
   } catch (error) {
     console.error("Error testing connection:", error);
     displayMessage("progressbar", "none");
-    displayMessage("test-result-fail", "block", "Playlist not created !!! <br/> Please check your folder path & connection settings and try again.");
+    displayMessage(
+      "test-result-fail",
+      "block",
+      "Playlist not created !!! <br/> Please check your folder path & connection settings and try again."
+    );
   }
-
 }
 
 async function handlePlaylistFormSubmit(e) {
@@ -153,18 +229,29 @@ async function handlePlaylistFormSubmit(e) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("create-playlist", document.getElementById("folderPath").value.replace(/['"]+/g, '').trim());
+    const result = await window.ipcRenderer.invoke(
+      "create-playlist",
+      document.getElementById("folderPath").value.replace(/['"]+/g, "").trim()
+    );
     displayMessage("progressbar", "none");
 
     if (result.status === "error") {
-      displayMessage("test-result-fail", "block", "Playlist not created !!! <br/>"+result.message);
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Playlist not created !!! <br/>" + result.message
+      );
     } else {
       displayMessage("test-result", "block", result.message);
     }
   } catch (error) {
     console.error("Error testing connection:", error);
     displayMessage("progressbar", "none");
-    displayMessage("test-result-fail", "block", "Playlist not created !!! <br/> Please check your folder path & connection settings and try again.");
+    displayMessage(
+      "test-result-fail",
+      "block",
+      "Playlist not created !!! <br/> Please check your folder path & connection settings and try again."
+    );
   }
 }
 
@@ -199,23 +286,34 @@ async function handleBulkPlaylistFormSubmit(e) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("bulk-playlist", jsonInput.value);
+    const result = await window.ipcRenderer.invoke(
+      "bulk-playlist",
+      jsonInput.value
+    );
     displayMessage("progressbar", "none");
 
     if (result.status === "error") {
-      displayMessage("test-result-fail", "block", "Error!!! <br/> Please check your settings and try again.<br/> "+ result.message );
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Error!!! <br/> Please check your settings and try again.<br/> " +
+          result.message
+      );
     } else {
       displayMessage("test-result", "block", result.message);
     }
   } catch (error) {
     console.error("Error testing connection:", error);
     displayMessage("progressbar", "none");
-    displayMessage("test-result-fail", "block", "Connection Error!!! <br/> Please check your settings and try again.");
+    displayMessage(
+      "test-result-fail",
+      "block",
+      "Connection Error!!! <br/> Please check your settings and try again."
+    );
   }
 }
 
 async function testConnection() {
-
   displayMessage("test-result-fail", "none", "none");
   displayMessage("test-result", "none", "none");
   displayMessage("progressbar", "block");
@@ -225,14 +323,22 @@ async function testConnection() {
     displayMessage("progressbar", "none");
 
     if (result === false) {
-      displayMessage("test-result-fail", "block", "Connection Error!!! <br/> Please check your settings and try again.");
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Connection Error!!! <br/> Please check your settings and try again."
+      );
     } else {
-      displayMessage("test-result", "block", `Connection Successful!!! <br/>
+      displayMessage(
+        "test-result",
+        "block",
+        `Connection Successful!!! <br/>
         Plex Server Name: ${result.MediaContainer.friendlyName} <br/>
         Plex User Name: ${result.MediaContainer.myPlexUsername} <br/>
         Plex Platform: ${result.MediaContainer.platform} <br/>
         Plex Platform Version: ${result.MediaContainer.platformVersion} <br/>
-        Plex Software Version: ${result.MediaContainer.version}`);
+        Plex Software Version: ${result.MediaContainer.version}`
+      );
     }
   } catch (error) {
     console.error("Error testing connection:", error);
@@ -244,40 +350,68 @@ async function deletePlaylist(rowid, playlistId) {
   displayMessage("test-result-fail", "none", "none");
   displayMessage("test-result", "none", "none");
 
-
   const playlist_no = rowid.cells[0].innerHTML;
   const playlist_name = rowid.cells[1].innerHTML;
   const parameters = [playlist_no, playlistId, playlist_name];
   const response = await window.ipcRenderer.invoke("openDialog", parameters);
 
   if (!response) {
-    displayMessage("test-result-fail", "block", `Delete Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cancelled <br/>`);
+    displayMessage(
+      "test-result-fail",
+      "block",
+      `Delete Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cancelled <br/>`
+    );
 
     return;
   }
 
-  const nonDeletablePlaylists = ["All Music", "Recently Added", "Recently Played", "Tracks", "❤️ Tracks"];
+  const nonDeletablePlaylists = [
+    "All Music",
+    "Recently Added",
+    "Recently Played",
+    "Tracks",
+    "❤️ Tracks",
+  ];
   if (nonDeletablePlaylists.includes(playlist_name)) {
-    displayMessage("test-result-fail", "block", `Error Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cannot be deleted <br/>`);
+    displayMessage(
+      "test-result-fail",
+      "block",
+      `Error Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cannot be deleted <br/>`
+    );
     return;
   }
 
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("delete-playlist", playlistId);
+    const result = await window.ipcRenderer.invoke(
+      "delete-playlist",
+      playlistId
+    );
     displayMessage("progressbar", "none");
 
     if (!result) {
-      displayMessage("test-result-fail", "block", `Error Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cannot be deleted <br/>`);
+      displayMessage(
+        "test-result-fail",
+        "block",
+        `Error Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cannot be deleted <br/>`
+      );
     } else {
       rowid.remove();
-      displayMessage("test-result", "block", `Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!! <br/>`);
+      displayMessage(
+        "test-result",
+        "block",
+        `Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!! <br/>`
+      );
     }
   } catch (error) {
     console.error("Error deleting playlist:", error);
     displayMessage("progressbar", "none");
-    displayMessage("test-result-fail", "block", `Error Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cannot be deleted <br/>`);
+    displayMessage(
+      "test-result-fail",
+      "block",
+      `Error Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cannot be deleted <br/>`
+    );
   }
 }
 
@@ -291,15 +425,27 @@ async function getPlaylist() {
     displayMessage("progressbar", "none");
 
     if (result === false) {
-      displayMessage("test-result-fail", "block", "Connection Error!!! <br/> Please check your settings and try again.");
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Connection Error!!! <br/> Please check your settings and try again."
+      );
     } else {
-      displayMessage("test-result", "block", result.length + "&#8198;Playlists retrieved successfully <br/>");
+      displayMessage(
+        "test-result",
+        "block",
+        result.length + "&#8198;Playlists retrieved successfully <br/>"
+      );
       populateTable(result);
     }
   } catch (error) {
     console.error("Error getting playlists:", error);
     displayMessage("progressbar", "none");
-    displayMessage("test-result-fail", "block", "Connection Error!!! <br/> Please check your settings and try again.");
+    displayMessage(
+      "test-result-fail",
+      "block",
+      "Connection Error!!! <br/> Please check your settings and try again."
+    );
   }
 }
 
@@ -313,14 +459,26 @@ async function refreshPlaylist() {
     displayMessage("progressbar", "none");
 
     if (result === false) {
-      displayMessage("test-result-fail", "block", "Connection Error!!! <br/> Please check your settings and try again.");
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Connection Error!!! <br/> Please check your settings and try again."
+      );
     } else {
-      displayMessage("test-result", "block", "Playlists refreshed successfully!!! <br/>");
+      displayMessage(
+        "test-result",
+        "block",
+        "Playlists refreshed successfully!!! <br/>"
+      );
     }
   } catch (error) {
     console.error("Error refreshing playlists:", error);
     displayMessage("progressbar", "none");
-    displayMessage("test-result-fail", "block", "Connection Error!!! <br/> Please check your settings and try again.");
+    displayMessage(
+      "test-result-fail",
+      "block",
+      "Connection Error!!! <br/> Please check your settings and try again."
+    );
   }
 }
 
@@ -334,7 +492,9 @@ function populateTable(data) {
         <td>${index + 1}</td>
         <td>${item.title}</td>
         <td>${item.ratingKey}</td>
-        <td><button type="button" class="btn btn-primary" onclick="deletePlaylist(row${index + 1}, ${item.ratingKey})">Delete</button></td>
+        <td><button type="button" class="btn btn-primary" onclick="deletePlaylist(row${
+          index + 1
+        }, ${item.ratingKey})">Delete</button></td>
       </tr>
     `;
     tableBody.insertAdjacentHTML("beforeend", row);

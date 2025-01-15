@@ -17,50 +17,90 @@
     <div class="container mt-4">
       <!-- Main Screen -->
       <div id="mainScreen" class="content-screen">
-      <h2>Create Bulk Playlist from folder</h2>
+        <h2>Create Bulk Playlist from folder</h2>
 
-      <form id="bulk-playlist-form" name="bulk-playlist-form" class="needs-validation" novalidate>
-        <div class="mb-3">
-        <div class="input-group has-validation">
-          <div class="container">
-          <div class="row">
-            <div class="col">
-            <label for="folderPath" class="form-label">Folder Path &nbsp;</label>
-            <textarea class="form-control" id="folderPath" name="folderPath" placeholder='[ "Folder1 Path", "Folder2 Path" ]' required></textarea>
-            <div id="feedback" class="invalid-feedback alert alert-danger">
-              Folder Path is required to create playlist
-            </div>
+        <form
+          id="bulk-playlist-form"
+          name="bulk-playlist-form"
+          class="needs-validation"
+          novalidate
+        >
+          <div class="mb-3">
+            <div class="input-group has-validation">
+              <div class="container">
+                <div class="row">
+                  <div class="col">
+                    <label for="folderPath" class="form-label"
+                      >Folder Path &nbsp;</label
+                    >
+                    <textarea
+                      class="form-control"
+                      id="folderPath"
+                      name="folderPath"
+                      placeholder='[ "Folder1 Path", "Folder2 Path" ]'
+                      required
+                    ></textarea>
+                    <div
+                      id="feedback"
+                      class="invalid-feedback alert alert-danger"
+                    >
+                      Folder Path is required to create playlist
+                    </div>
+                  </div>
+                </div>
+                <div class="row mt-3">
+                  <div class="col">
+                    <div
+                      id="feedbackDynamic"
+                      class="alert alert-danger"
+                      style="display: none"
+                    ></div>
+                  </div>
+                </div>
+                <div class="row mt-3">
+                  <div class="col">
+                    <button type="submit" class="btn btn-primary">
+                      Create Playlist
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                      Reset
+                    </button>
+                    <button
+                      type="button"
+                      id="go-toconfig"
+                      class="btn btn-secondary"
+                    >
+                      Update Configuration
+                    </button>
+                    <button
+                      type="button"
+                      id="refresh-playlists"
+                      class="btn btn-primary"
+                    >
+                      Refresh Playlists
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="row mt-3">
-            <div class="col">
-            <div id="feedbackDynamic" class="alert alert-danger" style="display: none"></div>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col">
-            <button type="submit" class="btn btn-primary">Create Playlist</button>
-            <button type="reset" class="btn btn-secondary">Reset</button>
-            <button type="button" id="go-toconfig" class="btn btn-secondary">Update Configuration</button>
-            <button
-            type="button"
-            id="refresh-playlists"
-            class="btn btn-primary"
-          >
-            Refresh Playlists
-          </button>
-            </div>
-          </div>
-          </div>
-        </div>
-        </div>
-      </form>
+        </form>
 
-      <div class="mt-4">
-        <span id="progressbar" style="display: none">Processing please wait... &nbsp; <i class="loading"></i></span>
-        <div id="test-result" class="alert alert-success" style="display: none"></div>
-        <div id="test-result-fail" class="alert alert-danger" style="display: none"></div>
-      </div>
+        <div class="mt-4">
+          <span id="progressbar" style="display: none"
+            >Processing please wait... &nbsp; <i class="loading"></i
+          ></span>
+          <div
+            id="test-result"
+            class="alert alert-success"
+            style="display: none"
+          ></div>
+          <div
+            id="test-result-fail"
+            class="alert alert-danger"
+            style="display: none"
+          ></div>
+        </div>
       </div>
     </div>
 

@@ -20,7 +20,6 @@
         <h2>Refresh Playlist</h2>
         <form id="m3uplaylist-form" name="config-form">
           <div>
-
             <div class="mb-3">
               <div class="input-group has-validation">
                 <label for="folderPath" class="form-label"
@@ -39,19 +38,21 @@
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">Create M3U Playlist</button>
+            <button type="submit" class="btn btn-primary">
+              Create M3U Playlist
+            </button>
             <button type="reset" class="btn btn-primary">Reset</button>
 
             <button type="button" id="go-toconfig" class="btn btn-primary">
               Update Configuration
             </button>
             <button
-            type="button"
-            id="refresh-playlists"
-            class="btn btn-primary"
-          >
-            Refresh Playlists
-          </button>
+              type="button"
+              id="refresh-playlists"
+              class="btn btn-primary"
+            >
+              Refresh Playlists
+            </button>
           </div>
           <div>
             <br />
@@ -59,8 +60,16 @@
               >Processing please wait... &nbsp; <i class="loading"> </i>
             </span>
 
-            <div id="test-result" class="alert alert-success" style="display: none"></div>
-            <div id="test-result-fail" class="alert alert-danger" style="display: none"></div>
+            <div
+              id="test-result"
+              class="alert alert-success"
+              style="display: none"
+            ></div>
+            <div
+              id="test-result-fail"
+              class="alert alert-danger"
+              style="display: none"
+            ></div>
           </div>
         </form>
       </div>
