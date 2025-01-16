@@ -25,7 +25,9 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 - Bulk Playlist Creation: Multiple playlist files are generated automatically based on the media in the specific folders.
 - Plex Integration: Optionally connect to a Plex Media Server to fetch metadata and sync playlists.
 
-### Build using Node JS v22.13.0 (lts/jod)
+### Build using 
+- #### Node JS v22.13.0 (lts/jod)
+- #### NPM 11.0.0
 
 
 
