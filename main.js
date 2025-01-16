@@ -7,7 +7,7 @@ const electronDialog = require("electron").dialog;
 
 let mainWindow;
 
-//if(require('electron-squirrel-startup')) app.quit();
+if(require('electron-squirrel-startup')) app.quit();
 
 app.whenReady().then(async () => {
   mainWindow = createWindow();
