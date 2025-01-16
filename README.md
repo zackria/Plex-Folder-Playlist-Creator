@@ -29,8 +29,6 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 - #### Node JS v22.13.0 (lts/jod)
 - #### NPM 11.0.0
 
-
-
 #### How to find Host IP, PORT, and PLEX TOKEN 
 - How to find HOST IP [Refer to this Link](FINDHOST_PORT.md)
 - How to find the PORT [Refer to this Link](FINDHOST_PORT.md)
