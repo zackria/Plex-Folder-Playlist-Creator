@@ -231,7 +231,11 @@ async function handlePlaylistFormSubmit(e) {
   try {
     const result = await window.ipcRenderer.invoke(
       "create-playlist",
-      document.getElementById("folderPath").value.replace(/['"]+/g, "").trim()
+      [
+        document.getElementById("folderPath").value.replace(/['"]+/g, "").trim(),
+        document.getElementById("playlistName").value.trim(),
+        document.getElementById("library").value.trim(),
+      ],
     );
     displayMessage("progressbar", "none");
 

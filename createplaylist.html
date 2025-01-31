@@ -26,9 +26,9 @@
           novalidate
         >
           <div class="mb-3">
-            <div class="input-group has-validation">
+            <div class="has-validation">
               <label for="folderPath" class="form-label"
-                >Folder Path &nbsp;</label
+                >Folder Path* &nbsp;</label
               >
               <input
                 type="text"
@@ -41,6 +41,32 @@
                 Folder Path is required to create playlist
               </div>
             </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="playlistName" class="form-label"
+              >Playlist Name &nbsp;</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="playlistName"
+              placeholder="Playlist name. Default's to folder name"
+              value=""
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="library" class="form-label"
+              >Library &nbsp;</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="library"
+              placeholder="Library to save to. Default: Music"
+              value="Music"
+            />
           </div>
 
           <button type="submit" class="btn btn-primary">Create Playlist</button>
