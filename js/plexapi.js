@@ -102,9 +102,23 @@ async function createM3UPlaylist(hostname, port, plextoken, playlistPath) {
   }
 }
 
-async function createPlaylist(hostname, port, plextoken, playlistPath) {
+async function createPlaylist(hostname, port, plextoken, parametersArray) {
   const client = createPlexClient(hostname, port, plextoken);
   let retunMessage = { status: "success", message: "" };
+
+  const playlistPath = parametersArray[0].trim()
+
+  let playlistName = parametersArray[1].trim()
+  if (!playlistName) {
+    playlistName = path.basename(playlistPath);
+  }
+  retunMessage.message += `Playlist name: ${playlistName}. <br/>`;
+
+  let library = parametersArray[2].trim()
+  if (!library) {
+    library = "Music"
+  }
+  retunMessage.message += `Library: ${library}. <br/>`;
 
   try {
     const serverInfo = await client.query("/");
@@ -112,12 +126,12 @@ async function createPlaylist(hostname, port, plextoken, playlistPath) {
 
     const sections = await client.query("/library/sections");
     const musicLibrary = sections.MediaContainer.Directory.find(
-      (section) => section.title === "Music"
+      (section) => section.title === library
     );
 
     if (!musicLibrary) {
-      console.error(`Music library "Music" not found.`);
-      retunMessage.message += `Music library "Music" not found. <br/>`;
+      console.error(`Music library "${library}" not found.`);
+      retunMessage.message += `Music library "${library}" not found. <br/>`;
       retunMessage.status = "error";
       return retunMessage;
     }
@@ -132,7 +146,6 @@ async function createPlaylist(hostname, port, plextoken, playlistPath) {
 
     retunMessage.message += `Successfully queried all song tracks. Found: ${tracks.MediaContainer.Metadata.length} tracks. <br/>`;
 
-    const playlistName = path.basename(playlistPath);
     const foundPlaylistTracks = tracks.MediaContainer.Metadata.filter((track) =>
       track.Media[0].Part.some((part) => part.file.includes(playlistPath))
     );
