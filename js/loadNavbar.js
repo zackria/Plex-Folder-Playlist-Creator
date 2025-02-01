@@ -91,6 +91,11 @@ function addEventListeners() {
       handler: () => navigateTo("bulkplaylist"),
     },
     {
+      id: "go-to-version-number",
+      event: "click",
+      handler: (e) => getVersion(e),
+    },
+    {
       id: "go-to-m3u",
       event: "click",
       handler: () => navigateTo("m3uplaylist"),
@@ -229,14 +234,11 @@ async function handlePlaylistFormSubmit(e) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke(
-      "create-playlist",
-      [
-        document.getElementById("folderPath").value.replace(/['"]+/g, "").trim(),
-        document.getElementById("playlistName").value.trim(),
-        document.getElementById("library").value.trim(),
-      ],
-    );
+    const result = await window.ipcRenderer.invoke("create-playlist", [
+      document.getElementById("folderPath").value.replace(/['"]+/g, "").trim(),
+      document.getElementById("playlistName").value.trim(),
+      document.getElementById("library").value.trim(),
+    ]);
     displayMessage("progressbar", "none");
 
     if (result.status === "error") {
@@ -347,6 +349,15 @@ async function testConnection() {
   } catch (error) {
     console.error("Error testing connection:", error);
     displayMessage("progressbar", "none");
+  }
+}
+
+async function getVersion(e) {
+  e.preventDefault();
+  try {
+    await window.ipcRenderer.invoke("releaseVersion");
+  } catch (error) {
+    console.error("Error deleting playlist:", error);
   }
 }
 

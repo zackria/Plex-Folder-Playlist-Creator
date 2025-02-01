@@ -1,6 +1,6 @@
 {
   "name": "PlexFolderPlaylistCreator",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Plex Folder Playlist Creator App",
   "main": "main.js",
   "scripts": {

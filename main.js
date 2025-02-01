@@ -7,7 +7,7 @@ const electronDialog = require("electron").dialog;
 
 let mainWindow;
 
-if(require('electron-squirrel-startup')) app.quit();
+if (require("electron-squirrel-startup")) app.quit();
 
 app.whenReady().then(async () => {
   mainWindow = createWindow();
@@ -183,6 +183,16 @@ ipcMain.handle("openDialog", async (event, data) => {
   );
 });
 
+ipcMain.handle("releaseVersion", async (event, data) => {
+  const version = app.getVersion();
+  return electronDialog.showMessageBox(mainWindow, {
+    type: "info",
+    title: `Plex Folder Playlist Creator - ${version}`,
+    message: `Plex Folder Playlist Creator \n Version ${version} \n MIT License \n Copyright (c) 2025 Zack Dawood`,
+    buttons: ["Ok"],
+  });
+});
+
 function createWindow() {
   return new BrowserWindow({
     width: 800,
@@ -191,7 +201,7 @@ function createWindow() {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
-      devTools: false,
+      devTools: true,
     },
   });
 }
