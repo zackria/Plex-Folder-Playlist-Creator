@@ -17,7 +17,7 @@
     <div class="container mt-4">
       <!-- Main Screen -->
       <div id="mainScreen" class="content-screen">
-        <h2>Create Playlist from folder</h2>
+        <h2 class="text-dark">Create Playlist from folder</h2>
 
         <form
           id="playlist-form"
@@ -27,7 +27,7 @@
         >
           <div class="mb-3">
             <div class="input-group has-validation">
-              <label for="folderPath" class="form-label"
+              <label for="folderPath" class="form-label text-dark"
                 >Folder Path* &nbsp;</label
               >
               <input
@@ -44,7 +44,7 @@
           </div>
 
           <div class="mb-3">
-            <label for="playlistName" class="form-label"
+            <label for="playlistName" class="form-label text-dark"
               >Playlist Name &nbsp;</label
             >
             <input
@@ -56,16 +56,19 @@
             />
           </div>
 
-          <div class="mb-3">
-            <label for="library" class="form-label">Library &nbsp;</label>
-            <input
-              type="text"
-              class="form-control"
-              id="library"
-              placeholder="Library to save to. Default: Music"
-              value="Music"
-            />
-          </div>
+    
+            <div class="mb-3">
+              <label for="library" class="form-label text-dark">Library Section Name &nbsp;</label>
+              <input
+                type="text"
+                class="form-control"
+                id="library"
+                placeholder="Library to save Default: Music"
+                value="Music"
+              />
+            </div>
+
+
 
           <button type="submit" class="btn btn-primary">Create Playlist</button>
 
@@ -84,7 +87,7 @@
         <div>
           <br />
 
-          <span id="progressbar" style="display: none"
+          <span id="progressbar" style="display: none" class=" text-dark"
             >Processing please wait... &nbsp; <i class="loading"> </i>
           </span>
 

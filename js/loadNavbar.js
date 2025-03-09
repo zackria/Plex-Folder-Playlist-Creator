@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
       toggleTheme();
       const themeData = window.electronData.data;
 
+      document.getElementById("versionNum").innerHTML =
+        themeData.versionNo === undefined ? "" : themeData.versionNo;
+      //console.log(themeData.versionNo);
+
       if (themeData.theme === "dark") {
         document
           .getElementById("themeToggle")
@@ -30,7 +34,6 @@ function toggleTheme() {
 
   toggle.addEventListener("change", () => {
     const isDarkMode = body.classList.toggle("bg-dark");
-    body.classList.toggle("text-light", isDarkMode);
 
     sunIcon.classList.replace(
       isDarkMode ? "bi-sun-fill" : "bi-sun",
@@ -48,6 +51,13 @@ function toggleTheme() {
       isDarkMode ? "table-light" : "table-dark",
       isDarkMode ? "table-dark" : "table-light"
     );
+
+    toggleClasses(
+      document.getElementsByClassName(isDarkMode ? "text-dark" : "text-light"),
+      isDarkMode ? "text-dark" : "text-light",
+      isDarkMode ? "text-light" : "text-dark"
+    );
+
     toggleClasses(
       document.getElementsByClassName(isDarkMode ? "bg-light" : "bg-dark"),
       isDarkMode ? "bg-light" : "bg-dark",
@@ -196,7 +206,8 @@ async function handleM3UPlaylistFormSubmit(e) {
   try {
     const result = await window.ipcRenderer.invoke(
       "create-m3u-playlist",
-      document.getElementById("mthreeuPath").value.replace(/['"]+/g, "").trim()
+      [document.getElementById("mthreeuPath").value.replace(/['"]+/g, "").trim(),
+        document.getElementById("library").value.trim()]
     );
     displayMessage("progressbar", "none");
 
@@ -345,6 +356,7 @@ async function testConnection() {
         Plex Platform Version: ${result.MediaContainer.platformVersion} <br/>
         Plex Software Version: ${result.MediaContainer.version}`
       );
+      console.log(result);
     }
   } catch (error) {
     console.error("Error testing connection:", error);
@@ -358,6 +370,24 @@ async function getVersion(e) {
     await window.ipcRenderer.invoke("releaseVersion");
   } catch (error) {
     console.error("Error deleting playlist:", error);
+  }
+}
+
+async function deleteAllPlaylist(){
+  displayMessage("test-result-fail", "none", "none");
+  displayMessage("test-result", "none", "none");
+
+  const parameters = [];
+  const response = await window.ipcRenderer.invoke("openDialog", parameters);
+
+  if (!response) {
+    displayMessage(
+      "test-result-fail",
+      "block",
+      `Delete All Playlist is cancelled <br/>`
+    );
+
+    return;
   }
 }
 

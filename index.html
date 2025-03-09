@@ -16,7 +16,7 @@
     <div class="container mt-4">
       <!-- Main Screen -->
       <div id="mainScreen" class="content-screen">
-        <h2>Plex Server Configuration</h2>
+        <h2 class="text-dark">Plex Server Configuration</h2>
         <form
           id="config-form"
           name="config-form"
@@ -24,7 +24,7 @@
           novalidate
         >
           <div class="mb-3">
-            <label for="ipAddress" class="form-label">IP Address</label>
+            <label for="ipAddress" class="form-label text-dark">IP Address</label>
             <input
               type="text"
               class="form-control"
@@ -32,12 +32,12 @@
               placeholder="Enter IP Address"
               required
             />
-            <div class="invalid-feedback alert alert-danger">
+            <div class="invalid-feedback alert alert-danger ">
               IP is required
             </div>
           </div>
           <div class="mb-3">
-            <label for="port" class="form-label">Port</label>
+            <label for="port" class="form-label text-dark">Port</label>
             <input
               type="text"
               class="form-control"
@@ -50,7 +50,7 @@
             </div>
           </div>
           <div class="mb-3">
-            <label for="apiKey" class="form-label">API Key</label>
+            <label for="apiKey" class="form-label text-dark">API Key</label>
             <input
               type="text"
               class="form-control"
@@ -78,7 +78,7 @@
           </button>
         </div>
         <br />
-        <span id="progressbar" style="display: none"
+        <span id="progressbar" style="display: none" class=" text-dark"
           >Processing please wait... &nbsp; <i class="loading"> </i>
         </span>
 

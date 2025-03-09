@@ -17,7 +17,7 @@
     <div class="container mt-4">
       <!-- Main Screen -->
       <div id="mainScreen" class="content-screen">
-        <h2>Create Bulk Playlist from folder</h2>
+        <h2 class="text-dark">Create Bulk Playlist from folder</h2>
 
         <form
           id="bulk-playlist-form"
@@ -30,7 +30,7 @@
               <div class="container">
                 <div class="row">
                   <div class="col">
-                    <label for="folderPath" class="form-label"
+                    <label for="folderPath" class="form-label text-dark"
                       >Folder Path &nbsp;</label
                     >
                     <textarea
@@ -57,6 +57,21 @@
                     ></div>
                   </div>
                 </div>
+                <div>
+                  <br />
+                  <div class="mb-3">
+                    <label for="library" class="form-label text-dark">Library Section Name &nbsp;</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="library"
+                      placeholder="Library to save Default: Music"
+                      value="Music"
+                    />
+                  </div>
+      
+                </div>
+
                 <div class="row mt-3">
                   <div class="col">
                     <button type="submit" class="btn btn-primary">
@@ -87,7 +102,7 @@
         </form>
 
         <div class="mt-4">
-          <span id="progressbar" style="display: none"
+          <span id="progressbar" style="display: none" class=" text-dark"
             >Processing please wait... &nbsp; <i class="loading"></i
           ></span>
           <div

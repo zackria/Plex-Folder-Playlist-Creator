@@ -1,9 +1,9 @@
 <!-- Navbar -->
-<nav id="navbar" class="navbar navbar-expand-lg navbar-light bg-light">
+<nav id="navbar" class="navbar navbar-collapse-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" href="#"
       >Plex Folder Playlist
-
+      <small class="text-dark display-10" id="versionNum">v1.0.3</small>
       <label class="nav-link toggle-button ms-3">
         <input type="checkbox" id="themeToggle" />
         <i
@@ -13,81 +13,98 @@
         <i class="bi bi-moon toggle-icon btn-outline-light" id="moonIcon"></i>
       </label>
     </a>
+  
 
     <button
       class="navbar-toggler"
       type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#offcanvasNavbar"
+      aria-controls="offcanvasNavbar"
       aria-expanded="false"
       aria-label="Toggle navigation"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbarNav" class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <button
-            class="nav-link"
-            data-bs-dismiss="offcanvas"
-            id="go-to-config"
-            onclick="location.href='#mainScreen'"
-          >
-            Configuration
-          </button>
-        </li>
-        <li class="nav-item">
-          <button
-            class="nav-link"
-            data-bs-dismiss="offcanvas"
-            id="go-to-action"
-            onclick="location.href='#secondScreen'"
-          >
-            Get Playlist
-          </button>
-        </li>
-        <li class="nav-item">
-          <button
-            class="nav-link"
-            data-bs-dismiss="offcanvas"
-            id="go-to-m3u"
-            onclick="location.href='#secondScreen'"
-          >
-            Create M3U Playlist
-          </button>
-        </li>
-        <li class="nav-item">
-          <button
-            class="nav-link"
-            data-bs-dismiss="offcanvas"
-            id="go-to-create-playlist"
-            onclick="location.href='#secondScreen'"
-          >
-            Create Playlist from Folder
-          </button>
-        </li>
-        <li class="nav-item">
-          <button
-            class="nav-link"
-            data-bs-dismiss="offcanvas"
-            id="go-to-bulk-playlist"
-            onclick="location.href='#secondScreen'"
-          >
-            Bulk Folder Playlist
-          </button>
-        </li>
-        <li class="nav-item">
-          <button
-            class="nav-link"
-            id="go-to-version-number"
-            onclick="location.href='#secondScreen'"
-          >
-            About
-          </button>
-        </li>
-      </ul>
+    <!-- Offcanvas navbar -->
+    <div 
+      class="offcanvas offcanvas-end bg-light" 
+      tabindex="-1" 
+      id="offcanvasNavbar" 
+      aria-labelledby="offcanvasNavbarLabel"
+    >
+      <div class="offcanvas-header bg-light">
+        <h5 class="offcanvas-title text-dark" id="offcanvasNavbarLabel">Plex Folder Playlist</h5>
+        <!-- Replace standard close button with an icon button that works in both themes -->
+        <button type="button" class="btn text-dark" data-bs-dismiss="offcanvas" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav justify-content-end flex-grow-1">
+          <li class="nav-item">
+            <button
+              class="nav-link text-dark"
+              data-bs-dismiss="offcanvas"
+              id="go-to-config"
+              onclick="location.href='#mainScreen'"
+            >
+              Configuration
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link text-dark"
+              data-bs-dismiss="offcanvas"
+              id="go-to-action"
+              onclick="location.href='#secondScreen'"
+            >
+              Get Playlist
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link text-dark"
+              data-bs-dismiss="offcanvas"
+              id="go-to-m3u"
+              onclick="location.href='#secondScreen'"
+            >
+              Create M3U Playlist
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link text-dark"
+              data-bs-dismiss="offcanvas"
+              id="go-to-create-playlist"
+              onclick="location.href='#secondScreen'"
+            >
+              Create Playlist from Folder
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link text-dark"
+              data-bs-dismiss="offcanvas"
+              id="go-to-bulk-playlist"
+              onclick="location.href='#secondScreen'"
+            >
+              Bulk Folder Playlist
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link text-dark"
+              data-bs-dismiss="offcanvas"
+              id="go-to-version-number"
+              onclick="location.href='#secondScreen'"
+            >
+              About 
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </nav>
