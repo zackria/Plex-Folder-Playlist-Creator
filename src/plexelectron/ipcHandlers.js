@@ -9,7 +9,8 @@ const {
   createPlaylist,
   bulkPlaylist,
   refreshPlaylists,
-  deletePlaylist
+  deletePlaylist,
+  deleteAllPlaylist
 } = require("./plexManager");
 
 /**
@@ -42,6 +43,8 @@ function setupIPC(mainWindow) {
   ipcMain.handle("bulk-playlist", (event, data) => bulkPlaylist(data));
   ipcMain.handle("refresh-playlists", refreshPlaylists);
   ipcMain.handle("delete-playlist", (event, data) => deletePlaylist(data));
+  ipcMain.handle("delete-all-playlist", (event, data) => deleteAllPlaylist(data));
+
 
   // Dialogs
   ipcMain.handle("openDialog", (event, data) => confirmDeletePlaylist(mainWindow, data));

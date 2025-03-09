@@ -16,7 +16,7 @@ app.whenReady().then(async () => {
   setupIPC(mainWindow);
 
   // Optional, remove for production
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {

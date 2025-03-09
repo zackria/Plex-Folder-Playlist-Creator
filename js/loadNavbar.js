@@ -389,6 +389,39 @@ async function deleteAllPlaylist(){
 
     return;
   }
+
+  displayMessage("progressbar", "block");
+
+  try {
+    const result = await window.ipcRenderer.invoke(
+      "delete-all-playlist"
+    );
+    displayMessage("progressbar", "none");
+
+    if (!result) {
+      displayMessage(
+        "test-result-fail",
+        "block",
+        `Error Playlists cannot be deleted <br/>`
+      );
+    } else {
+      displayMessage(
+        "test-result",
+        "block",
+        `Playlists deleted successfully!! <br/>`
+      );
+    }
+
+    getPlaylist();
+  } catch (error) {
+    console.error("Error deleting playlist:", error);
+    displayMessage("progressbar", "none");
+    displayMessage(
+      "test-result-fail",
+      "block",
+      `Error Playlists cannot be deleted <br/>`
+    );
+  }
 }
 
 async function deletePlaylist(rowid, playlistId) {

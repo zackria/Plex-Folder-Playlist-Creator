@@ -40,7 +40,7 @@ function saveTheme(theme) {
   const versionNo = app.getVersion();
   settings.set("userPreferences", {
     theme: theme,
-    versionNo: `v ${versionNo}`,
+    versionNo: `v${versionNo}`,
   });
 }
 

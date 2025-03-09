@@ -89,6 +89,19 @@ async function deletePlaylist(playlistId) {
   );
 }
 
+/**
+ * Deletes a playlist by ID
+ */
+async function deleteAllPlaylist() {
+  const apiData = await getAPIData();
+  return plexLocalAPI.deleteAllPlaylist(
+    apiData.ipaddress,
+    apiData.port,
+    apiData.key
+  );
+}
+
+
 module.exports = {
   testConnection,
   getPlaylists,
@@ -96,5 +109,6 @@ module.exports = {
   createPlaylist,
   bulkPlaylist,
   refreshPlaylists,
-  deletePlaylist
+  deletePlaylist,
+  deleteAllPlaylist
 };

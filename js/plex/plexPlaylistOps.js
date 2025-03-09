@@ -39,6 +39,30 @@ async function deletePlaylist(hostname, port, plextoken, playlistId) {
 }
 
 /**
+ * Deletes All Playlists
+ */
+async function deleteAllPlaylist(hostname, port, plextoken) {
+
+  const client = createPlexClient(hostname, port, plextoken);
+  
+
+  try {
+      const playlists = await getPlaylist(hostname, port, plextoken);
+      for (let i = 0; i < playlists.length; i++) {
+        await client.deleteQuery(`/playlists/${playlists[i].ratingKey}`);
+      }
+    return true;
+  } catch (error) {
+    console.error(
+      `Error deleting playlist with ID ${playlistId}:`,
+      error.message
+    );
+    return false;
+  }
+}
+
+
+/**
  * Refreshes the Plex library
  */
 async function refreshPlaylist(hostname, port, plextoken) {
@@ -56,5 +80,6 @@ async function refreshPlaylist(hostname, port, plextoken) {
 module.exports = {
   getPlaylist,
   deletePlaylist,
+  deleteAllPlaylist,
   refreshPlaylist
 };
