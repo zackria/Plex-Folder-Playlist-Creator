@@ -43,7 +43,7 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="#">
       Plex Folder Playlist
-      <small class="text-dark display-10 fst-italic" id="versionNum">v1.0.3</small>
+      <small class="text-dark display-10 fst-italic" id="versionNum"></small>
       <label class="nav-link toggle-button ms-3">
         <input type="checkbox" id="themeToggle" />
         <i class="bi bi-sun toggle-icon me-2 btn-outline-light" id="sunIcon"></i>
@@ -73,6 +73,7 @@
       <div class="offcanvas-header bg-light">
         <h5 class="offcanvas-title text-dark" id="offcanvasNavbarLabel">
           Plex Folder Playlist
+          <small class="text-dark display-10 fst-italic" id="versionNumMenu"></small>
         </h5>
         <!-- Replace standard close button with an icon button that works in both themes -->
         <button
@@ -151,16 +152,3 @@
     </div>
   </div>
 </nav>
-
-<script>
-  const themeToggle = document.getElementById('themeToggle');
-  const body = document.body;
-
-  themeToggle.addEventListener('change', () => {
-    if (themeToggle.checked) {
-      body.classList.add('dark-mode');
-    } else {
-      body.classList.remove('dark-mode');
-    }
-  });
-</script>

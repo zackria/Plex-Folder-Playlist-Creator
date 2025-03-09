@@ -9,6 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       document.getElementById("versionNum").innerHTML =
         themeData.versionNo === undefined ? "" : themeData.versionNo;
+
+        document.getElementById("versionNumMenu").innerHTML =
+        themeData.versionNo === undefined ? "" : themeData.versionNo;
       //console.log(themeData.versionNo);
 
       if (themeData.theme === "dark") {

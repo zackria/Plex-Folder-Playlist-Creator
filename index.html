@@ -11,58 +11,27 @@
   <body>
     <!-- Placeholder for Navbar -->
     <div id="navbar"></div>
-    <div id="themeid"></div>
+    <div id="themeid" style="display: none;"></div>
     <!-- Main Content -->
     <div class="container mt-4">
       <!-- Main Screen -->
       <div id="mainScreen" class="content-screen">
         <h2 class="text-dark">Plex Server Configuration</h2>
-        <form
-          id="config-form"
-          name="config-form"
-          class="needs-validation"
-          novalidate
-        >
+        <form id="config-form" name="config-form" class="needs-validation" novalidate>
           <div class="mb-3">
-            <label for="ipAddress" class="form-label text-dark"
-              >IP Address</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="ipAddress"
-              placeholder="Enter IP Address"
-              required
-            />
-            <div class="invalid-feedback alert alert-danger">
-              IP is required
-            </div>
+            <label for="ipAddress" class="form-label text-dark">IP Address</label>
+            <input type="text" class="form-control" id="ipAddress" placeholder="Enter IP Address" required />
+            <div class="invalid-feedback alert alert-danger">IP is required</div>
           </div>
           <div class="mb-3">
             <label for="port" class="form-label text-dark">Port</label>
-            <input
-              type="text"
-              class="form-control"
-              id="port"
-              placeholder="Enter Port"
-              required
-            />
-            <div class="invalid-feedback alert alert-danger">
-              Port is required
-            </div>
+            <input type="text" class="form-control" id="port" placeholder="Enter Port" required />
+            <div class="invalid-feedback alert alert-danger">Port is required</div>
           </div>
           <div class="mb-3">
             <label for="apiKey" class="form-label text-dark">API Key</label>
-            <input
-              type="text"
-              class="form-control"
-              id="apiKey"
-              placeholder="Enter API Key"
-              required
-            />
-            <div class="invalid-feedback alert alert-danger">
-              API Key is required
-            </div>
+            <input type="text" class="form-control" id="apiKey" placeholder="Enter API Key" required />
+            <div class="invalid-feedback alert alert-danger">API Key is required</div>
           </div>
           <div class="row">
             <div class="col-12 col-md-4 mb-2">
@@ -76,65 +45,32 @@
         <br />
         <div class="row">
           <div class="col-12 col-md-4 mb-2">
-            <button
-              type="button"
-              id="test-connection"
-              class="btn btn-primary w-100"
-            >
-              Test Connection
-            </button>
+            <button type="button" id="test-connection" class="btn btn-primary w-100">Test Connection</button>
           </div>
           <div class="col-12 col-md-4 mb-2">
-            <button
-              id="go-to-actions"
-              type="button"
-              class="btn btn-primary w-100"
-            >
-              Plex Playlist Actions
-            </button>
+            <button id="go-to-actions" type="button" class="btn btn-primary w-100">Plex Playlist Actions</button>
           </div>
           <div class="col-12 col-md-4 mb-2">
-            <button
-              type="button"
-              id="refresh-playlists"
-              class="btn btn-primary w-100"
-            >
-              Refresh Playlists
-            </button>
+            <button type="button" id="refresh-playlists" class="btn btn-primary w-100">Refresh Playlists</button>
           </div>
         </div>
         <br />
-        <span id="progressbar" style="display: none" class="text-dark"
-          >Processing please wait... &nbsp; <i class="loading"> </i>
-        </span>
-
-        <div
-          id="test-result"
-          class="alert alert-success"
-          style="display: none"
-        ></div>
-        <div
-          id="test-result-fail"
-          class="alert alert-danger"
-          style="display: none"
-        ></div>
+        <span id="progressbar" class="text-dark" style="display: none;">Processing please wait... &nbsp; <i class="loading"></i></span>
+        <div id="test-result" class="alert alert-success" style="display: none;"></div>
+        <div id="test-result-fail" class="alert alert-danger" style="display: none;"></div>
       </div>
     </div>
 
     <script src="./js/bootstrap.bundle.min.js"></script>
     <script src="./js/loadNavbar.js"></script>
-
     <script>
-      // Access the data
-      const data = window.electronData.data;
-      document.getElementById("ipAddress").value = `${data.ipaddress}`;
-      document.getElementById("port").value = `${data.port}`;
-      document.getElementById("apiKey").value = `${data.key}`;
-      document.getElementById("themeid").value = `${data.theme}`;
-
-      //console.log("theme:", data.theme);
-
-      //console.log("Data:", data);
+      document.addEventListener('DOMContentLoaded', () => {
+        const data = window.electronData.data;
+        document.getElementById("ipAddress").value = data.ipaddress;
+        document.getElementById("port").value = data.port;
+        document.getElementById("apiKey").value = data.key;
+        document.getElementById("themeid").value = data.theme;
+      });
     </script>
   </body>
 </html>
