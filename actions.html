@@ -34,25 +34,41 @@
       <div id="mainScreen" class="content-screen">
         <h2 class="text-dark">Retrieve All Playlists</h2>
         <form id="config-form" name="config-form">
-          <div>
-            <button type="button" id="get-playlists" class="btn btn-primary">
-              Get Playlists
-            </button>
-            <button type="button" id="go-toconfig" class="btn btn-primary">
-              Update Configuration
-            </button>
-            <button
-              type="button"
-              id="refresh-playlists"
-              class="btn btn-primary"
-            >
-              Refresh Playlists
-            </button>
+          <div class="row">
+            <div class="col-12 col-md-4 mb-2">
+              <button
+                type="button"
+                id="get-playlists"
+                class="btn btn-primary w-100"
+              >
+                Get Playlists
+              </button>
+            </div>
+            <div class="col-12 col-md-4 mb-2">
+              <button
+                type="button"
+                id="go-toconfig"
+                class="btn btn-primary w-100"
+              >
+                Update Configuration
+              </button>
+            </div>
+            <div class="col-12 col-md-4 mb-2">
+              <button
+                type="button"
+                id="refresh-playlists"
+                class="btn btn-primary w-100"
+              >
+                Refresh Playlists
+              </button>
+            </div>
           </div>
           <div>
             <br />
             <div class="mb-3">
-              <label for="library" class="form-label text-dark">Library Section Name &nbsp;</label>
+              <label for="library" class="form-label text-dark"
+                >Library Section Name &nbsp;</label
+              >
               <input
                 type="text"
                 class="form-control"
@@ -61,11 +77,10 @@
                 value="Music"
               />
             </div>
-
           </div>
           <div>
             <br />
-            <span id="progressbar" style="display: none" class=" text-dark"
+            <span id="progressbar" style="display: none" class="text-dark"
               >Processing please wait... &nbsp; <i class="loading"> </i>
             </span>
 
@@ -95,7 +110,15 @@
                       <th class="table-light">#</th>
                       <th class="table-light">Title</th>
                       <th class="table-light">Playlist ID</th>
-                      <th class="table-light"><button type="button" class="btn btn-primary btn-sm" onclick="deleteAllPlaylist()">DeleteAll</button></th>
+                      <th class="table-light">
+                        <button
+                          type="button"
+                          class="btn btn-primary btn-sm"
+                          onclick="deleteAllPlaylist()"
+                        >
+                          DeleteAll
+                        </button>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>

@@ -31,5 +31,5 @@ async function testConnection(hostname, port, plextoken) {
 
 module.exports = {
   createPlexClient,
-  testConnection
+  testConnection,
 };

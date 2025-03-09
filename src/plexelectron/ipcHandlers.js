@@ -10,7 +10,7 @@ const {
   bulkPlaylist,
   refreshPlaylists,
   deletePlaylist,
-  deleteAllPlaylist
+  deleteAllPlaylist,
 } = require("./plexManager");
 
 /**
@@ -38,19 +38,24 @@ function setupIPC(mainWindow) {
   // Plex API Operations
   ipcMain.handle("test-connection", testConnection);
   ipcMain.handle("get-playlists", getPlaylists);
-  ipcMain.handle("create-m3u-playlist", (event, data) => createM3UPlaylist(data));
+  ipcMain.handle("create-m3u-playlist", (event, data) =>
+    createM3UPlaylist(data)
+  );
   ipcMain.handle("create-playlist", (event, data) => createPlaylist(data));
   ipcMain.handle("bulk-playlist", (event, data) => bulkPlaylist(data));
   ipcMain.handle("refresh-playlists", refreshPlaylists);
   ipcMain.handle("delete-playlist", (event, data) => deletePlaylist(data));
-  ipcMain.handle("delete-all-playlist", (event, data) => deleteAllPlaylist(data));
-
+  ipcMain.handle("delete-all-playlist", (event, data) =>
+    deleteAllPlaylist(data)
+  );
 
   // Dialogs
-  ipcMain.handle("openDialog", (event, data) => confirmDeletePlaylist(mainWindow, data));
+  ipcMain.handle("openDialog", (event, data) =>
+    confirmDeletePlaylist(mainWindow, data)
+  );
   ipcMain.handle("releaseVersion", () => showVersionInfo(mainWindow));
 }
 
 module.exports = {
-  setupIPC
+  setupIPC,
 };

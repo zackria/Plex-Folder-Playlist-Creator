@@ -42,5 +42,5 @@ async function showVersionInfo(window) {
 
 module.exports = {
   confirmDeletePlaylist,
-  showVersionInfo
+  showVersionInfo,
 };

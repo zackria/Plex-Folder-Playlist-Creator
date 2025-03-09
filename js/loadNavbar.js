@@ -204,11 +204,10 @@ async function handleM3UPlaylistFormSubmit(e) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke(
-      "create-m3u-playlist",
-      [document.getElementById("mthreeuPath").value.replace(/['"]+/g, "").trim(),
-        document.getElementById("library").value.trim()]
-    );
+    const result = await window.ipcRenderer.invoke("create-m3u-playlist", [
+      document.getElementById("mthreeuPath").value.replace(/['"]+/g, "").trim(),
+      document.getElementById("library").value.trim(),
+    ]);
     displayMessage("progressbar", "none");
 
     if (result.status === "error") {
@@ -373,7 +372,7 @@ async function getVersion(e) {
   }
 }
 
-async function deleteAllPlaylist(){
+async function deleteAllPlaylist() {
   displayMessage("test-result-fail", "none", "none");
   displayMessage("test-result", "none", "none");
 
@@ -393,9 +392,7 @@ async function deleteAllPlaylist(){
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke(
-      "delete-all-playlist"
-    );
+    const result = await window.ipcRenderer.invoke("delete-all-playlist");
     displayMessage("progressbar", "none");
 
     if (!result) {

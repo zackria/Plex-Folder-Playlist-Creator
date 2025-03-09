@@ -44,7 +44,9 @@
               <div>
                 <br />
                 <div class="mb-3">
-                  <label for="library" class="form-label text-dark">Library Section Name &nbsp;</label>
+                  <label for="library" class="form-label text-dark"
+                    >Library Section Name &nbsp;</label
+                  >
                   <input
                     type="text"
                     class="form-control"
@@ -53,29 +55,43 @@
                     value="Music"
                   />
                 </div>
-    
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">
-              Create M3U Playlist
-            </button>
-            <button type="reset" class="btn btn-primary">Reset</button>
-
-            <button type="button" id="go-toconfig" class="btn btn-primary">
-              Update Configuration
-            </button>
-            <button
-              type="button"
-              id="refresh-playlists"
-              class="btn btn-primary"
-            >
-              Refresh Playlists
-            </button>
+            <div class="row mt-3">
+              <div class="col-12 col-md-3 mb-2">
+                <button type="submit" class="btn btn-primary w-100">
+                  Create M3U Playlist
+                </button>
+              </div>
+              <div class="col-12 col-md-3 mb-2">
+                <button type="reset" class="btn btn-secondary w-100">
+                  Reset
+                </button>
+              </div>
+              <div class="col-12 col-md-3 mb-2">
+                <button
+                  type="button"
+                  id="go-toconfig"
+                  class="btn btn-secondary w-100"
+                >
+                  Update Configuration
+                </button>
+              </div>
+              <div class="col-12 col-md-3 mb-2">
+                <button
+                  type="button"
+                  id="refresh-playlists"
+                  class="btn btn-primary w-100"
+                >
+                  Refresh Playlists
+                </button>
+              </div>
+            </div>
           </div>
           <div>
             <br />
-            <span id="progressbar" style="display: none" class=" text-dark"
+            <span id="progressbar" style="display: none" class="text-dark"
               >Processing please wait... &nbsp; <i class="loading"> </i>
             </span>
 

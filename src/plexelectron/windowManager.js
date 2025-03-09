@@ -15,5 +15,5 @@ function createWindow() {
 }
 
 module.exports = {
-  createWindow
+  createWindow,
 };

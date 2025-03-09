@@ -7,8 +7,8 @@ const { getAPIData } = require("./settingsManager");
 async function testConnection() {
   const apiData = await getAPIData();
   return plexLocalAPI.testConnection(
-    apiData.ipaddress, 
-    apiData.port, 
+    apiData.ipaddress,
+    apiData.port,
     apiData.key
   );
 }
@@ -18,11 +18,7 @@ async function testConnection() {
  */
 async function getPlaylists() {
   const apiData = await getAPIData();
-  return plexLocalAPI.getPlaylist(
-    apiData.ipaddress,
-    apiData.port,
-    apiData.key
-  );
+  return plexLocalAPI.getPlaylist(apiData.ipaddress, apiData.port, apiData.key);
 }
 
 /**
@@ -101,7 +97,6 @@ async function deleteAllPlaylist() {
   );
 }
 
-
 module.exports = {
   testConnection,
   getPlaylists,
@@ -110,5 +105,5 @@ module.exports = {
   bulkPlaylist,
   refreshPlaylists,
   deletePlaylist,
-  deleteAllPlaylist
+  deleteAllPlaylist,
 };

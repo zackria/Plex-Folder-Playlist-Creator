@@ -47,5 +47,5 @@ function saveTheme(theme) {
 module.exports = {
   getAPIData,
   saveConfig,
-  saveTheme
+  saveTheme,
 };

@@ -1,25 +1,55 @@
 <!-- Navbar -->
 <nav id="navbar" class="navbar navbar-collapse-lg navbar-light bg-light">
   <style>
-    .nav-item .nav-link:hover {
+    :root {
+      --hover-bg-light: #e9ecef;
+      --hover-bg-dark: #343a40;
+      --hover-text-light: #000;
+      --hover-text-dark: #fff;
+    }
+
+    .nav-item .nav-link {
+      text-align: left; /* Ensure text is left-aligned */
+    }
+
+    .nav-item .nav-link.text-dark:hover {
       font-size: larger;
       font-weight: bold;
+      background-color: var(--hover-bg-light);
+      color: var(--hover-text-light);
+      width: 100%;
+      text-align: left; /* Ensure text remains left-aligned on hover */
+    }
+
+    .nav-item .nav-link.text-light:hover {
+      font-size: larger;
+      font-weight: bold;
+      background-color: var(--hover-bg-dark);
+      color: var(--hover-text-dark);
+      width: 100%;
+      text-align: left; /* Ensure text remains left-aligned on hover */
+    }
+
+    .dark-mode .nav-item .nav-link.text-dark:hover {
+      background-color: var(--hover-bg-dark);
+      color: var(--hover-text-dark);
+    }
+
+    .dark-mode .nav-item .nav-link.text-light:hover {
+      background-color: var(--hover-bg-light);
+      color: var(--hover-text-light);
     }
   </style>
   <div class="container-fluid">
-    <a class="navbar-brand" href="#"
-      >Plex Folder Playlist
+    <a class="navbar-brand" href="#">
+      Plex Folder Playlist
       <small class="text-dark display-10 fst-italic" id="versionNum">v1.0.3</small>
       <label class="nav-link toggle-button ms-3">
         <input type="checkbox" id="themeToggle" />
-        <i
-          class="bi bi-sun toggle-icon me-2 btn-outline-light"
-          id="sunIcon"
-        ></i>
+        <i class="bi bi-sun toggle-icon me-2 btn-outline-light" id="sunIcon"></i>
         <i class="bi bi-moon toggle-icon btn-outline-light" id="moonIcon"></i>
       </label>
     </a>
-  
 
     <button
       class="navbar-toggler"
@@ -34,16 +64,23 @@
     </button>
 
     <!-- Offcanvas navbar -->
-    <div 
-      class="offcanvas offcanvas-end bg-light" 
-      tabindex="-1" 
-      id="offcanvasNavbar" 
+    <div
+      class="offcanvas offcanvas-end bg-light"
+      tabindex="-1"
+      id="offcanvasNavbar"
       aria-labelledby="offcanvasNavbarLabel"
     >
       <div class="offcanvas-header bg-light">
-        <h5 class="offcanvas-title text-dark" id="offcanvasNavbarLabel">Plex Folder Playlist</h5>
+        <h5 class="offcanvas-title text-dark" id="offcanvasNavbarLabel">
+          Plex Folder Playlist
+        </h5>
         <!-- Replace standard close button with an icon button that works in both themes -->
-        <button type="button" class="btn text-dark" data-bs-dismiss="offcanvas" aria-label="Close">
+        <button
+          type="button"
+          class="btn text-dark"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+        >
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -106,7 +143,7 @@
               id="go-to-version-number"
               onclick="location.href='#secondScreen'"
             >
-              About 
+              About
             </button>
           </li>
         </ul>
@@ -114,3 +151,16 @@
     </div>
   </div>
 </nav>
+
+<script>
+  const themeToggle = document.getElementById('themeToggle');
+  const body = document.body;
+
+  themeToggle.addEventListener('change', () => {
+    if (themeToggle.checked) {
+      body.classList.add('dark-mode');
+    } else {
+      body.classList.remove('dark-mode');
+    }
+  });
+</script>

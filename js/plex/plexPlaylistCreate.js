@@ -5,7 +5,6 @@ const { createPlexClient } = require("./plexClient");
  * Creates a playlist from an M3U file
  */
 async function createM3UPlaylist(hostname, port, plextoken, parametersArray) {
-
   //console.log("createM3UPlaylist: ", hostname, port, plextoken, parametersArray);
 
   const client = createPlexClient(hostname, port, plextoken);
@@ -188,14 +187,16 @@ async function bulkPlaylist(hostname, port, plextoken, playlistArray) {
     for (const playlistFolder of playlistFolders) {
       // Skip null or undefined playlist folders
       if (!playlistFolder) {
-        retunMessage.message += "Skipping undefined playlist folder entry.<br/>";
+        retunMessage.message +=
+          "Skipping undefined playlist folder entry.<br/>";
         continue;
       }
-      
+
       const playlistName = path.basename(playlistFolder);
 
-      const foundPlaylistTracks = tracks.MediaContainer.Metadata.filter((track) =>
-        track.Media[0].Part.some((part) => part.file.includes(playlistFolder))
+      const foundPlaylistTracks = tracks.MediaContainer.Metadata.filter(
+        (track) =>
+          track.Media[0].Part.some((part) => part.file.includes(playlistFolder))
       );
 
       if (foundPlaylistTracks.length === 0) {
@@ -235,5 +236,5 @@ async function bulkPlaylist(hostname, port, plextoken, playlistArray) {
 module.exports = {
   createM3UPlaylist,
   createPlaylist,
-  bulkPlaylist
+  bulkPlaylist,
 };

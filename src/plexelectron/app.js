@@ -11,7 +11,7 @@ app.whenReady().then(async () => {
   mainWindow = createWindow();
   let apiData = await getAPIData();
   mainWindow.loadFile("index.html", { query: apiData });
-  
+
   // Set up all IPC handlers
   setupIPC(mainWindow);
 
