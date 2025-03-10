@@ -112,9 +112,30 @@ This app leverages the following key libraries to deliver its functionality:
 `npm install`
 
 ## Electron Build Instructions
-`npm install --save-dev electron`
+
+`npm run package`
+
+`npm run package-mac`
+
+`npm run package-linux-deb`
+
+`npm run package-linux-rpm`
+
+`npm run package-win`
+
+`npm run make`
+
+## Signing Instructions
+
+### For Windows Install Windows SDK
+[https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/)
+
+
 
 ## Install individually
+
+`npm install --save-dev electron`
+
 `npm install --save-dev @electron-forge/cli`
 
 `npm install --save-dev @electron-forge/maker-squirrel`
