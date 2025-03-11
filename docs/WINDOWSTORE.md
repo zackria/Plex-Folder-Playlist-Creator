@@ -19,7 +19,8 @@ electron-windows-store `
 [https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/)
 
 
-
+## Publish to Microsoft Partner Center 
+[https://partner.microsoft.com/en-us/dashboard/home](https://partner.microsoft.com/en-us/dashboard/home)
 
 
 electron-windows-store `
