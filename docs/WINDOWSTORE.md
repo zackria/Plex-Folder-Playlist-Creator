@@ -11,5 +11,19 @@ electron-windows-store `
     --package-name myelectronapp
 ```
 
-
+## Electron Docs
 [https://www.electronjs.org/docs/latest/tutorial/windows-store-guide](https://www.electronjs.org/docs/latest/tutorial/windows-store-guide)
+
+
+## Windows SDK
+[https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/)
+
+
+
+
+
+electron-windows-store `
+    --input-directory C:\Users\zackr\Downloads\Github\Plex-Folder-Playlist-Creator\out\PlexFolderPlaylistCreator-win32-arm64`
+    --output-directory C:\Users\zackr\Downloads\Github\Plex-Folder-Playlist-Creator\out\output`
+    --package-version 1.0.3 `
+    --package-name PlexFolderPlaylistCreator
