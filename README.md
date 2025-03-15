@@ -82,6 +82,28 @@ This app leverages the following key libraries to deliver its functionality:
 - Feature request? Please let me know by filling an [issue](https://github.com/zackria/Plex-Folder-Playlist-Creator/issues)!
 - Star this project on [GitHub](https://github.com/zackria/Plex-Folder-Playlist-Creator).
 
+
+## Known Issues Unsigned in MacOS
+### Users will get a message as "PlexFolderPlaylistCreateor.app" is damaged and can't be opend.You should it to the Trash.
+
+![alt text](./img/Codesignerror.png)
+
+### Why it happens ?
+This is a security feature from macOS. Because the app isn't signed and is from an unidentified developer, you're seeing this warning.
+
+When an application gets downloaded from any source other than those that Apple seems suited, the application gets an extended attribute "com.apple.Quarantine". This triggers the message: " is damaged and can't be opened. You should move it to the Bin."
+
+Remove the attribute and you can launch the application.
+
+To do this, open a console and type:
+
+`xattr -c <path/to/application.app>`
+
+![alt text](./img/XATTR.png)
+
+### Fix 
+
+
 ## Installation
 
 1. Clone the repository:

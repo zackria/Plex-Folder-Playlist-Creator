@@ -42,5 +42,25 @@
     "electron-reload": "2.0.0-alpha.1",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "6.3.9"
+  },
+  "build" : {
+    "appId": "com.zackdawood.PlexFolderPlaylistCreator",
+    "forceCodeSigning": true,
+    "productName": "Plex Folder Playlist Creator",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "out/**/*",
+      "src/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "icon": "assets/PlexFolderPlaylistCreator.icns"
+    },
+    "win": {
+      "icon": "assets/PlexFolderPlaylistCreator-256.ico"
+    }
   }
 }
