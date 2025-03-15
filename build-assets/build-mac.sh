@@ -72,10 +72,7 @@ sleep 50
 
 cp dist/PlexFolderPlaylistCreator-${VERSION}-x86_64.AppImage upload/PlexFolderPlaylistCreator-${VERSION}-x86_64.AppImage
 
-# Add a small delay before packaging
-sleep 120
-
-cp PlexFolderPlaylistCreator-${VERSION}-amd64.snap upload/PlexFolderPlaylistCreator-${VERSION}-amd64.snap
+cp dist/PlexFolderPlaylistCreator-${VERSION}-amd64.snap upload/PlexFolderPlaylistCreator-${VERSION}-amd64.snap
 
 
 # Add a small delay before packaging
