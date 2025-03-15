@@ -51,13 +51,27 @@
       "output": "dist"
     },
     "files": [
-      "out/**/*",
-      "src/**/*",
+      "*.html",
+      "*.js",
+      "css/**/*",
+      "js/**/*",
+      "assets/**/*",
       "node_modules/**/*",
       "package.json"
     ],
     "mac": {
-      "icon": "assets/PlexFolderPlaylistCreator.icns"
+      "icon": "assets/PlexFolderPlaylistCreator.icns",
+      "target": [
+        {
+          "target": "mas",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "mas-dev"
+        }
+      ]
     },
     "win": {
       "icon": "assets/PlexFolderPlaylistCreator-256.ico"
