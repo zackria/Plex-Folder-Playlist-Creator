@@ -19,9 +19,20 @@
 `npm install`
 
 
+### Package 
+
+`npm run package`
+
+### Sign the app
+
+`chmod 755 ./build-assets/build-mac.sh`
+
+`./build-assets/build-mac.sh`
+
+
 ## Code Sign Validation in Mac 
 
 `codesign --verify --verbose --deep --strict ./out/PlexFolderPlaylistCreator-darwin-arm64/PlexFolderPlaylistCreator.app`
 
 
-
+`codesign -dvvv ./out/PlexFolderPlaylistCreator-darwin-arm64/PlexFolderPlaylistCreator.app`
