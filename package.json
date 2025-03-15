@@ -12,7 +12,7 @@
     "package-linux-rpm": "electron-builder --linux rpm --config.icon=assets/PlexFolderPlaylistCreator.png",
     "package-win": "electron-builder --win --config.icon=assets/PlexFolderPlaylistCreator-256.ico",
     "package-mac": "electron-builder --mac --config.icon=assets/PlexFolderPlaylistCreator.icns",
-    "clean": "npx rimraf package-lock.json node_modules out dist"
+    "clean": "npx rimraf package-lock.json node_modules/* out/* dist/* node_modules out dist"
   },
   "keywords": [
     "electron",
