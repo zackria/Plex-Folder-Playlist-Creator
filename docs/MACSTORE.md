@@ -6,6 +6,10 @@
 
 - ###  Open Xcode --> Settings --> Account --> Manage Certifcates
 
+Note: To validate your password with the certificate
+
+`openssl pkcs12 -in your_p12_file.p12 -nodes -passin pass:<your_password> -out your_key.pem`
+
 - ### Developer ID --> Application 
 
 
@@ -36,3 +40,9 @@
 
 
 `codesign -dvvv ./out/PlexFolderPlaylistCreator-darwin-arm64/PlexFolderPlaylistCreator.app`
+
+## Build for Mac 
+
+`npm run package-mac`
+
+`npm run package-mac-uni`

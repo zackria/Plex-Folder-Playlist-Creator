@@ -129,6 +129,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 package-lock.json
-package.json
 .DS_Store
 .qodo
+upload

@@ -12,7 +12,8 @@
     "package-linux-rpm": "electron-builder --linux rpm --config.icon=assets/PlexFolderPlaylistCreator.png",
     "package-win": "electron-builder --win --config.icon=assets/PlexFolderPlaylistCreator-256.ico",
     "package-mac": "electron-builder --mac --config.icon=assets/PlexFolderPlaylistCreator.icns",
-    "clean": "npx rimraf package-lock.json node_modules/* out/* dist/* node_modules out dist"
+    "package-mac-uni": "electron-builder --mac  --universal --config.icon=assets/PlexFolderPlaylistCreator.icns",
+    "clean": "npx rimraf package-lock.json node_modules/* out/* dist/* upload/* node_modules out dist upload"
   },
   "keywords": [
     "electron",
@@ -45,8 +46,9 @@
   },
   "build" : {
     "appId": "com.zackdawood.PlexFolderPlaylistCreator",
-    "forceCodeSigning": true,
-    "productName": "Plex Folder Playlist Creator",
+    "forceCodeSigning": false,
+    "productName": "PlexFolderPlaylistCreator",
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
     "directories": {
       "output": "dist"
     },
@@ -55,23 +57,17 @@
       "*.js",
       "css/**/*",
       "js/**/*",
+      "js/*.js",
+      "js/plex/*.js",
+      "src/*.js",
+      "src/**/*",
+      "src/plexelection/*.js",
       "assets/**/*",
       "node_modules/**/*",
       "package.json"
     ],
     "mac": {
-      "icon": "assets/PlexFolderPlaylistCreator.icns",
-      "target": [
-        {
-          "target": "mas",
-          "arch": [
-            "universal"
-          ]
-        },
-        {
-          "target": "mas-dev"
-        }
-      ]
+      "icon": "assets/PlexFolderPlaylistCreator.icns"
     },
     "win": {
       "icon": "assets/PlexFolderPlaylistCreator-256.ico"
