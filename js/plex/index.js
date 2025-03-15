@@ -10,6 +10,8 @@ const {
   createM3UPlaylist,
   createPlaylist,
   bulkPlaylist,
+  createRecentlyPlayedPlaylist,
+  createRecentlyAddedPlaylist,
 } = require("./plexPlaylistCreate");
 
 module.exports = {
@@ -27,4 +29,6 @@ module.exports = {
   createM3UPlaylist,
   createPlaylist,
   bulkPlaylist,
+  createRecentlyPlayedPlaylist,
+  createRecentlyAddedPlaylist,
 };

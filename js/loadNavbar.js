@@ -127,7 +127,12 @@ function addEventListeners() {
     },
     { id: "test-connection", event: "click", handler: testConnection },
     { id: "refresh-playlists", event: "click", handler: refreshPlaylist },
-    { id: "get-playlists", event: "click", handler: getPlaylist },
+    { id: "recent-played-playlists", event: "click", handler: recentPlayedPlaylist },
+    { id: "recent-added-playlists", event: "click", handler: recentAddedPlaylist },
+    { id: "get-playlists", event: "click", handler: (e) => {
+      e.preventDefault();
+      getPlaylist();
+    }},
   ];
 
   events.forEach(({ id, event, handler }) => {
@@ -412,7 +417,7 @@ async function deleteAllPlaylist() {
       );
     }
 
-    getPlaylist();
+    getPlaylist("Playlists deleted successfully!! ");
   } catch (error) {
     console.error("Error deleting playlist:", error);
     displayMessage("progressbar", "none");
@@ -481,6 +486,7 @@ async function deletePlaylist(rowid, playlistId) {
         "block",
         `Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!! <br/>`
       );
+      getPlaylist( `Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!!`);
     }
   } catch (error) {
     console.error("Error deleting playlist:", error);
@@ -493,7 +499,7 @@ async function deletePlaylist(rowid, playlistId) {
   }
 }
 
-async function getPlaylist() {
+async function getPlaylist(additionalMessage) {
   displayMessage("test-result-fail", "none", "none");
   displayMessage("test-result", "none", "none");
   displayMessage("progressbar", "block");
@@ -509,10 +515,11 @@ async function getPlaylist() {
         "Connection Error!!! <br/> Please check your settings and try again."
       );
     } else {
+      const successMessage = `${additionalMessage ? "" + additionalMessage+"<br/>": " "}  ${result.length}&#8198;Playlists retrieved successfully!!!`;
       displayMessage(
         "test-result",
         "block",
-        result.length + "&#8198;Playlists retrieved successfully <br/>"
+        successMessage
       );
       populateTable(result);
     }
@@ -548,6 +555,78 @@ async function refreshPlaylist() {
         "block",
         "Playlists refreshed successfully!!! <br/>"
       );
+    }
+  } catch (error) {
+    console.error("Error refreshing playlists:", error);
+    displayMessage("progressbar", "none");
+    displayMessage(
+      "test-result-fail",
+      "block",
+      "Connection Error!!! <br/> Please check your settings and try again."
+    );
+  }
+}
+
+
+
+async function recentPlayedPlaylist() {
+  displayMessage("test-result-fail", "none", "none");
+  displayMessage("test-result", "none", "none");
+  displayMessage("progressbar", "block");
+
+  try {
+    const result = await window.ipcRenderer.invoke("recent-played-playlists");
+    displayMessage("progressbar", "none");
+
+    if (result === false) {
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Connection Error!!! <br/> Please check your settings and try again."
+      );
+    } else {
+      displayMessage(
+        "test-result",
+        "block",
+        "Playlists Recently Played Created successfully!!! <br/>"
+      );
+      getPlaylist( "Playlists Recently Played Created successfully!!!");
+    }
+  } catch (error) {
+    console.error("Error refreshing playlists:", error);
+    displayMessage("progressbar", "none");
+    displayMessage(
+      "test-result-fail",
+      "block",
+      "Connection Error!!! <br/> Please check your settings and try again."
+    );
+  }
+}
+
+
+async function recentAddedPlaylist() {
+  displayMessage("test-result-fail", "none", "none");
+  displayMessage("test-result", "none", "none");
+  displayMessage("progressbar", "block");
+
+  try {
+    const result = await window.ipcRenderer.invoke("recent-added-playlists");
+    displayMessage("progressbar", "none");
+
+    if (result === false) {
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Connection Error!!! <br/> Please check your settings and try again."
+      );
+    } else {
+      displayMessage(
+        "test-result",
+        "block",
+        "Playlists Recently Added Created successfully!!! <br/>"
+      );
+      getPlaylist("Playlists Recently Added Created successfully!!!");
+      
     }
   } catch (error) {
     console.error("Error refreshing playlists:", error);

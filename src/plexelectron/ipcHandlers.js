@@ -11,6 +11,8 @@ const {
   refreshPlaylists,
   deletePlaylist,
   deleteAllPlaylist,
+  createRecentlyPlayedPlaylist,
+  createRecentlyAddedPlaylist,
 } = require("./plexManager");
 
 /**
@@ -42,6 +44,8 @@ function setupIPC(mainWindow) {
     createM3UPlaylist(data)
   );
   ipcMain.handle("create-playlist", (event, data) => createPlaylist(data));
+  ipcMain.handle("recent-played-playlists", (event, data) => createRecentlyPlayedPlaylist(data));
+  ipcMain.handle("recent-added-playlists", (event, data) => createRecentlyAddedPlaylist(data));
   ipcMain.handle("bulk-playlist", (event, data) => bulkPlaylist(data));
   ipcMain.handle("refresh-playlists", refreshPlaylists);
   ipcMain.handle("delete-playlist", (event, data) => deletePlaylist(data));

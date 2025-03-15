@@ -97,6 +97,30 @@ async function deleteAllPlaylist() {
   );
 }
 
+/**
+ * Refreshes Plex playlists
+ */
+async function createRecentlyPlayedPlaylist() {
+  const apiData = await getAPIData();
+  return plexLocalAPI.createRecentlyPlayedPlaylist(
+    apiData.ipaddress,
+    apiData.port,
+    apiData.key
+  );
+}
+
+/**
+ * Refreshes Plex playlists
+ */
+async function createRecentlyAddedPlaylist() {
+  const apiData = await getAPIData();
+  return plexLocalAPI.createRecentlyAddedPlaylist(
+    apiData.ipaddress,
+    apiData.port,
+    apiData.key
+  );
+}
+
 module.exports = {
   testConnection,
   getPlaylists,
@@ -106,4 +130,6 @@ module.exports = {
   refreshPlaylists,
   deletePlaylist,
   deleteAllPlaylist,
+  createRecentlyPlayedPlaylist,
+  createRecentlyAddedPlaylist
 };

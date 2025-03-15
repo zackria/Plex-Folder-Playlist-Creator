@@ -233,8 +233,197 @@ async function bulkPlaylist(hostname, port, plextoken, playlistArray) {
   }
 }
 
+/**
+ * Creates a playlist of recently played tracks. If the playlist name already exists, it will be deleted first.
+ */
+async function createRecentlyPlayedPlaylist(
+  hostname,
+  port,
+  plextoken,
+  parametersArray
+) {
+  const client = createPlexClient(hostname, port, plextoken);
+  let retunMessage = { status: "success", message: "" };
+  const playlistName = "Recently Played Tracks";
+
+  try {
+    const serverInfo = await client.query("/");
+    const machineIdentifier = serverInfo.MediaContainer.machineIdentifier;
+
+    // Check if the playlist already exists and delete it
+    const playlists = await client.query("/playlists");
+    const existingPlaylist = playlists.MediaContainer.Metadata?.find(
+      (playlist) => playlist.title === playlistName
+    );
+
+    if (existingPlaylist) {
+      await client.deleteQuery(`/playlists/${existingPlaylist.ratingKey}`);
+      retunMessage.message += `Existing playlist "${playlistName}" deleted. <br/>`;
+    }
+
+    // Get all music libraries
+    const sections = await client.query("/library/sections");
+    const musicLibraries = sections.MediaContainer.Directory.filter(
+      (section) => section.type === "artist"
+    );
+
+    if (!musicLibraries.length) {
+      retunMessage.message += "No music libraries found. <br/>";
+      retunMessage.status = "error";
+      return retunMessage;
+    }
+
+    // Fetch recently played tracks from each music library
+    let recentTracks = [];
+    for (const library of musicLibraries) {
+      const tracks = await client.query(
+        `/library/sections/${library.key}/all?type=10&sort=lastViewedAt:desc&limit=50`
+      );
+
+      if (tracks.MediaContainer.Metadata) {
+        recentTracks.push(
+          ...tracks.MediaContainer.Metadata.filter(
+            (track) => track.lastViewedAt // Only include tracks that have been played
+          )
+        );
+      }
+    }
+
+    // Sort by last viewed date and limit to 100 most recent
+    recentTracks.sort((a, b) => b.lastViewedAt - a.lastViewedAt);
+    recentTracks = recentTracks.slice(0, 100);
+
+    if (recentTracks.length === 0) {
+      retunMessage.message += "No recently played tracks found. <br/>";
+      retunMessage.status = "warning";
+      return retunMessage;
+    }
+
+    retunMessage.message += `Found ${recentTracks.length} recently played tracks. <br/>`;
+
+    // Extract rating keys and construct the URI
+    const itemKeys = recentTracks.map((track) => track.ratingKey);
+    const uri = `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(
+      ","
+    )}`;
+
+    const queryParameters = new URLSearchParams({
+      type: "audio",
+      title: playlistName,
+      smart: "0",
+      uri,
+    }).toString();
+    const queryPath = `/playlists?${queryParameters}`;
+
+    await client.postQuery(queryPath);
+    retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentTracks.length} tracks. <br/>`;
+    return retunMessage;
+  } catch (error) {
+    console.error(
+      `Error creating recently played playlist "${playlistName}":`,
+      error.message
+    );
+    retunMessage.status = "error";
+    retunMessage.message += `Error creating recently played playlist "${playlistName}": ${error.message}`;
+    return retunMessage;
+  }
+}
+
+/**
+ * Creates a playlist of recently added tracks. If the playlist name already exists, it will be deleted first.
+ */
+async function createRecentlyAddedPlaylist(
+  hostname,
+  port,
+  plextoken,
+  parametersArray
+) {
+  const client = createPlexClient(hostname, port, plextoken);
+  let retunMessage = { status: "success", message: "" };
+  const playlistName = "Recently Added Tracks";
+
+  try {
+    const serverInfo = await client.query("/");
+    const machineIdentifier = serverInfo.MediaContainer.machineIdentifier;
+
+    // Check if the playlist already exists and delete it
+    const playlists = await client.query("/playlists");
+    const existingPlaylist = playlists.MediaContainer.Metadata?.find(
+      (playlist) => playlist.title === playlistName
+    );
+
+    if (existingPlaylist) {
+      await client.deleteQuery(`/playlists/${existingPlaylist.ratingKey}`);
+      retunMessage.message += `Existing playlist "${playlistName}" deleted. <br/>`;
+    }
+
+    // Get all music libraries
+    const sections = await client.query("/library/sections");
+    const musicLibraries = sections.MediaContainer.Directory.filter(
+      (section) => section.type === "artist"
+    );
+
+    if (!musicLibraries.length) {
+      retunMessage.message += "No music libraries found. <br/>";
+      retunMessage.status = "error";
+      return retunMessage;
+    }
+
+    // Fetch recently added tracks from each music library
+    let recentTracks = [];
+    for (const library of musicLibraries) {
+      const tracks = await client.query(
+        `/library/sections/${library.key}/all?type=10&sort=addedAt:desc&limit=50`
+      );
+
+      if (tracks.MediaContainer.Metadata) {
+        recentTracks.push(...tracks.MediaContainer.Metadata);
+      }
+    }
+
+    // Sort by added date and limit to 100 most recent
+    recentTracks.sort((a, b) => b.addedAt - a.addedAt);
+    recentTracks = recentTracks.slice(0, 100);
+
+    if (recentTracks.length === 0) {
+      retunMessage.message += "No recently added tracks found. <br/>";
+      retunMessage.status = "warning";
+      return retunMessage;
+    }
+
+    retunMessage.message += `Found ${recentTracks.length} recently added tracks. <br/>`;
+
+    // Extract rating keys and construct the URI
+    const itemKeys = recentTracks.map((track) => track.ratingKey);
+    const uri = `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(
+      ","
+    )}`;
+
+    const queryParameters = new URLSearchParams({
+      type: "audio",
+      title: playlistName,
+      smart: "0",
+      uri,
+    }).toString();
+    const queryPath = `/playlists?${queryParameters}`;
+
+    await client.postQuery(queryPath);
+    retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentTracks.length} tracks. <br/>`;
+    return retunMessage;
+  } catch (error) {
+    console.error(
+      `Error creating recently added playlist "${playlistName}":`,
+      error.message
+    );
+    retunMessage.status = "error";
+    retunMessage.message += `Error creating recently added playlist "${playlistName}": ${error.message}`;
+    return retunMessage;
+  }
+}
 module.exports = {
   createM3UPlaylist,
   createPlaylist,
   bulkPlaylist,
+  createRecentlyPlayedPlaylist,
+  createRecentlyAddedPlaylist,
 };

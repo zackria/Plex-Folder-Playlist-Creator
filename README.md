@@ -44,6 +44,9 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 
 ![alt text](./img/06PlexBulkPlaylist.png)
 
+
+![alt text](./img/07PlexM3UPlaylist.png)
+
 ## Platform Compatibility
 - Electron Playlist Creator is designed to work on the following platforms:
     - Windows: Easily installable as a .exe file.
