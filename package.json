@@ -82,10 +82,10 @@
       "target": "appx"
     },
     "appx": {
-      "identityName": "<ZackDawood.PlexFolderPlaylistCreator>",
-      "publisher": "<CN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX>",
-      "publisherDisplayName": "<Zack Dawood>",
-      "applicationId": "<ZackDawood.PlexFolderPlaylistCreator>"
+      "identityName": "ZackDawood.PlexFolderPlaylistCreator",
+      "publisher": "CN=XXXX-XXXXX-XXXXX-XXXXX-XXXXX",
+      "publisherDisplayName": "Zack Dawood",
+      "applicationId": "ZackDawood.PlexFolderPlaylistCreator"
     }
   }
 }

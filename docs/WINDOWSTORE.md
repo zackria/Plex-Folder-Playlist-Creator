@@ -23,6 +23,11 @@ electron-windows-store `
 [https://partner.microsoft.com/en-us/dashboard/home](https://partner.microsoft.com/en-us/dashboard/home)
 
 
+`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`
+
+`electron-windows-store`
+
+
 electron-windows-store `
     --input-directory C:\Users\zackr\Downloads\Github\Plex-Folder-Playlist-Creator\out\PlexFolderPlaylistCreator-win32-arm64`
     --output-directory C:\Users\zackr\Downloads\Github\Plex-Folder-Playlist-Creator\out\output`
