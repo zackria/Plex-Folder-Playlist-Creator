@@ -132,3 +132,4 @@ package-lock.json
 .DS_Store
 .qodo
 upload
+assets/Thumbs.db

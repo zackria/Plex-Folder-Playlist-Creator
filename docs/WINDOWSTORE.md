@@ -26,10 +26,3 @@ electron-windows-store `
 `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`
 
 `electron-windows-store`
-
-
-electron-windows-store `
-    --input-directory C:\Users\zackr\Downloads\Github\Plex-Folder-Playlist-Creator\out\PlexFolderPlaylistCreator-win32-arm64`
-    --output-directory C:\Users\zackr\Downloads\Github\Plex-Folder-Playlist-Creator\out\output`
-    --package-version 1.0.3 `
-    --package-name PlexFolderPlaylistCreator
