@@ -51,6 +51,7 @@
     "forceCodeSigning": false,
     "productName": "PlexFolderPlaylistCreator",
     "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "copyright": "Copyright © 2025 Zack Dawood",
     "directories": {
       "output": "dist"
     },
@@ -77,7 +78,14 @@
       "category": "public.app-category.developer-tools"
     },
     "win": {
-      "icon": "assets/PlexFolderPlaylistCreator-256.ico"
+      "icon": "assets/PlexFolderPlaylistCreator-256.ico",
+      "target": "appx"
+    },
+    "appx": {
+      "identityName": "<ZackDawood.PlexFolderPlaylistCreator>",
+      "publisher": "<CN=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX>",
+      "publisherDisplayName": "<Zack Dawood>",
+      "applicationId": "<ZackDawood.PlexFolderPlaylistCreator>"
     }
   }
 }
