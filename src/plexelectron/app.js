@@ -19,9 +19,11 @@ app.whenReady().then(async () => {
   // Optional, remove for production
   //mainWindow.webContents.openDevTools();
 
-  app.on("activate", () => {
+  app.on("activate", async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       mainWindow = createWindow();
+      let apiData = await getAPIData();
+      mainWindow.loadFile("index.html", { query: apiData }); // Load the content
     }
   });
 });
