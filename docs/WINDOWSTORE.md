@@ -26,3 +26,7 @@ electron-windows-store `
 `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`
 
 `electron-windows-store`
+
+
+## Generate Certificate
+

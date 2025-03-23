@@ -30,8 +30,7 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 - #### NPM 11.0.0
 
 #### How to find Host IP, PORT, and PLEX TOKEN 
-- How to find HOST IP [Refer to this Link](FINDHOST_PORT.md)
-- How to find the PORT [Refer to this Link](FINDHOST_PORT.md)
+- How to find HOST IP & PORT NUMBER [Refer to this Link](FINDHOST_PORT.md)
 - How to find the PLEX TOKEN [Refer to this Link](FINDPLEXTOKEN.md)
 
 ![alt text](./img/02PlexTestConnection.png)

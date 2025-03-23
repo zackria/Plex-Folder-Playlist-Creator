@@ -12,4 +12,4 @@
 
 # STEP 5: Copy the X-Plex-Token from the URL address bar at the end 
 
-![alt text](./img/PlexToken02_ViewXML.png)
+![alt text](./img/PlexToken03_URL.png)
