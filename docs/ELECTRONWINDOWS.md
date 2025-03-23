@@ -75,3 +75,4 @@
 ### General free SSL Certificate
 
 ` openssl pkcs12 -export -out output.pfx -inkey privatekey.pem -in certificate.crt -certfile intermediate.crt -certfile root.crt`
+
