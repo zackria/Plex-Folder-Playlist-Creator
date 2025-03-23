@@ -100,8 +100,14 @@ To do this, open a console and type:
 
 ![alt text](./img/XATTR.png)
 
-### Fix 
+### Known Issues Unsigned in Windows (Publisher Unknown)
+### Users will get a message as "PlexFolderPlaylistCreateor.exe" isn't commonly downloaded. Make sure you trust  "PlexFolderPlaylistCreateor.exe" before you open it.
 
+#### Antivirus couldn't verify if this file is safe because it isn't commonly downloaded. Make sure you trust the file you're downloading or its source before you open it. Publisher Unknown
+
+#### Microsoft Defender SmartScreen prevented and unrecognized app from starting. Running this app might put your PC at risk.
+
+Please follow these steps [WINDOWSCERT.md](./WINDOWSCERT.md)
 
 ## Installation
 
