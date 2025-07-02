@@ -48,9 +48,10 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 
 ## Platform Compatibility
 - Electron Playlist Creator is designed to work on the following platforms:
-    - Windows: Easily installable as a .exe file.
     - Mac: Available as a .dmg package.
     - Linux: Distributed as .deb or .AppImage formats for wide compatibility.
+    - Windows: Easily installable as a .exe file. (Not available as exe or msi or appx due to Windows Certificate Cost. Please checkout the code and build in your local for an executable)
+
 
 ## Buy me a coffee
 [Buy me a coffee](https://buymeacoffee.com/zackdawood)
