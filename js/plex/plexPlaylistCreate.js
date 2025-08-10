@@ -1,5 +1,5 @@
 const path = require("path");
-const { createPlexClient } = require("./plexClient");
+const { createPlexClient, createPlexClientWithTimeout } = require("./plexClient");
 
 /**
  * Creates a playlist from an M3U file
@@ -65,16 +65,19 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
   // Safely extract and trim playlistPath
   const playlistPath = parametersArray[0] ? parametersArray[0].trim() : "";
   if (!playlistPath) {
+    console.error("Error: Playlist path is required.");
     retunMessage.status = "error";
     retunMessage.message = "Playlist path is required.";
     return retunMessage;
   }
+  console.log(`Playlist path: ${playlistPath}`);
 
   // Safely extract and trim playlistName
   let playlistName = parametersArray[1] ? parametersArray[1].trim() : "";
   if (!playlistName) {
     playlistName = path.basename(playlistPath);
   }
+  console.log(`Playlist name: ${playlistName}`);
   retunMessage.message += `Playlist name: ${playlistName}. <br/>`;
 
   // Safely extract and trim library
@@ -82,12 +85,16 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
   if (!library) {
     library = "Music";
   }
+  console.log(`Library: ${library}`);
   retunMessage.message += `Library: ${library}. <br/>`;
 
   try {
+    console.log("Querying server info...");
     const serverInfo = await client.query("/");
     const machineIdentifier = serverInfo.MediaContainer.machineIdentifier;
+    console.log(`Server machine identifier: ${machineIdentifier}`);
 
+    console.log("Querying library sections...");
     const sections = await client.query("/library/sections");
     const musicLibrary = sections.MediaContainer.Directory.find(
       (section) => section.title === library
@@ -99,29 +106,30 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
       retunMessage.status = "error";
       return retunMessage;
     }
+    console.log(`Music library found: ${musicLibrary.title}, key: ${musicLibrary.key}`);
 
+    console.log("Querying all tracks in the library...");
     const tracks = await client.query(
       `/library/sections/${musicLibrary.key}/all?type=10`
     );
-
-    retunMessage.message += `Successfully queried all song tracks. Found: ${tracks.MediaContainer.Metadata.length} tracks. <br/>`;
+    console.log(`Total tracks found: ${tracks.MediaContainer.Metadata.length}`);
 
     const foundPlaylistTracks = tracks.MediaContainer.Metadata.filter((track) =>
       track.Media[0].Part.some((part) => part.file.includes(playlistPath))
     );
 
     if (foundPlaylistTracks.length === 0) {
+      console.warn(`No tracks found for folder: ${playlistPath}`);
       retunMessage.message += `No tracks found for folder: ${playlistPath} <br/>`;
       retunMessage.status = "error";
       return retunMessage;
     }
+    console.log(`Tracks found for playlist: ${foundPlaylistTracks.length}`);
 
     retunMessage.message += `Creating playlist: "${playlistName}" with ${foundPlaylistTracks.length} tracks. <br/>`;
 
     const itemKeys = foundPlaylistTracks.map((track) => track.ratingKey);
-    const uri = `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(
-      ","
-    )}`;
+    const uri = `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(",")}`;
 
     const queryParameters = new URLSearchParams({
       type: "audio",
@@ -131,7 +139,10 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
     }).toString();
     const queryPath = `/playlists?${queryParameters}`;
 
+    console.log(`Creating playlist with query: ${queryPath}`);
     await client.postQuery(queryPath);
+    console.log(`Playlist "${playlistName}" created successfully.`);
+
     return retunMessage;
   } catch (error) {
     console.error(
