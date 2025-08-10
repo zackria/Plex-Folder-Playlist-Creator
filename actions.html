@@ -117,6 +117,15 @@
 
             <div class="container my-5">
               <h2 class="text-center mb-4 text-dark">Playlists</h2>
+              <div class="mb-3">
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="form-control"
+                  placeholder="Search Playlists..."
+                  onkeyup="filterTable()"
+                />
+              </div>
               <div
                 class="table-responsive"
                 style="overflow-y: auto"
@@ -155,6 +164,28 @@
     <script src="./js/bootstrap.bundle.min.js"></script>
     <script src="./js/loadNavbar.js"></script>
 
-    <script></script>
+    <script>
+      function filterTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById("dataTable");
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+          const row = rows[i];
+          const cells = row.getElementsByTagName("td");
+          let match = false;
+
+          for (const cell of cells) {
+            if (cell && cell.innerText.toLowerCase().includes(filter)) {
+              match = true;
+              break;
+            }
+          }
+
+          row.style.display = match ? "" : "none";
+        }
+      }
+    </script>
   </body>
 </html>
