@@ -1,4 +1,4 @@
-const { ipcMain } = require("electron");
+const { ipcMain, BrowserWindow } = require("electron");
 const path = require("path");
 const { saveConfig, saveTheme, getAPIData } = require("./settingsManager");
 const { confirmDeletePlaylist, showVersionInfo } = require("./dialogManager");
@@ -22,9 +22,20 @@ function setupIPC(mainWindow) {
   // Navigation
   ipcMain.on("navigate-to", async (event, page) => {
     const filePath = path.join(__dirname, "../../", `${page}.html`);
-    if (mainWindow && filePath) {
+
+    // Get the current window from the event sender
+    const currentWindow = BrowserWindow.fromWebContents(event.sender);
+    
+    if (!currentWindow || currentWindow.isDestroyed()) {
+      console.error("Current window is not available or has been destroyed.");
+      return;
+    }
+
+    try {
       let apiData = await getAPIData();
-      mainWindow.loadFile(filePath, { query: apiData });
+      await currentWindow.loadFile(filePath, { query: apiData });
+    } catch (error) {
+      console.error("Error loading file in navigate-to handler:", error.message);
     }
   });
 
@@ -63,10 +74,14 @@ function setupIPC(mainWindow) {
   );
 
   // Dialogs
-  ipcMain.handle("openDialog", (event, data) =>
-    confirmDeletePlaylist(mainWindow, data)
-  );
-  ipcMain.handle("releaseVersion", () => showVersionInfo(mainWindow));
+  ipcMain.handle("openDialog", (event, data) => {
+    const currentWindow = BrowserWindow.fromWebContents(event.sender);
+    return confirmDeletePlaylist(currentWindow, data);
+  });
+  ipcMain.handle("releaseVersion", (event) => {
+    const currentWindow = BrowserWindow.fromWebContents(event.sender);
+    return showVersionInfo(currentWindow);
+  });
 }
 
 module.exports = {
