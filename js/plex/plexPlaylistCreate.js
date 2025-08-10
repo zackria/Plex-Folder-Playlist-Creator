@@ -1,12 +1,72 @@
 const path = require("path");
 const { createPlexClient, createPlexClientWithTimeout } = require("./plexClient");
 
+// Normalize paths for reliable substring comparison across OSes and encodings
+function normalizeForCompare(p) {
+  if (!p) return "";
+  let decoded = p;
+  // Only attempt decode if it looks percent-encoded
+  if (/%[0-9A-Fa-f]{2}/.test(p)) {
+    try {
+      decoded = decodeURIComponent(p);
+    } catch (e) {
+      decoded = p; // fall back to original on decode failure
+    }
+  }
+  // Replace a wide range of unicode spaces with a normal space
+  const unicodeSpaceRegex = /[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000]/g;
+  let norm = decoded
+    .replace(/\\/g, "/")              // backslashes -> slashes
+    .replace(unicodeSpaceRegex, " ")     // unicode spaces -> space
+    .normalize("NFC")                    // unicode normalization (fix macOS vs Linux)
+    .replace(/[‐‑–—−]/g, "-")            // normalize various dashes to hyphen-minus
+    .replace(/\s+/g, " ")               // collapse multiple spaces
+    .replace(/\/+$/g, "")               // trim trailing slashes
+    .replace(/\/+/g, "/")               // collapse duplicate slashes
+    .toLowerCase();                       // case-insensitive compare
+
+  // Remove trailing dots from each path segment to account for FS/Plex trimming
+  norm = norm
+    .split("/")
+    .map((seg) => seg.replace(/\.+$/g, ""))
+    .join("/");
+
+  return norm;
+}
+
+// Build candidate folder patterns to match against file paths
+function buildFolderPatterns(inputPath) {
+  const patterns = new Set();
+  const normFull = normalizeForCompare(inputPath);
+  const normFullTrimDot = normFull.replace(/\.+$/g, ""); // ignore trailing dots
+
+  for (const variant of [normFull, normFullTrimDot]) {
+    if (variant) patterns.add(`${variant}/`);
+  }
+
+  const base = normalizeForCompare(path.basename(inputPath));
+  const baseTrimDot = base.replace(/\.+$/g, "");
+  for (const b of [base, baseTrimDot]) {
+    if (b) patterns.add(`/${b}/`);
+  }
+
+  return Array.from(patterns);
+}
+
+// Token normalization (remove all non a-z0-9) for punctuation-insensitive compare
+function normalizeToken(s) {
+  return (s || "")
+    .toLowerCase()
+    .normalize("NFC")
+    .replace(/[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000]/g, " ")
+    .replace(/[‐‑–—−]/g, "-")
+    .replace(/[^a-z0-9]/g, "");
+}
+
 /**
  * Creates a playlist from an M3U file
  */
 async function createM3UPlaylist(hostname, port, plextoken, timeout, parametersArray) {
-  //console.log("createM3UPlaylist: ", hostname, port, plextoken, parametersArray);
-
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
 
@@ -89,12 +149,9 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
   retunMessage.message += `Library: ${library}. <br/>`;
 
   try {
-    //console.log("Querying server info...");
     const serverInfo = await client.query("/");
     const machineIdentifier = serverInfo.MediaContainer.machineIdentifier;
-    //console.log(`Server machine identifier: ${machineIdentifier}`);
 
-    //console.log("Querying library sections...");
     const sections = await client.query("/library/sections");
     const musicLibrary = sections.MediaContainer.Directory.find(
       (section) => section.title === library
@@ -108,23 +165,49 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
     }
     //console.log(`Music library found: ${musicLibrary.title}, key: ${musicLibrary.key}`);
 
-    //console.log("Querying all tracks in the library...");
     const tracks = await client.query(
       `/library/sections/${musicLibrary.key}/all?type=10`
     );
-    // console.log(`Total tracks found: ${tracks.MediaContainer.Metadata.length}`);
+    //console.log(`Total tracks found: ${tracks.MediaContainer.Metadata.length}`);
 
-    const foundPlaylistTracks = tracks.MediaContainer.Metadata.filter((track) =>
-      track.Media[0].Part.some((part) => part.file.includes(playlistPath))
+    const allTracks = tracks.MediaContainer.Metadata || [];
+    const patterns = buildFolderPatterns(playlistPath);
+
+    let foundPlaylistTracks = allTracks.filter((track) =>
+      track?.Media?.[0]?.Part?.some((part) => {
+        const fileNorm = normalizeForCompare(part.file);
+        return patterns.some((p) => fileNorm.includes(p));
+      })
     );
+
+    // Fallback 2: punctuation-insensitive compare using last directory segment tokens
+    if (foundPlaylistTracks.length === 0) {
+      const baseToken = normalizeToken(path.basename(playlistPath));
+      foundPlaylistTracks = allTracks.filter((track) => {
+        const parts = track?.Media?.[0]?.Part || [];
+        return parts.some((p) => {
+          const dir = normalizeForCompare(path.posix.dirname(p.file || ""));
+          const segments = dir.split("/");
+          const last = segments[segments.length - 1] || "";
+          return normalizeToken(last) === baseToken;
+        });
+      });
+      if (foundPlaylistTracks.length > 0) {
+        console.warn(`Matched by punctuation-insensitive folder token: ${path.basename(playlistPath)}`);
+      }
+    }
 
     if (foundPlaylistTracks.length === 0) {
       console.warn(`No tracks found for folder: ${playlistPath}`);
+      console.warn(`Tried patterns: ${patterns.join(" | ")}`);
+      const sample = tracks.MediaContainer.Metadata?.[0]?.Media?.[0]?.Part?.[0]?.file;
+      if (sample) {
+        console.warn(`Example library file path: ${sample}`);
+      }
       retunMessage.message += `No tracks found for folder: ${playlistPath} <br/>`;
       retunMessage.status = "error";
       return retunMessage;
     }
-    //console.log(`Tracks found for playlist: ${foundPlaylistTracks.length}`);
 
     retunMessage.message += `Creating playlist: "${playlistName}" with ${foundPlaylistTracks.length} tracks. <br/>`;
 
@@ -139,9 +222,7 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
     }).toString();
     const queryPath = `/playlists?${queryParameters}`;
 
-    //console.log(`Creating playlist with query: ${queryPath}`);
     await client.postQuery(queryPath);
-    //console.log(`Playlist "${playlistName}" created successfully.`);
 
     return retunMessage;
   } catch (error) {
@@ -205,10 +286,32 @@ async function bulkPlaylist(hostname, port, plextoken, timeout, playlistArray) {
 
       const playlistName = path.basename(playlistFolder);
 
-      const foundPlaylistTracks = tracks.MediaContainer.Metadata.filter(
+      const allTracks = tracks.MediaContainer.Metadata || [];
+      const patterns = buildFolderPatterns(playlistFolder);
+
+      let foundPlaylistTracks = allTracks.filter(
         (track) =>
-          track.Media[0].Part.some((part) => part.file.includes(playlistFolder))
+          track?.Media?.[0]?.Part?.some((part) => {
+            const fileNorm = normalizeForCompare(part.file);
+            return patterns.some((p) => fileNorm.includes(p));
+          })
       );
+
+      if (foundPlaylistTracks.length === 0) {
+        const baseToken = normalizeToken(path.basename(playlistFolder));
+        foundPlaylistTracks = allTracks.filter((track) => {
+          const parts = track?.Media?.[0]?.Part || [];
+          return parts.some((p) => {
+            const dir = normalizeForCompare(path.posix.dirname(p.file || ""));
+            const segments = dir.split("/");
+            const last = segments[segments.length - 1] || "";
+            return normalizeToken(last) === baseToken;
+          });
+        });
+        if (foundPlaylistTracks.length > 0) {
+          console.warn(`Matched by punctuation-insensitive folder token: ${playlistName}`);
+        }
+      }
 
       if (foundPlaylistTracks.length === 0) {
         retunMessage.message +=
