@@ -5,13 +5,16 @@ const { app } = require("electron");
  * Gets API connection data and user preferences from settings
  */
 async function getAPIData() {
-  const [ipAddress, port, apiKey, theme, versionNo] = await Promise.all([
+  const [ipAddress, port, apiKey, theme, versionNo, timeout] = await Promise.all([
     settings.get("key.ipAddress"),
     settings.get("key.port"),
     settings.get("key.apiKey"),
     settings.get("userPreferences.theme"),
     settings.get("userPreferences.versionNo"),
+    settings.get("key.timeout"), // Retrieve timeout
   ]);
+
+  //console.log(`Retrieved API Data: IP Address: ${ipAddress}, Port: ${port}, API Key: ${apiKey}, Theme: ${theme}, Version No: ${versionNo}, Timeout: ${timeout}`);
 
   return {
     ipaddress: ipAddress,
@@ -19,6 +22,7 @@ async function getAPIData() {
     key: apiKey,
     theme: theme,
     versionNo: versionNo,
+    timeout: timeout || 60000, // Default to 60 seconds if not set
   };
 }
 
@@ -26,10 +30,12 @@ async function getAPIData() {
  * Saves API connection configuration
  */
 async function saveConfig(data) {
+  //console.log(`Saving configuration: API Key: ${data[0]}, IP Address: ${data[1]}, Port: ${data[2]}, Timeout: ${data[3]}`);
   return settings.set("key", {
     apiKey: data[0],
     ipAddress: data[1],
     port: data[2],
+    timeout: data[3], // Save timeout
   });
 }
 

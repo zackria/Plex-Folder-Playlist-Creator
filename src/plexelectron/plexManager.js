@@ -9,7 +9,8 @@ async function testConnection() {
   return plexLocalAPI.testConnection(
     apiData.ipaddress,
     apiData.port,
-    apiData.key
+    apiData.key,
+    apiData.timeout
   );
 }
 
@@ -18,7 +19,7 @@ async function testConnection() {
  */
 async function getPlaylists() {
   const apiData = await getAPIData();
-  return plexLocalAPI.getPlaylist(apiData.ipaddress, apiData.port, apiData.key);
+  return plexLocalAPI.getPlaylist(apiData.ipaddress, apiData.port, apiData.key, apiData.timeout);
 }
 
 /**
@@ -30,6 +31,7 @@ async function createM3UPlaylist(data) {
     apiData.ipaddress,
     apiData.port,
     apiData.key,
+    apiData.timeout,
     data
   );
 }
@@ -43,6 +45,7 @@ async function createPlaylist(data) {
     apiData.ipaddress,
     apiData.port,
     apiData.key,
+    apiData.timeout,
     data
   );
 }
@@ -56,6 +59,7 @@ async function bulkPlaylist(data) {
     apiData.ipaddress,
     apiData.port,
     apiData.key,
+    apiData.timeout,
     data
   );
 }
@@ -68,7 +72,8 @@ async function refreshPlaylists() {
   return plexLocalAPI.refreshPlaylist(
     apiData.ipaddress,
     apiData.port,
-    apiData.key
+    apiData.key,
+    apiData.timeout
   );
 }
 
@@ -81,6 +86,7 @@ async function deletePlaylist(playlistId) {
     apiData.ipaddress,
     apiData.port,
     apiData.key,
+    apiData.timeout,
     playlistId
   );
 }
@@ -93,7 +99,8 @@ async function deleteAllPlaylist() {
   return plexLocalAPI.deleteAllPlaylist(
     apiData.ipaddress,
     apiData.port,
-    apiData.key
+    apiData.key,
+    apiData.timeout
   );
 }
 
@@ -105,7 +112,8 @@ async function createRecentlyPlayedPlaylist() {
   return plexLocalAPI.createRecentlyPlayedPlaylist(
     apiData.ipaddress,
     apiData.port,
-    apiData.key
+    apiData.key,
+    apiData.timeout
   );
 }
 
@@ -117,7 +125,8 @@ async function createRecentlyAddedPlaylist() {
   return plexLocalAPI.createRecentlyAddedPlaylist(
     apiData.ipaddress,
     apiData.port,
-    apiData.key
+    apiData.key,
+    apiData.timeout
   );
 }
 

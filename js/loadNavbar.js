@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .dispatchEvent(new Event("change"));
       }
     })
-    .catch((error) => console.error("Error loading navbar:", error));
+    .catch((error) => console.error("Error in loadNavbar.js at navbar loading: Error loading navbar:", error));
 });
 
 function toggleTheme() {

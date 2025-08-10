@@ -33,6 +33,11 @@
             <input type="text" class="form-control" id="apiKey" placeholder="Enter API Key" required />
             <div class="invalid-feedback alert alert-danger">API Key is required</div>
           </div>
+          <div class="mb-3">
+            <label for="timeout" class="form-label text-dark">Timeout (ms)</label>
+            <input type="number" class="form-control" id="timeout" placeholder="Enter Timeout in ms" value="60000" required />
+            <div class="invalid-feedback alert alert-danger">Timeout is required</div>
+          </div>
           <div class="row">
             <div class="col-12 col-md-4 mb-2">
               <button type="submit" class="btn btn-primary w-100">Save</button>
@@ -69,6 +74,7 @@
         document.getElementById("ipAddress").value = data.ipaddress;
         document.getElementById("port").value = data.port;
         document.getElementById("apiKey").value = data.key;
+        document.getElementById("timeout").value = data.timeout;
         document.getElementById("themeid").value = data.theme;
       });
     </script>

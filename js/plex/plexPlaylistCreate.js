@@ -4,10 +4,10 @@ const { createPlexClient } = require("./plexClient");
 /**
  * Creates a playlist from an M3U file
  */
-async function createM3UPlaylist(hostname, port, plextoken, parametersArray) {
+async function createM3UPlaylist(hostname, port, plextoken, timeout, parametersArray) {
   //console.log("createM3UPlaylist: ", hostname, port, plextoken, parametersArray);
 
-  const client = createPlexClient(hostname, port, plextoken);
+  const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
 
   // Safely extract and trim playlistPath
@@ -46,7 +46,7 @@ async function createM3UPlaylist(hostname, port, plextoken, parametersArray) {
     return retunMessage;
   } catch (error) {
     console.error(
-      `Error creating playlist with name ${playlistPath}:`,
+      `Error in plexPlaylistCreate.js at playlist creation with name ${playlistPath}:`,
       error.message
     );
     retunMessage.status = "error";
@@ -58,8 +58,8 @@ async function createM3UPlaylist(hostname, port, plextoken, parametersArray) {
 /**
  * Creates a playlist from a folder
  */
-async function createPlaylist(hostname, port, plextoken, parametersArray) {
-  const client = createPlexClient(hostname, port, plextoken);
+async function createPlaylist(hostname, port, plextoken, timeout, parametersArray) {
+  const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
 
   // Safely extract and trim playlistPath
@@ -135,7 +135,7 @@ async function createPlaylist(hostname, port, plextoken, parametersArray) {
     return retunMessage;
   } catch (error) {
     console.error(
-      `Error creating playlist with name ${playlistPath}:`,
+      `Error in plexPlaylistCreate.js at playlist creation with name ${playlistPath}:`,
       error.message
     );
     retunMessage.status = "error";
@@ -147,8 +147,8 @@ async function createPlaylist(hostname, port, plextoken, parametersArray) {
 /**
  * Creates multiple playlists from an array of folders
  */
-async function bulkPlaylist(hostname, port, plextoken, playlistArray) {
-  const client = createPlexClient(hostname, port, plextoken);
+async function bulkPlaylist(hostname, port, plextoken, timeout, playlistArray) {
+  const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
 
   // Validate the playlistArray
@@ -239,10 +239,11 @@ async function bulkPlaylist(hostname, port, plextoken, playlistArray) {
 async function createRecentlyPlayedPlaylist(
   hostname,
   port,
-  plextoken,
+  plextoken, 
+  timeout,  
   parametersArray
 ) {
-  const client = createPlexClient(hostname, port, plextoken);
+  const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
   const playlistName = "Recently Played Tracks";
 
@@ -336,9 +337,10 @@ async function createRecentlyAddedPlaylist(
   hostname,
   port,
   plextoken,
+  timeout,
   parametersArray
 ) {
-  const client = createPlexClient(hostname, port, plextoken);
+  const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
   const playlistName = "Recently Added Tracks";
 
