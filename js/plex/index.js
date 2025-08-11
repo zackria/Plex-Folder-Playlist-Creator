@@ -4,6 +4,7 @@ const {
   getPlaylist,
   deletePlaylist,
   deleteAllPlaylist,
+  deleteSelectedPlaylists,
   refreshPlaylist,
 } = require("./plexPlaylistOps");
 const {
@@ -22,6 +23,7 @@ module.exports = {
   // Playlist operations
   getPlaylist,
   deletePlaylist,
+  deleteSelectedPlaylists,
   deleteAllPlaylist,
   refreshPlaylist,
 

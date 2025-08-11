@@ -130,6 +130,20 @@ async function createRecentlyAddedPlaylist() {
   );
 }
 
+/**
+ * Deletes multiple playlists by IDs
+ */
+async function deleteSelectedPlaylists(playlistIds) {
+  const apiData = await getAPIData();
+  return plexLocalAPI.deleteSelectedPlaylists(
+    apiData.ipaddress,
+    apiData.port,
+    apiData.key,
+    apiData.timeout,
+    playlistIds
+  );
+}
+
 module.exports = {
   testConnection,
   getPlaylists,
@@ -139,6 +153,7 @@ module.exports = {
   refreshPlaylists,
   deletePlaylist,
   deleteAllPlaylist,
+  deleteSelectedPlaylists,
   createRecentlyPlayedPlaylist,
   createRecentlyAddedPlaylist
 };

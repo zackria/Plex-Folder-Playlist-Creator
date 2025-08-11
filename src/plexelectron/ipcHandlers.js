@@ -13,6 +13,7 @@ const {
   deleteAllPlaylist,
   createRecentlyPlayedPlaylist,
   createRecentlyAddedPlaylist,
+  deleteSelectedPlaylists,
 } = require("./plexManager");
 
 /**
@@ -72,6 +73,19 @@ function setupIPC(mainWindow) {
   ipcMain.handle("delete-all-playlist", (event, data) =>
     deleteAllPlaylist(data)
   );
+  ipcMain.handle('delete-selected-playlists', async (event, playlistIds) => {
+    if (!Array.isArray(playlistIds) || playlistIds.length === 0) {
+      return { success: false, message: 'No playlists selected.' };
+    }
+
+    try {
+      const result = await deleteSelectedPlaylists(playlistIds);
+      return { success: result };
+    } catch (error) {
+      console.error('Error in delete-selected-playlists handler:', error);
+      return { success: false, message: error.message };
+    }
+  });
 
   // Dialogs
   ipcMain.handle("openDialog", (event, data) => {

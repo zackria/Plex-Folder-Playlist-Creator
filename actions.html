@@ -118,6 +118,11 @@
             <div class="container my-5">
               <h2 class="text-center mb-4 text-dark">Playlists</h2>
               <div class="mb-3">
+                <button id="delete-selected" class="btn btn-danger">
+                  Delete Selected
+                </button>
+              </div>
+              <div class="mb-3">
                 <input
                   type="text"
                   id="searchInput"
@@ -136,6 +141,9 @@
                 >
                   <thead class="table-light">
                     <tr>
+                      <th>
+                        <input type="checkbox" id="select-all" />
+                      </th>
                       <th class="table-light">#</th>
                       <th class="table-light">Title</th>
                       <th class="table-light">Playlist ID</th>
@@ -165,27 +173,17 @@
     <script src="./js/loadNavbar.js"></script>
 
     <script>
-      function filterTable() {
-        const input = document.getElementById("searchInput");
-        const filter = input.value.toLowerCase();
-        const table = document.getElementById("dataTable");
-        const rows = table.getElementsByTagName("tr");
+      document.getElementById('select-all').addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('#dataTable tbody input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+      });
 
-        for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
-          const row = rows[i];
-          const cells = row.getElementsByTagName("td");
-          let match = false;
+      document.getElementById('delete-selected').addEventListener('click', function () {
+        const selectedIds = Array.from(document.querySelectorAll('#dataTable tbody input[type="checkbox"]:checked'))
+          .map(checkbox => checkbox.dataset.id);
 
-          for (const cell of cells) {
-            if (cell && cell.innerText.toLowerCase().includes(filter)) {
-              match = true;
-              break;
-            }
-          }
-
-          row.style.display = match ? "" : "none";
-        }
-      }
+        deleteSelectedPlaylists(selectedIds);
+      });
     </script>
   </body>
 </html>

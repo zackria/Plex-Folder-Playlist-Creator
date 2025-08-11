@@ -433,8 +433,8 @@ async function deletePlaylist(rowid, playlistId) {
   displayMessage("test-result-fail", "none", "none");
   displayMessage("test-result", "none", "none");
 
-  const playlist_no = rowid.cells[0].innerHTML;
-  const playlist_name = rowid.cells[1].innerHTML;
+  const playlist_no = rowid.cells[1].textContent; // Index column (cell 1)
+  const playlist_name = rowid.cells[2].textContent; // Title column (cell 2)
   const parameters = [playlist_no, playlistId, playlist_name];
   const response = await window.ipcRenderer.invoke("openDialog", parameters);
 
@@ -639,23 +639,123 @@ async function recentAddedPlaylist() {
   }
 }
 
-function populateTable(data) {
-  const tableBody = document.querySelector("#dataTable tbody");
-  tableBody.innerHTML = ""; // Clear existing rows
+function filterTable() {
+  const input = document.getElementById("searchInput");
+  const filter = input.value.toLowerCase();
+  const table = document.getElementById("dataTable");
+  const rows = table.getElementsByTagName("tr");
 
-  data.forEach((item, index) => {
-    const row = `
-      <tr id="row${index + 1}">
-        <td>${index + 1}</td>
-        <td>${item.title}</td>
-        <td>${item.ratingKey}</td>
-        <td><button type="button" class="btn btn-primary" onclick="deletePlaylist(row${
-          index + 1
-        }, ${item.ratingKey})">Delete</button></td>
-      </tr>
-    `;
-    tableBody.insertAdjacentHTML("beforeend", row);
+  for (let i = 1; i < rows.length; i++) { // Start from 1 to skip the header row
+    const row = rows[i];
+    const cells = row.getElementsByTagName("td");
+    let match = false;
+
+    for (const cell of cells) {
+      if (cell && cell.innerText.toLowerCase().includes(filter)) {
+        match = true;
+        break;
+      }
+    }
+
+    row.style.display = match ? "" : "none";
+  }
+}
+
+function populateTable(data) {
+  const tableBody = document.querySelector('#dataTable tbody');
+  tableBody.innerHTML = ''; // Clear existing rows
+
+  data.forEach((playlist, index) => {
+    const row = document.createElement('tr');
+
+    // Checkbox column
+    const checkboxCell = document.createElement('td');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.dataset.id = playlist.ratingKey; // Use ratingKey for Playlist ID
+    checkbox.className = 'form-check-input'; // Add Bootstrap class for styling
+    checkbox.style.display = 'inline-block'; // Force visibility
+    checkboxCell.appendChild(checkbox);
+    row.appendChild(checkboxCell);
+
+    // Index column
+    const indexCell = document.createElement('td');
+    indexCell.textContent = index + 1;
+    row.appendChild(indexCell);
+
+    // Title column
+    const titleCell = document.createElement('td');
+    titleCell.textContent = playlist.title || 'Unknown'; // Fallback to 'Unknown' if title is missing
+    row.appendChild(titleCell);
+
+    // Playlist ID column
+    const idCell = document.createElement('td');
+    idCell.textContent = playlist.ratingKey || 'N/A'; // Fallback to 'N/A' if ratingKey is missing
+    row.appendChild(idCell);
+
+    // Delete button column
+    const deleteCell = document.createElement('td');
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.className = 'btn btn-primary btn-sm';
+    deleteButton.onclick = () => deletePlaylist(row, playlist.ratingKey);
+    deleteCell.appendChild(deleteButton);
+    row.appendChild(deleteCell);
+
+    tableBody.appendChild(row);
   });
+}
+
+function deleteSelectedPlaylists(selectedIds) {
+  if (selectedIds.length === 0) {
+    alert('No playlists selected.');
+    return;
+  }
+
+  // Show confirmation dialog for bulk delete
+  const confirmDelete = confirm(`Are you sure you want to delete ${selectedIds.length} selected playlist(s)?`);
+  if (!confirmDelete) {
+    displayMessage(
+      "test-result-fail",
+      "block",
+      `Delete Selected Playlists cancelled <br/>`
+    );
+    return;
+  }
+
+  displayMessage("test-result-fail", "none", "none");
+  displayMessage("test-result", "none", "none");
+  displayMessage("progressbar", "block");
+
+  window.ipcRenderer.invoke('delete-selected-playlists', selectedIds)
+    .then(response => {
+      displayMessage("progressbar", "none");
+      if (response.success) {
+        displayMessage(
+          "test-result",
+          "block",
+          `${selectedIds.length} selected playlists deleted successfully!! <br/>`
+        );
+        const tableBody = document.querySelector('#dataTable tbody');
+        tableBody.innerHTML = ''; // Clear the table body explicitly
+        getPlaylist(`${selectedIds.length} selected playlists deleted successfully!!`); // Reload and populate the table
+      } else {
+        displayMessage(
+          "test-result-fail",
+          "block",
+          `Failed to delete playlists: ${response.message || 'Unknown error'} <br/>`
+        );
+      }
+    })
+    .catch(error => {
+      console.error('Error deleting selected playlists:', error);
+      displayMessage("progressbar", "none");
+      displayMessage(
+        "test-result-fail",
+        "block",
+        "Error occurred while deleting playlists. <br/>"
+      );
+    });
 }
 
 function displayMessage(elementId, displayStyle, message = "") {

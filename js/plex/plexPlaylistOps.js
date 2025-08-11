@@ -85,9 +85,33 @@ async function refreshPlaylist(hostname, port, plextoken, timeout) {
   }
 }
 
+/**
+ * Deletes selected playlists by IDs
+ */
+async function deleteSelectedPlaylists(hostname, port, plextoken, timeout, playlistIds) {
+  if (!Array.isArray(playlistIds) || playlistIds.length === 0) {
+    console.error('Error: No playlist IDs provided for deletion.');
+    return false;
+  }
+
+  const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
+
+  try {
+    for (const playlistId of playlistIds) {
+      await client.deleteQuery(`/playlists/${playlistId}`);
+    }
+    console.log('Successfully deleted selected playlists.');
+    return true;
+  } catch (error) {
+    console.error('Error deleting selected playlists:', error.message);
+    return false;
+  }
+}
+
 module.exports = {
   getPlaylist,
   deletePlaylist,
   deleteAllPlaylist,
   refreshPlaylist,
+  deleteSelectedPlaylists,
 };
