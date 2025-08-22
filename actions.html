@@ -141,8 +141,8 @@
                 >
                   <thead class="table-light">
                     <tr>
-                      <th>
-                        <input type="checkbox" id="select-all" />
+                      <th class="text-start">
+                        <input type="checkbox" id="select-all" class="form-check-input" style="display: inline-block; transform: scale(1.2);" />
                       </th>
                       <th class="table-light">#</th>
                       <th class="table-light">Title</th>
@@ -171,19 +171,5 @@
 
     <script src="./js/bootstrap.bundle.min.js"></script>
     <script src="./js/loadNavbar.js"></script>
-
-    <script>
-      document.getElementById('select-all').addEventListener('change', function () {
-        const checkboxes = document.querySelectorAll('#dataTable tbody input[type="checkbox"]');
-        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-      });
-
-      document.getElementById('delete-selected').addEventListener('click', function () {
-        const selectedIds = Array.from(document.querySelectorAll('#dataTable tbody input[type="checkbox"]:checked'))
-          .map(checkbox => checkbox.dataset.id);
-
-        deleteSelectedPlaylists(selectedIds);
-      });
-    </script>
   </body>
 </html>

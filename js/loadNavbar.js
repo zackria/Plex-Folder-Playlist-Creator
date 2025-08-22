@@ -704,6 +704,38 @@ function populateTable(data) {
 
     tableBody.appendChild(row);
   });
+
+  // Setup select all functionality after table is populated
+  setupSelectAllFunctionality();
+}
+
+function setupSelectAllFunctionality() {
+  const selectAllCheckbox = document.getElementById('select-all');
+  const deleteSelectedButton = document.getElementById('delete-selected');
+  
+  if (selectAllCheckbox) {
+    // Remove any existing event listeners to avoid duplicates
+    selectAllCheckbox.removeEventListener('change', handleSelectAll);
+    selectAllCheckbox.addEventListener('change', handleSelectAll);
+  }
+  
+  if (deleteSelectedButton) {
+    // Remove any existing event listeners to avoid duplicates
+    deleteSelectedButton.removeEventListener('click', handleDeleteSelected);
+    deleteSelectedButton.addEventListener('click', handleDeleteSelected);
+  }
+}
+
+function handleSelectAll() {
+  const selectAllCheckbox = document.getElementById('select-all');
+  const checkboxes = document.querySelectorAll('#dataTable tbody input[type="checkbox"]');
+  checkboxes.forEach(checkbox => checkbox.checked = selectAllCheckbox.checked);
+}
+
+function handleDeleteSelected() {
+  const selectedIds = Array.from(document.querySelectorAll('#dataTable tbody input[type="checkbox"]:checked'))
+    .map(checkbox => checkbox.dataset.id);
+  deleteSelectedPlaylists(selectedIds);
 }
 
 function deleteSelectedPlaylists(selectedIds) {
