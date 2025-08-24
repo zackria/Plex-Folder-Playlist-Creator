@@ -41,11 +41,12 @@
     }
   </style>
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">
+      <a class="navbar-brand" href="#">
       Plex Folder Playlist
       <small class="text-dark display-10 fst-italic" id="versionNum"></small>
-      <label class="nav-link toggle-button ms-3">
-        <input type="checkbox" id="themeToggle" />
+      <!-- keep the input and the label separate so the label can be explicitly associated -->
+  <input type="checkbox" id="themeToggle" class="visually-hidden" aria-label="Toggle theme" />
+  <label for="themeToggle" class="nav-link toggle-button ms-3">
         <i class="bi bi-sun toggle-icon me-2 btn-outline-light" id="sunIcon"></i>
         <i class="bi bi-moon toggle-icon btn-outline-light" id="moonIcon"></i>
       </label>

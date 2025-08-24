@@ -57,13 +57,14 @@ async function deleteAllPlaylist(hostname, port, plextoken, timeout) {
 
   try {
     const playlists = await getPlaylist(hostname, port, plextoken, timeout);
-    for (let i = 0; i < playlists.length; i++) {
-      await client.deleteQuery(`/playlists/${playlists[i].ratingKey}`);
+    // Use a for-of loop for simple iteration over playlists
+    for (const playlist of playlists) {
+      await client.deleteQuery(`/playlists/${playlist.ratingKey}`);
     }
     return true;
   } catch (error) {
     console.error(
-      `Error in plexPlaylistOps.js at playlist operations: Error deleting playlist with ID ${playlistId}:`,
+      `Error in plexPlaylistOps.js at playlist operations: Error deleting playlists:`,
       error.message
     );
     return false;
