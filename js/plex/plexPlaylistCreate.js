@@ -143,18 +143,27 @@ function normalizeForCompare(p) {
   return norm;
 }
 
+// Trim trailing dots from a string without using regex to avoid
+// potential backtracking concerns flagged by static analyzers.
+function trimTrailingDots(str) {
+  if (!str) return str;
+  let end = str.length - 1;
+  while (end >= 0 && str[end] === ".") end--;
+  return str.slice(0, end + 1);
+}
+
 // Build candidate folder patterns to match against file paths
 function buildFolderPatterns(inputPath) {
   const patterns = new Set();
   const normFull = normalizeForCompare(inputPath);
-  const normFullTrimDot = normFull.replace(/\.+$/g, ""); // ignore trailing dots
+  const normFullTrimDot = trimTrailingDots(normFull); // ignore trailing dots
 
   for (const variant of [normFull, normFullTrimDot]) {
     if (variant) patterns.add(`${variant}/`);
   }
 
   const base = normalizeForCompare(path.basename(inputPath));
-  const baseTrimDot = base.replace(/\.+$/g, "");
+  const baseTrimDot = trimTrailingDots(base);
   for (const b of [base, baseTrimDot]) {
     if (b) patterns.add(`/${b}/`);
   }
