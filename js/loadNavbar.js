@@ -18,9 +18,60 @@ document.addEventListener("DOMContentLoaded", () => {
           .getElementById("themeToggle")
           .dispatchEvent(new Event("change"));
       }
+  // Enforce numeric-only input for port and timeout fields
+  makeNumeric('port');
+  makeNumeric('timeout');
     })
     .catch((error) => console.error("Error in loadNavbar.js at navbar loading: Error loading navbar:", error));
 });
+
+// Attach numeric-only enforcement to inputs by id
+function makeNumeric(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  // Hint for mobile keyboards
+  el.setAttribute('inputmode', 'numeric');
+  el.setAttribute('pattern', '\\d*');
+
+  // Prevent non-digit characters during typing
+  el.addEventListener('keypress', function (ev) {
+    const char = ev.key;
+    if (char && char.length === 1 && !/\d/.test(char)) {
+      ev.preventDefault();
+    }
+  });
+
+  // Clean pasted content to digits only
+  el.addEventListener('paste', function (ev) {
+    ev.preventDefault();
+    const clipboard = (ev.clipboardData || window.clipboardData);
+    const text = (clipboard ? clipboard.getData('text') : '') || '';
+    const digits = text.replace(/\D+/g, '');
+    // replace selection or append
+    const start = typeof el.selectionStart === 'number' ? el.selectionStart : 0;
+    const end = typeof el.selectionEnd === 'number' ? el.selectionEnd : 0;
+    const value = el.value || '';
+    el.value = value.slice(0, start) + digits + value.slice(end);
+    // move cursor after inserted digits if supported
+    const pos = start + digits.length;
+    if (typeof el.setSelectionRange === 'function') {
+      el.setSelectionRange(pos, pos);
+    }
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  // Ensure any programmatic input is cleaned
+  el.addEventListener('input', function () {
+    const cleaned = (el.value || '').replace(/\D+/g, '');
+    if (el.value !== cleaned) {
+      const pos = typeof el.selectionStart === 'number' ? el.selectionStart : cleaned.length;
+      el.value = cleaned;
+      if (typeof el.setSelectionRange === 'function') {
+        el.setSelectionRange(pos, pos);
+      }
+    }
+  });
+}
 
 function toggleTheme() {
   const toggle = document.getElementById("themeToggle");
