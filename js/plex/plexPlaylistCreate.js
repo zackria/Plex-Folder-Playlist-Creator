@@ -75,9 +75,9 @@ function normalizeForCompare(p) {
     // map several dash-like codepoints to ASCII hyphen-minus
     const dashSet = new Set([0x2010, 0x2011, 0x2013, 0x2014, 0x2212]);
     let out = "";
-    for (let i = 0; i < str.length; i++) {
-      const cp = str.charCodeAt(i);
-      out += dashSet.has(cp) ? "-" : str[i];
+    for (const ch of str) {
+      const cp = ch.charCodeAt(0);
+      out += dashSet.has(cp) ? "-" : ch;
     }
     return out;
   }
@@ -86,8 +86,7 @@ function normalizeForCompare(p) {
     if (!str) return str;
     let out = "";
     let inSpace = false;
-    for (let i = 0; i < str.length; i++) {
-      const ch = str[i];
+    for (const ch of str) {
       if (ch === " ") {
         if (!inSpace) {
           out += ch;
@@ -104,8 +103,7 @@ function normalizeForCompare(p) {
   function collapseSlashesAndTrim(str) {
     if (!str) return str;
     let out = "";
-    for (let i = 0; i < str.length; i++) {
-      const ch = str[i];
+    for (const ch of str) {
       if (ch === "/") {
         if (out.length === 0 || !out.endsWith("/")) out += "/";
         // else skip duplicate slash
