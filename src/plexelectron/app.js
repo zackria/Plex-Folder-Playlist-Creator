@@ -23,6 +23,9 @@ app.whenReady().then(async () => {
       mainWindow = createWindow();
       let apiData = await getAPIData();
       mainWindow.loadFile("index.html", { query: apiData }); // Load the content
+
+      // Optional, remove for production
+      //mainWindow.webContents.openDevTools();
     }
   });
 });
