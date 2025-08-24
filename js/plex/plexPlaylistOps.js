@@ -32,7 +32,6 @@ async function deletePlaylist(hostname, port, plextoken,  timeout, playlistId) {
 
   try {
     await client.deleteQuery(`/playlists/${playlistId}`);
-    console.log(`Successfully deleted playlist with ID ${playlistId}`);
     return true;
   } catch (error) {
     if (error.response && error.response.statusCode === 404) {
@@ -101,7 +100,6 @@ async function deleteSelectedPlaylists(hostname, port, plextoken, timeout, playl
     for (const playlistId of playlistIds) {
       await client.deleteQuery(`/playlists/${playlistId}`);
     }
-    console.log('Successfully deleted selected playlists.');
     return true;
   } catch (error) {
     console.error('Error deleting selected playlists:', error.message);
