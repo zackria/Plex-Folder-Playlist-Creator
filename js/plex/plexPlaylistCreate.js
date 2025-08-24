@@ -1,9 +1,23 @@
 const path = require("path");
 const { createPlexClient, createPlexClientWithTimeout } = require("./plexClient");
 
+// Security: cap input sizes for normalization and tokenization to avoid
+// pathological regex/Unicode operations on attacker-controlled huge strings.
+// These values are conservative and can be increased if needed, but ensure
+// any regex work remains linear and bounded.
+const MAX_NORMALIZE_LENGTH = 4096; // max chars for path normalization
+const MAX_TOKEN_LENGTH = 512; // max chars for token normalization
+
+function safeTruncate(s, max) {
+  if (typeof s !== "string") return s;
+  return s.length > max ? s.slice(0, max) : s;
+}
+
 // Normalize paths for reliable substring comparison across OSes and encodings
 function normalizeForCompare(p) {
   if (!p) return "";
+  // Truncate early to avoid expensive regex/unicode ops on huge inputs
+  p = safeTruncate(p, MAX_NORMALIZE_LENGTH);
   let decoded = p;
   // Only attempt decode if it looks percent-encoded
   if (/%[0-9A-Fa-f]{2}/.test(p)) {
@@ -57,7 +71,8 @@ function buildFolderPatterns(inputPath) {
 
 // Token normalization (remove all non a-z0-9) for punctuation-insensitive compare
 function normalizeToken(s) {
-  return (s || "")
+  s = safeTruncate(s || "", MAX_TOKEN_LENGTH);
+  return s
     .toLowerCase()
     .normalize("NFC")
     .replace(/[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000]/g, " ")
