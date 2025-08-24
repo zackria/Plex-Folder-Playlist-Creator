@@ -107,14 +107,14 @@ function normalizeForCompare(p) {
     for (let i = 0; i < str.length; i++) {
       const ch = str[i];
       if (ch === "/") {
-        if (out.length === 0 || out[out.length - 1] !== "/") out += "/";
+        if (out.length === 0 || !out.endsWith("/")) out += "/";
         // else skip duplicate slash
       } else {
         out += ch;
       }
     }
     // Trim trailing slash
-    if (out.length > 1 && out[out.length - 1] === "/") out = out.slice(0, -1);
+    if (out.length > 1 && out.endsWith("/")) out = out.slice(0, -1);
     return out;
   }
 
@@ -123,7 +123,9 @@ function normalizeForCompare(p) {
     const parts = str.split("/");
     for (let i = 0; i < parts.length; i++) {
       let seg = parts[i];
-      while (seg.length > 0 && seg[seg.length - 1] === ".") seg = seg.slice(0, -1);
+      while (seg.length > 0 && seg.endsWith(".")) {
+        seg = seg.slice(0, -1);
+      }
       parts[i] = seg;
     }
     return parts.join("/");
