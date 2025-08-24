@@ -8,7 +8,6 @@ function createPlexClient(hostname, port, plextoken) {
     throw new Error("Invalid Plex Server hostname: Hostname must be a non-empty string.");
   }
 
-  //console.log(`Creating Plex client with hostname: ${hostname}, port: ${port}`);
 
   return new PlexAPI({
     hostname,
@@ -44,7 +43,6 @@ async function testConnection(hostname, port, plextoken, timeout) {
 
   try {
     const serverInfo = await client.query("/");
-    //console.log("Test connection successful. Server Info:", serverInfo);
     return serverInfo;
   } catch (error) {
     console.error("Error in plexClient.js at testConnection: Error connecting to Plex server:", error);

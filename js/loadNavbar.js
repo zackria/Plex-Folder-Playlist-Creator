@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("versionNumMenu").innerHTML =
         themeData.versionNo === undefined ? "" : themeData.versionNo;
-      //console.log(themeData.versionNo);
 
       if (themeData.theme === "dark") {
         document
@@ -28,51 +27,35 @@ function toggleTheme() {
   const body = document.body;
   const sunIcon = document.getElementById("sunIcon");
   const moonIcon = document.getElementById("moonIcon");
-
-  const toggleClasses = (elements, oldClass, newClass) => {
-    Array.from(elements).forEach((el) =>
-      el.classList.replace(oldClass, newClass)
-    );
+  const toggleClasses = (elements, fromClass, toClass) => {
+    Array.from(elements).forEach((el) => el.classList.replace(fromClass, toClass));
   };
+
+  const classPairs = [
+    ["table-light", "table-dark"],
+    ["text-dark", "text-light"],
+    ["bg-light", "bg-dark"],
+    ["navbar-light", "navbar-dark"],
+  ];
 
   toggle.addEventListener("change", () => {
     const isDarkMode = body.classList.toggle("bg-dark");
 
-    sunIcon.classList.replace(
-      isDarkMode ? "bi-sun-fill" : "bi-sun",
-      isDarkMode ? "bi-sun" : "bi-sun-fill"
-    );
-    moonIcon.classList.replace(
-      isDarkMode ? "bi-moon" : "bi-moon-fill",
-      isDarkMode ? "bi-moon-fill" : "bi-moon"
-    );
+    // swap sun and moon icons
+    const sunFrom = isDarkMode ? "bi-sun-fill" : "bi-sun";
+    const sunTo = isDarkMode ? "bi-sun" : "bi-sun-fill";
+    sunIcon.classList.replace(sunFrom, sunTo);
 
-    toggleClasses(
-      document.getElementsByClassName(
-        isDarkMode ? "table-light" : "table-dark"
-      ),
-      isDarkMode ? "table-light" : "table-dark",
-      isDarkMode ? "table-dark" : "table-light"
-    );
+    const moonFrom = isDarkMode ? "bi-moon" : "bi-moon-fill";
+    const moonTo = isDarkMode ? "bi-moon-fill" : "bi-moon";
+    moonIcon.classList.replace(moonFrom, moonTo);
 
-    toggleClasses(
-      document.getElementsByClassName(isDarkMode ? "text-dark" : "text-light"),
-      isDarkMode ? "text-dark" : "text-light",
-      isDarkMode ? "text-light" : "text-dark"
-    );
-
-    toggleClasses(
-      document.getElementsByClassName(isDarkMode ? "bg-light" : "bg-dark"),
-      isDarkMode ? "bg-light" : "bg-dark",
-      isDarkMode ? "bg-dark" : "bg-light"
-    );
-    toggleClasses(
-      document.getElementsByClassName(
-        isDarkMode ? "navbar-light" : "navbar-dark"
-      ),
-      isDarkMode ? "navbar-light" : "navbar-dark",
-      isDarkMode ? "navbar-dark" : "navbar-light"
-    );
+    // update groups of classes by iterating over pairs
+    classPairs.forEach(([lightClass, darkClass]) => {
+      const from = isDarkMode ? lightClass : darkClass;
+      const to = isDarkMode ? darkClass : lightClass;
+      toggleClasses(document.getElementsByClassName(from), from, to);
+    });
 
     const theme = isDarkMode ? "dark" : "light";
     window.ipcRenderer.send("save-theme", theme);
@@ -651,7 +634,7 @@ function filterTable() {
     let match = false;
 
     for (const cell of cells) {
-      if (cell && cell.innerText.toLowerCase().includes(filter)) {
+      if (cell?.innerText?.toLowerCase().includes(filter)) {
         match = true;
         break;
       }

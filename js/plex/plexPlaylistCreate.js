@@ -10,7 +10,9 @@ function normalizeForCompare(p) {
     try {
       decoded = decodeURIComponent(p);
     } catch (e) {
+      // Keep original if decoding fails, but record a warning for diagnostics
       decoded = p; // fall back to original on decode failure
+  console.warn('normalizeForCompare: decodeURIComponent failed, using original path', e?.message);
     }
   }
   // Replace a wide range of unicode spaces with a normal space
@@ -62,6 +64,95 @@ function normalizeToken(s) {
     .replace(/[‐‑–—−]/g, "-")
     .replace(/[^a-z0-9]/g, "");
 }
+
+// --- Helper utilities to reduce duplication ---
+async function getMachineIdentifier(client) {
+  const serverInfo = await client.query("/");
+  return serverInfo.MediaContainer.machineIdentifier;
+}
+
+async function getMusicLibraryByTitle(client, title) {
+  const sections = await client.query("/library/sections");
+  return sections.MediaContainer.Directory.find((section) => section.title === title);
+}
+
+function buildUriFromItemKeys(machineIdentifier, itemKeys) {
+  return `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(",")}`;
+}
+
+async function postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys) {
+  const uri = buildUriFromItemKeys(machineIdentifier, itemKeys);
+  const queryParameters = new URLSearchParams({
+    type: "audio",
+    title: playlistName,
+    smart: "0",
+    uri,
+  }).toString();
+  const queryPath = `/playlists?${queryParameters}`;
+  await client.postQuery(queryPath);
+}
+
+function findPlaylistTracks(allTracks, playlistPath) {
+  const patterns = buildFolderPatterns(playlistPath);
+
+  let found = allTracks.filter((track) =>
+    track?.Media?.[0]?.Part?.some((part) => {
+      const fileNorm = normalizeForCompare(part.file);
+      return patterns.some((p) => fileNorm.includes(p));
+    })
+  );
+
+  if (found.length === 0) {
+    const baseToken = normalizeToken(path.basename(playlistPath));
+    found = allTracks.filter((track) => {
+      const parts = track?.Media?.[0]?.Part || [];
+      return parts.some((p) => {
+        const dir = normalizeForCompare(path.posix.dirname(p.file || ""));
+        const segments = dir.split("/");
+        const last = segments[segments.length - 1] || "";
+        return normalizeToken(last) === baseToken;
+      });
+    });
+  }
+
+  return found;
+}
+
+async function checkAndDeletePlaylistIfExists(client, playlistName) {
+  const playlists = await client.query("/playlists");
+  const existingPlaylist = playlists.MediaContainer.Metadata?.find(
+    (playlist) => playlist.title === playlistName
+  );
+  if (existingPlaylist) {
+    await client.deleteQuery(`/playlists/${existingPlaylist.ratingKey}`);
+    return true;
+  }
+  return false;
+}
+
+async function fetchRecentTracks(client, sortField, limit = 100) {
+  const sections = await client.query("/library/sections");
+  const musicLibraries = sections.MediaContainer.Directory.filter(
+    (section) => section.type === "artist"
+  );
+
+  if (!musicLibraries.length) return [];
+
+  let recentTracks = [];
+  for (const library of musicLibraries) {
+    const tracks = await client.query(
+      `/library/sections/${library.key}/all?type=10&sort=${sortField}:desc&limit=50`
+    );
+
+    if (tracks.MediaContainer.Metadata) {
+      recentTracks.push(...tracks.MediaContainer.Metadata);
+    }
+  }
+
+  recentTracks.sort((a, b) => b[sortField] - a[sortField]);
+  return recentTracks.slice(0, limit);
+}
+// --- end helpers ---
 
 /**
  * Creates a playlist from an M3U file
@@ -130,14 +221,12 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
     retunMessage.message = "Playlist path is required.";
     return retunMessage;
   }
-  //console.log(`Playlist path: ${playlistPath}`);
 
   // Safely extract and trim playlistName
   let playlistName = parametersArray[1] ? parametersArray[1].trim() : "";
   if (!playlistName) {
     playlistName = path.basename(playlistPath);
   }
-  //console.log(`Playlist name: ${playlistName}`);
   retunMessage.message += `Playlist name: ${playlistName}. <br/>`;
 
   // Safely extract and trim library
@@ -145,7 +234,6 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
   if (!library) {
     library = "Music";
   }
-  //console.log(`Library: ${library}`);
   retunMessage.message += `Library: ${library}. <br/>`;
 
   try {
@@ -163,41 +251,17 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
       retunMessage.status = "error";
       return retunMessage;
     }
-    //console.log(`Music library found: ${musicLibrary.title}, key: ${musicLibrary.key}`);
 
     const tracks = await client.query(
       `/library/sections/${musicLibrary.key}/all?type=10`
     );
-    //console.log(`Total tracks found: ${tracks.MediaContainer.Metadata.length}`);
+  
 
     const allTracks = tracks.MediaContainer.Metadata || [];
-    const patterns = buildFolderPatterns(playlistPath);
-
-    let foundPlaylistTracks = allTracks.filter((track) =>
-      track?.Media?.[0]?.Part?.some((part) => {
-        const fileNorm = normalizeForCompare(part.file);
-        return patterns.some((p) => fileNorm.includes(p));
-      })
-    );
-
-    // Fallback 2: punctuation-insensitive compare using last directory segment tokens
-    if (foundPlaylistTracks.length === 0) {
-      const baseToken = normalizeToken(path.basename(playlistPath));
-      foundPlaylistTracks = allTracks.filter((track) => {
-        const parts = track?.Media?.[0]?.Part || [];
-        return parts.some((p) => {
-          const dir = normalizeForCompare(path.posix.dirname(p.file || ""));
-          const segments = dir.split("/");
-          const last = segments[segments.length - 1] || "";
-          return normalizeToken(last) === baseToken;
-        });
-      });
-      if (foundPlaylistTracks.length > 0) {
-        console.warn(`Matched by punctuation-insensitive folder token: ${path.basename(playlistPath)}`);
-      }
-    }
+    const foundPlaylistTracks = findPlaylistTracks(allTracks, playlistPath);
 
     if (foundPlaylistTracks.length === 0) {
+      const patterns = buildFolderPatterns(playlistPath);
       console.warn(`No tracks found for folder: ${playlistPath}`);
       console.warn(`Tried patterns: ${patterns.join(" | ")}`);
       const sample = tracks.MediaContainer.Metadata?.[0]?.Media?.[0]?.Part?.[0]?.file;
@@ -212,17 +276,7 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
     retunMessage.message += `Creating playlist: "${playlistName}" with ${foundPlaylistTracks.length} tracks. <br/>`;
 
     const itemKeys = foundPlaylistTracks.map((track) => track.ratingKey);
-    const uri = `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(",")}`;
-
-    const queryParameters = new URLSearchParams({
-      type: "audio",
-      title: playlistName,
-      smart: "0",
-      uri,
-    }).toString();
-    const queryPath = `/playlists?${queryParameters}`;
-
-    await client.postQuery(queryPath);
+    await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys);
 
     return retunMessage;
   } catch (error) {
@@ -286,55 +340,19 @@ async function bulkPlaylist(hostname, port, plextoken, timeout, playlistArray) {
 
       const playlistName = path.basename(playlistFolder);
 
+      // use helper to find matching tracks
       const allTracks = tracks.MediaContainer.Metadata || [];
-      const patterns = buildFolderPatterns(playlistFolder);
-
-      let foundPlaylistTracks = allTracks.filter(
-        (track) =>
-          track?.Media?.[0]?.Part?.some((part) => {
-            const fileNorm = normalizeForCompare(part.file);
-            return patterns.some((p) => fileNorm.includes(p));
-          })
-      );
+      const foundPlaylistTracks = findPlaylistTracks(allTracks, playlistFolder);
 
       if (foundPlaylistTracks.length === 0) {
-        const baseToken = normalizeToken(path.basename(playlistFolder));
-        foundPlaylistTracks = allTracks.filter((track) => {
-          const parts = track?.Media?.[0]?.Part || [];
-          return parts.some((p) => {
-            const dir = normalizeForCompare(path.posix.dirname(p.file || ""));
-            const segments = dir.split("/");
-            const last = segments[segments.length - 1] || "";
-            return normalizeToken(last) === baseToken;
-          });
-        });
-        if (foundPlaylistTracks.length > 0) {
-          console.warn(`Matched by punctuation-insensitive folder token: ${playlistName}`);
-        }
-      }
-
-      if (foundPlaylistTracks.length === 0) {
-        retunMessage.message +=
-          "No tracks found for folder: " + playlistFolder + " <br/>";
+        retunMessage.message += "No tracks found for folder: " + playlistFolder + " <br/>";
         continue;
       }
 
       retunMessage.message += `Creating playlist: "${playlistName}" with ${foundPlaylistTracks.length} tracks. <br/>`;
 
       const itemKeys = foundPlaylistTracks.map((track) => track.ratingKey);
-      const uri = `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(
-        ","
-      )}`;
-
-      const queryParameters = new URLSearchParams({
-        type: "audio",
-        title: playlistName,
-        smart: "0",
-        uri,
-      }).toString();
-      const queryPath = `/playlists?${queryParameters}`;
-
-      await client.postQuery(queryPath);
+      await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys);
       retunMessage.message += `Playlist "${playlistName}" created successfully.<br/>`;
     }
 
@@ -366,15 +384,8 @@ async function createRecentlyPlayedPlaylist(
     const machineIdentifier = serverInfo.MediaContainer.machineIdentifier;
 
     // Check if the playlist already exists and delete it
-    const playlists = await client.query("/playlists");
-    const existingPlaylist = playlists.MediaContainer.Metadata?.find(
-      (playlist) => playlist.title === playlistName
-    );
-
-    if (existingPlaylist) {
-      await client.deleteQuery(`/playlists/${existingPlaylist.ratingKey}`);
-      retunMessage.message += `Existing playlist "${playlistName}" deleted. <br/>`;
-    }
+    const deleted = await checkAndDeletePlaylistIfExists(client, playlistName);
+    if (deleted) retunMessage.message += `Existing playlist "${playlistName}" deleted. <br/>`;
 
     // Get all music libraries
     const sections = await client.query("/library/sections");
@@ -389,24 +400,8 @@ async function createRecentlyPlayedPlaylist(
     }
 
     // Fetch recently played tracks from each music library
-    let recentTracks = [];
-    for (const library of musicLibraries) {
-      const tracks = await client.query(
-        `/library/sections/${library.key}/all?type=10&sort=lastViewedAt:desc&limit=50`
-      );
-
-      if (tracks.MediaContainer.Metadata) {
-        recentTracks.push(
-          ...tracks.MediaContainer.Metadata.filter(
-            (track) => track.lastViewedAt // Only include tracks that have been played
-          )
-        );
-      }
-    }
-
-    // Sort by last viewed date and limit to 100 most recent
-    recentTracks.sort((a, b) => b.lastViewedAt - a.lastViewedAt);
-    recentTracks = recentTracks.slice(0, 100);
+    let recentTracks = await fetchRecentTracks(client, "lastViewedAt", 100);
+    recentTracks = recentTracks.filter((t) => t.lastViewedAt);
 
     if (recentTracks.length === 0) {
       retunMessage.message += "No recently played tracks found. <br/>";
@@ -416,21 +411,8 @@ async function createRecentlyPlayedPlaylist(
 
     retunMessage.message += `Found ${recentTracks.length} recently played tracks. <br/>`;
 
-    // Extract rating keys and construct the URI
     const itemKeys = recentTracks.map((track) => track.ratingKey);
-    const uri = `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(
-      ","
-    )}`;
-
-    const queryParameters = new URLSearchParams({
-      type: "audio",
-      title: playlistName,
-      smart: "0",
-      uri,
-    }).toString();
-    const queryPath = `/playlists?${queryParameters}`;
-
-    await client.postQuery(queryPath);
+    await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys);
     retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentTracks.length} tracks. <br/>`;
     return retunMessage;
   } catch (error) {
@@ -463,43 +445,10 @@ async function createRecentlyAddedPlaylist(
     const machineIdentifier = serverInfo.MediaContainer.machineIdentifier;
 
     // Check if the playlist already exists and delete it
-    const playlists = await client.query("/playlists");
-    const existingPlaylist = playlists.MediaContainer.Metadata?.find(
-      (playlist) => playlist.title === playlistName
-    );
+    const deleted = await checkAndDeletePlaylistIfExists(client, playlistName);
+    if (deleted) retunMessage.message += `Existing playlist "${playlistName}" deleted. <br/>`;
 
-    if (existingPlaylist) {
-      await client.deleteQuery(`/playlists/${existingPlaylist.ratingKey}`);
-      retunMessage.message += `Existing playlist "${playlistName}" deleted. <br/>`;
-    }
-
-    // Get all music libraries
-    const sections = await client.query("/library/sections");
-    const musicLibraries = sections.MediaContainer.Directory.filter(
-      (section) => section.type === "artist"
-    );
-
-    if (!musicLibraries.length) {
-      retunMessage.message += "No music libraries found. <br/>";
-      retunMessage.status = "error";
-      return retunMessage;
-    }
-
-    // Fetch recently added tracks from each music library
-    let recentTracks = [];
-    for (const library of musicLibraries) {
-      const tracks = await client.query(
-        `/library/sections/${library.key}/all?type=10&sort=addedAt:desc&limit=50`
-      );
-
-      if (tracks.MediaContainer.Metadata) {
-        recentTracks.push(...tracks.MediaContainer.Metadata);
-      }
-    }
-
-    // Sort by added date and limit to 100 most recent
-    recentTracks.sort((a, b) => b.addedAt - a.addedAt);
-    recentTracks = recentTracks.slice(0, 100);
+    let recentTracks = await fetchRecentTracks(client, "addedAt", 100);
 
     if (recentTracks.length === 0) {
       retunMessage.message += "No recently added tracks found. <br/>";
@@ -509,21 +458,8 @@ async function createRecentlyAddedPlaylist(
 
     retunMessage.message += `Found ${recentTracks.length} recently added tracks. <br/>`;
 
-    // Extract rating keys and construct the URI
     const itemKeys = recentTracks.map((track) => track.ratingKey);
-    const uri = `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(
-      ","
-    )}`;
-
-    const queryParameters = new URLSearchParams({
-      type: "audio",
-      title: playlistName,
-      smart: "0",
-      uri,
-    }).toString();
-    const queryPath = `/playlists?${queryParameters}`;
-
-    await client.postQuery(queryPath);
+    await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys);
     retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentTracks.length} tracks. <br/>`;
     return retunMessage;
   } catch (error) {

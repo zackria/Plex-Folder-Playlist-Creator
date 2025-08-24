@@ -14,7 +14,6 @@ async function getAPIData() {
     settings.get("key.timeout"), // Retrieve timeout
   ]);
 
-  //console.log(`Retrieved API Data: IP Address: ${ipAddress}, Port: ${port}, API Key: ${apiKey}, Theme: ${theme}, Version No: ${versionNo}, Timeout: ${timeout}`);
 
   return {
     ipaddress: ipAddress,
@@ -30,7 +29,6 @@ async function getAPIData() {
  * Saves API connection configuration
  */
 async function saveConfig(data) {
-  //console.log(`Saving configuration: API Key: ${data[0]}, IP Address: ${data[1]}, Port: ${data[2]}, Timeout: ${data[3]}`);
   return settings.set("key", {
     apiKey: data[0],
     ipAddress: data[1],

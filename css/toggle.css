@@ -1,6 +1,5 @@
 .toggle-button {
   display: inline-flex;
-  /* align-items: center; */
   cursor: pointer;
 }
 .toggle-icon {
