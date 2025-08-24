@@ -23,14 +23,16 @@ function createPlexClient(hostname, port, plextoken) {
  * Creates a Plex API client with custom timeout
  */
 function createPlexClientWithTimeout(hostname, port, plextoken, timeout) {
-  const validTimeout = typeof timeout === "number" && timeout > 0 ? timeout : 60000; // Default to 60 seconds if invalid
+  // Accept numeric strings from UI (e.g. "10") by coercing to Number.
+  const parsed = Number(timeout);
+  const validTimeout = Number.isFinite(parsed) && parsed > 0 ? parsed : 60000; // Default to 60 seconds if invalid
 
   return new PlexAPI({
     hostname,
     port,
     token: plextoken,
     requestOptions: {
-      timeout: validTimeout, // Use validated timeout value
+      timeout: validTimeout, // Use validated timeout value (number)
     },
   });
 }
@@ -43,11 +45,21 @@ async function testConnection(hostname, port, plextoken, timeout) {
 
   try {
     const serverInfo = await client.query("/");
-    return serverInfo;
+    // return structured success object so callers (UI) can easily distinguish
+    // between success/failure and access error details when available
+    return { success: true, data: serverInfo };
   } catch (error) {
     console.error("Error in plexClient.js at testConnection: Error connecting to Plex server:", error);
     console.error("Hostname:", hostname, "Port:", port, "Token:", plextoken, "Timeout:", timeout);
-    return false;
+    // Build a compact, safe-to-serialize error object for the UI
+    const safeError = {
+      message: error?.message ?? String(error),
+      name: error?.name ?? "Error",
+      // plex-api errors may carry a response.statusCode
+      statusCode: error?.statusCode ?? error?.response?.statusCode ?? null,
+    };
+
+    return { success: false, error: safeError };
   }
 }
 

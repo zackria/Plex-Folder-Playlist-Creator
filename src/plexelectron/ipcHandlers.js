@@ -42,8 +42,6 @@ function setupIPC(mainWindow) {
 
   // Configuration
   ipcMain.handle("save-config", async (event, data) => {
-    console.log("Received data from UI for save-config:", data);
-
     const [apiKey, ipAddress, port, timeout] = [
       data[0], // Access array elements directly
       data[1],

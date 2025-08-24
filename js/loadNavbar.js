@@ -198,7 +198,9 @@ async function handleFormSubmit(e) {
   const data = [
     document.getElementById("apiKey").value,
     document.getElementById("ipAddress").value,
-    document.getElementById("port").value,
+  document.getElementById("port").value,
+  // include timeout input so backend receives UI value (may be a string)
+  (document.getElementById("timeout") ? document.getElementById("timeout").value.trim() : undefined),
   ];
 
   displayMessage("progressbar", "block");
@@ -380,24 +382,49 @@ async function testConnection() {
     const result = await window.ipcRenderer.invoke("test-connection");
     displayMessage("progressbar", "none");
 
+    // Backwards compatible handling: some callers may still get `false`.
     if (result === false) {
       displayMessage(
         "test-result-fail",
         "block",
         "Connection Error!!! <br/> Please check your settings and try again."
       );
+      return;
+    }
+
+    // New structured response: { success: true, data } or { success: false, error }
+    if (result && typeof result === "object") {
+      if (result.success) {
+        const info = result.data?.MediaContainer ?? {};
+        displayMessage(
+          "test-result",
+          "block",
+          `Connection Successful!!! <br/>
+        Plex Server Name: ${info.friendlyName || "(unknown)"} <br/>
+        Plex User Name: ${info.myPlexUsername || "(unknown)"} <br/>
+        Plex Platform: ${info.platform || "(unknown)"} <br/>
+        Plex Platform Version: ${info.platformVersion || "(unknown)"} <br/>
+        Plex Software Version: ${info.version || "(unknown)"}`
+        );
+        console.log(result.data);
+      } else {
+        // result.success === false
+        const err = result.error || {};
+        const statusLine = err.statusCode ? `Status: ${err.statusCode} <br/>` : "";
+        displayMessage(
+          "test-result-fail",
+          "block",
+          `Connection Error!!! <br/> ${statusLine} ${err.name || ""}: ${err.message || "Unknown error"}`
+        );
+        console.error("Detailed connection error:", err);
+      }
     } else {
+      // Unexpected shape — show generic error
       displayMessage(
-        "test-result",
+        "test-result-fail",
         "block",
-        `Connection Successful!!! <br/>
-        Plex Server Name: ${result.MediaContainer.friendlyName} <br/>
-        Plex User Name: ${result.MediaContainer.myPlexUsername} <br/>
-        Plex Platform: ${result.MediaContainer.platform} <br/>
-        Plex Platform Version: ${result.MediaContainer.platformVersion} <br/>
-        Plex Software Version: ${result.MediaContainer.version}`
+        "Connection Error!!! <br/> Please check your settings and try again."
       );
-      console.log(result);
     }
   } catch (error) {
     console.error("Error testing connection:", error);
