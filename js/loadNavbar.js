@@ -406,7 +406,6 @@ async function testConnection() {
         Plex Platform Version: ${info.platformVersion || "(unknown)"} <br/>
         Plex Software Version: ${info.version || "(unknown)"}`
         );
-        console.log(result.data);
       } else {
         // result.success === false
         const err = result.error || {};
