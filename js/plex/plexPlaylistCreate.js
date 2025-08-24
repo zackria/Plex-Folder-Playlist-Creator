@@ -51,23 +51,94 @@ function normalizeForCompare(p) {
   console.warn('normalizeForCompare: decodeURIComponent failed, using original path', e?.message);
     }
   }
-  // Replace a wide range of unicode spaces with a normal space
-  const unicodeSpaceRegex = /[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000]/g;
-  let norm = decoded
-    .replace(/\\/g, "/")              // backslashes -> slashes
-    .replace(unicodeSpaceRegex, " ")     // unicode spaces -> space
-    .normalize("NFC")                    // unicode normalization (fix macOS vs Linux)
-    .replace(/[‐‑–—−]/g, "-")            // normalize various dashes to hyphen-minus
-    .replace(/\s+/g, " ")               // collapse multiple spaces
-    .replace(/\/+$/g, "")               // trim trailing slashes
-    .replace(/\/+/g, "/")               // collapse duplicate slashes
-    .toLowerCase();                       // case-insensitive compare
+  // Perform the same transformations as the original regex pipeline but
+  // using explicit linear scans to guarantee O(n) behavior and avoid
+  // any backtracking/reg-expansion pitfalls.
+  function mapUnicodeSpacesToSpace(str) {
+    if (!str) return str;
+    // Set of codepoints considered as unicode spaces for our purposes
+    const spaceSet = new Set([
+      0x00A0, 0x1680, // ... no need to list every codepoint separately
+      0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007,
+      0x2008, 0x2009, 0x200A, 0x200B, 0x202F, 0x205F, 0x3000,
+    ]);
+    let out = "";
+    for (let i = 0; i < str.length; i++) {
+      const cp = str.charCodeAt(i);
+      out += spaceSet.has(cp) ? " " : str[i];
+    }
+    return out;
+  }
+
+  function normalizeDashesToMinus(str) {
+    if (!str) return str;
+    // map several dash-like codepoints to ASCII hyphen-minus
+    const dashSet = new Set([0x2010, 0x2011, 0x2013, 0x2014, 0x2212]);
+    let out = "";
+    for (let i = 0; i < str.length; i++) {
+      const cp = str.charCodeAt(i);
+      out += dashSet.has(cp) ? "-" : str[i];
+    }
+    return out;
+  }
+
+  function collapseAsciiSpaces(str) {
+    if (!str) return str;
+    let out = "";
+    let inSpace = false;
+    for (let i = 0; i < str.length; i++) {
+      const ch = str[i];
+      if (ch === " ") {
+        if (!inSpace) {
+          out += ch;
+          inSpace = true;
+        }
+      } else {
+        out += ch;
+        inSpace = false;
+      }
+    }
+    return out;
+  }
+
+  function collapseSlashesAndTrim(str) {
+    if (!str) return str;
+    let out = "";
+    for (let i = 0; i < str.length; i++) {
+      const ch = str[i];
+      if (ch === "/") {
+        if (out.length === 0 || out[out.length - 1] !== "/") out += "/";
+        // else skip duplicate slash
+      } else {
+        out += ch;
+      }
+    }
+    // Trim trailing slash
+    if (out.length > 1 && out[out.length - 1] === "/") out = out.slice(0, -1);
+    return out;
+  }
+
+  function removeTrailingDotsFromSegments(str) {
+    if (!str) return str;
+    const parts = str.split("/");
+    for (let i = 0; i < parts.length; i++) {
+      let seg = parts[i];
+      while (seg.length > 0 && seg[seg.length - 1] === ".") seg = seg.slice(0, -1);
+      parts[i] = seg;
+    }
+    return parts.join("/");
+  }
+
+  let norm = decoded.replace(/\\/g, "/"); // backslashes -> slashes (single safe regex)
+  norm = mapUnicodeSpacesToSpace(norm);
+  norm = norm.normalize("NFC");
+  norm = normalizeDashesToMinus(norm);
+  norm = collapseAsciiSpaces(norm);
+  norm = collapseSlashesAndTrim(norm);
+  norm = norm.toLowerCase();
 
   // Remove trailing dots from each path segment to account for FS/Plex trimming
-  norm = norm
-    .split("/")
-    .map((seg) => seg.replace(/\.+$/g, ""))
-    .join("/");
+  norm = removeTrailingDotsFromSegments(norm);
 
   return norm;
 }
@@ -94,12 +165,34 @@ function buildFolderPatterns(inputPath) {
 // Token normalization (remove all non a-z0-9) for punctuation-insensitive compare
 function normalizeToken(s) {
   s = safeTruncate(s || "", MAX_TOKEN_LENGTH);
-  return s
-    .toLowerCase()
-    .normalize("NFC")
-    .replace(/[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000]/g, " ")
-    .replace(/[‐‑–—−]/g, "-")
-    .replace(/[^a-z0-9]/g, "");
+  s = s.toLowerCase().normalize("NFC");
+  // Map unicode spaces to ASCII space and dash-like chars to '-', then
+  // remove anything not in a-z0-9. This is done with explicit scans to
+  // avoid backtracking regexes.
+  let out = "";
+  const dashSet = new Set([0x2010, 0x2011, 0x2013, 0x2014, 0x2212]);
+  const spaceSet = new Set([
+    0x00A0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005,
+    0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x200B, 0x202F, 0x205F, 0x3000,
+  ]);
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    const cp = s.charCodeAt(i);
+    if (spaceSet.has(cp)) {
+      // treat as space; but tokens don't keep spaces so continue
+      continue;
+    }
+    if (dashSet.has(cp)) {
+      // treat dash as hyphen; hyphen isn't allowed in token so skip
+      continue;
+    }
+    // keep only a-z0-9
+    const code = s.charCodeAt(i);
+    if ((code >= 97 && code <= 122) || (code >= 48 && code <= 57)) {
+      out += ch;
+    }
+  }
+  return out;
 }
 
 // --- Helper utilities to reduce duplication ---
