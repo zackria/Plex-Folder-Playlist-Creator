@@ -153,6 +153,11 @@ Please follow these steps [WINDOWSCERT.md](./WINDOWSCERT.md)
 
 `npm run make`
 
+# DEBUG ENABLE DEVELOPER Tools
+
+` windowManager.js  --> set devTools: true` 
+` app.js  --> uncomment mainWindow.webContents.openDevTools();` 
+
 
 ## Roadmap
 - Add support for custom playlist formats.
