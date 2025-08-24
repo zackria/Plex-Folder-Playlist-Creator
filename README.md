@@ -2,9 +2,11 @@
 
 Plex Folder Playlist Creator is a modern desktop application built with Electron JS that generates playlists for media files in a selected folder. This cross-platform app simplifies playlist creation by scanning your folder, extracting metadata, and structuring playlists for easy playback. It integrates seamlessly with the Plex API for advanced media management features and provides a sleek user interface using Bootstrap and Bootstrap Icons.
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zackria_Plex-Folder-Playlist-Creator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zackria_Plex-Folder-Playlist-Creator) [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=zackria_Plex-Folder-Playlist-Creator)](https://sonarcloud.io/summary/new_code?id=zackria_Plex-Folder-Playlist-Creator)   [![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=zackria_Plex-Folder-Playlist-Creator)
+
+
 ## App Supports Windows / Linux / MacOS Checkout the [Releases](https://github.com/zackria/Plex-Folder-Playlist-Creator/releases)
 
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=zackria_Plex-Folder-Playlist-Creator)](https://sonarcloud.io/summary/new_code?id=zackria_Plex-Folder-Playlist-Creator)
 
 ![alt text](./img/01PlexFolderPlaylist.png)
 
