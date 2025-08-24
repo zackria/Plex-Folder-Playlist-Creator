@@ -13,14 +13,36 @@ function safeTruncate(s, max) {
   return s.length > max ? s.slice(0, max) : s;
 }
 
+// Detect percent-encoded sequences using a linear scan to avoid regex
+// patterns that can be vulnerable to catastrophic backtracking on
+// attacker-controlled input. This is intentionally simple and bounded
+// because we always truncate inputs earlier with safeTruncate.
+function looksLikePercentEncoded(str) {
+  if (typeof str !== "string") return false;
+  // Fast path: '%' must appear before any two hex chars
+  for (let i = 0; i + 2 < str.length; i++) {
+    if (str.charCodeAt(i) === 37) { // '%'
+      const a = str.charCodeAt(i + 1);
+      const b = str.charCodeAt(i + 2);
+      const isHex = (cc) =>
+        (cc >= 48 && cc <= 57) || // 0-9
+        (cc >= 65 && cc <= 70) || // A-F
+        (cc >= 97 && cc <= 102); // a-f
+      if (isHex(a) && isHex(b)) return true;
+    }
+  }
+  return false;
+}
+
 // Normalize paths for reliable substring comparison across OSes and encodings
 function normalizeForCompare(p) {
   if (!p) return "";
   // Truncate early to avoid expensive regex/unicode ops on huge inputs
   p = safeTruncate(p, MAX_NORMALIZE_LENGTH);
   let decoded = p;
-  // Only attempt decode if it looks percent-encoded
-  if (/%[0-9A-Fa-f]{2}/.test(p)) {
+  // Only attempt decode if it contains a percent-encoded sequence; use
+  // a linear-time check to avoid regex backtracking issues.
+  if (looksLikePercentEncoded(p)) {
     try {
       decoded = decodeURIComponent(p);
     } catch (e) {
