@@ -5,7 +5,12 @@ const { setupIPC } = require("./ipcHandlers");
 
 let mainWindow;
 
-if (require("electron-squirrel-startup")) app.quit();
+// Handle squirrel startup with error handling
+try {
+  if (require("electron-squirrel-startup")) app.quit();
+} catch (error) {
+  console.warn("electron-squirrel-startup module not found, continuing without it:", error.message);
+}
 
 app.whenReady().then(async () => {
   mainWindow = createWindow();

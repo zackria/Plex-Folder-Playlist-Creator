@@ -45,7 +45,6 @@
     "electron-builder": "^26.0.12",
     "electron-notarize": "^1.2.2",
     "electron-reload": "^2.0.0-alpha.1",
-    "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.6.2"
   },
   "build": {
