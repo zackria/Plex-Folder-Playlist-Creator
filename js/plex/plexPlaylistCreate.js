@@ -6,6 +6,7 @@ const {
   safeTruncate,
   looksLikePercentEncoded,
   normalizeForCompare,
+  normalizeForCompareNoDecode,
   trimTrailingDots,
   buildFolderPatterns,
   normalizeToken,
@@ -16,6 +17,8 @@ function buildUriFromItemKeys(machineIdentifier, itemKeys) {
 
 async function postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys) {
   const uri = buildUriFromItemKeys(machineIdentifier, itemKeys);
+  // Ensure the uri is passed safely as a query parameter. URLSearchParams
+  // will percent-encode reserved characters so '&' and '%' in paths are safe.
   const queryParameters = new URLSearchParams({
     type: "audio",
     title: playlistName,
@@ -31,8 +34,49 @@ function findPlaylistTracks(allTracks, playlistPath) {
 
   let found = allTracks.filter((track) =>
     track?.Media?.[0]?.Part?.some((part) => {
-      const fileNorm = normalizeForCompare(part.file);
-      return patterns.some((p) => fileNorm.includes(p));
+      const file = part.file || "";
+      // Normalize both decoded and raw variants to handle stored paths that
+      // may contain literal '%' sequences or unescaped '&'.
+      const fileNormDecoded = normalizeForCompare(file);
+      const fileNormRaw = normalizeForCompareNoDecode(file);
+
+      // Fast path: direct normalized contains
+      if (patterns.some((p) => fileNormDecoded.includes(p) || fileNormRaw.includes(p))) return true;
+
+      // Aggressive fallback: try decoding and replacing common encodings on-the-fly
+      try {
+        const variants = new Set();
+        variants.add(file);
+        // single decode if looks percent encoded
+        if (looksLikePercentEncoded(file)) {
+          try { variants.add(decodeURIComponent(file)); } catch (e) { console.debug('decodeURIComponent failed (single):', e.message); }
+        }
+        // double-decode only if it looks double-encoded (contains %25)
+        try {
+          if (file.includes('%25')) {
+            variants.add(decodeURIComponent(decodeURIComponent(file)));
+          }
+        } catch (e) {
+          // Log once per file to avoid extremely noisy output
+          console.debug('double-decode failed for file (skipping double-decode):', String(e && e.message).slice(0,200));
+        }
+
+        // common replacements
+        variants.add(file.replace(/%26/g, '&'));
+        variants.add(file.replace(/\+/g, ' '));
+        variants.add(file.replace(/%20/g, ' '));
+        variants.add(file.replace(/&amp;/g, '&'));
+        variants.add(file.replace(/%2526/g, '%26'));
+
+        for (const v of variants) {
+          const vn = normalizeForCompareNoDecode(v);
+          if (patterns.some((p) => vn.includes(p))) return true;
+        }
+      } catch (e) {
+        console.debug('aggressive match generation failed:', e && e.message);
+      }
+
+      return false;
     })
   );
 
@@ -123,9 +167,14 @@ async function createM3UPlaylist(hostname, port, plextoken, timeout, parametersA
       return retunMessage;
     }
 
-    await client.postQuery(
-      `/playlists/upload?sectionID=${musicLibrary.key}&path=${playlistPath}`
-    );
+    // Ensure the path and sectionID are properly URL-encoded so that
+    // folder names containing '&' or '%' don't break the query string.
+    const uploadParams = new URLSearchParams({
+      sectionID: String(musicLibrary.key),
+      path: playlistPath,
+    }).toString();
+
+    await client.postQuery(`/playlists/upload?${uploadParams}`);
     retunMessage.message = "Playlist will be created if path exists";
 
     return retunMessage;
@@ -412,4 +461,5 @@ module.exports = {
   bulkPlaylist,
   createRecentlyPlayedPlaylist,
   createRecentlyAddedPlaylist,
+  findPlaylistTracks,
 };

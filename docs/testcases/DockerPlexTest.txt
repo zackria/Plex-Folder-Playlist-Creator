@@ -18,7 +18,8 @@ https://hub.docker.com/r/plexinc/pms-docker
 /Music/Test Tracks_01
 /Music/Test-Compositions_v2.1
 /Music/UAT & Live Gigs
-
+/Music/Single'Quote2
+/Music/Single`Quote
 
 [
   "/Music/mint Latin",
@@ -31,7 +32,9 @@ https://hub.docker.com/r/plexinc/pms-docker
   "/Music/Sanity-Smoke#Tunes",
   "/Music/Test Tracks_01",
   "/Music/Test-Compositions_v2.1",
-  "/Music/UAT & Live Gig"
+  "/Music/UAT & Live Gig",
+  "/Music/Single'Quote2",
+  "/Music/Single`Quote"
 ]
 
 
@@ -42,12 +45,13 @@ Creating playlist: "🎵 App Testing" with 18 tracks.
 Playlist "🎵 App Testing" created successfully.
 Creating playlist: "$Audio_Files" with 16 tracks.
 Playlist "$Audio_Files" created successfully.
-Creating playlist: "Builds @ 3-24-25" with 10 tracks.
+Creating playlist: "Builds @ 3-24-25" with 22 tracks.
 Playlist "Builds @ 3-24-25" created successfully.
-No tracks found for folder: /Music/Performance_Mix%
+Creating playlist: "Performance_Mix%" with 74 tracks.
+Playlist "Performance_Mix%" created successfully.
 Creating playlist: "Regression Jams (2025)" with 16 tracks.
 Playlist "Regression Jams (2025)" created successfully.
-Creating playlist: "Rhythm.Checks" with 77 tracks.
+Creating playlist: "Rhythm.Checks" with 99 tracks.
 Playlist "Rhythm.Checks" created successfully.
 Creating playlist: "Sanity-Smoke#Tunes" with 100 tracks.
 Playlist "Sanity-Smoke#Tunes" created successfully.
@@ -55,4 +59,9 @@ Creating playlist: "Test Tracks_01" with 12 tracks.
 Playlist "Test Tracks_01" created successfully.
 Creating playlist: "Test-Compositions_v2.1" with 12 tracks.
 Playlist "Test-Compositions_v2.1" created successfully.
-No tracks found for folder: /Music/UAT & Live Gig
+Creating playlist: "UAT & Live Gigs" with 10 tracks.
+Playlist "UAT & Live Gigs" created successfully.
+Creating playlist: "Single'Quote2" with 5 tracks.
+Playlist "Single'Quote2" created successfully.
+Creating playlist: "Single`Quote" with 13 tracks.
+Playlist "Single`Quote" created successfully.
