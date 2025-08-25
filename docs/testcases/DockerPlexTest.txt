@@ -1,0 +1,58 @@
+Docker Plex
+https://www.plex.tv/claim/
+
+https://hub.docker.com/r/plexinc/pms-docker
+
+127.0.0.1
+32400
+3MvP2cJusBMtsrbyMmzv
+
+/Music/mint Latin
+/Music/🎵 App Testing
+/Music/$Audio_Files
+/Music/Builds @ 3-24-25
+/Music/Performance_Mix%
+/Music/Regression Jams (2025)
+/Music/Rhythm.Checks
+/Music/Sanity-Smoke#Tunes
+/Music/Test Tracks_01
+/Music/Test-Compositions_v2.1
+/Music/UAT & Live Gigs
+
+
+[
+  "/Music/mint Latin",
+  "/Music/🎵 App Testing",
+  "/Music/$Audio_Files",
+  "/Music/Builds @ 3-24-25",
+  "/Music/Performance_Mix%",
+  "/Music/Regression Jams (2025)",
+  "/Music/Rhythm.Checks",
+  "/Music/Sanity-Smoke#Tunes",
+  "/Music/Test Tracks_01",
+  "/Music/Test-Compositions_v2.1",
+  "/Music/UAT & Live Gig"
+]
+
+
+
+Creating playlist: "mint Latin" with 76 tracks.
+Playlist "mint Latin" created successfully.
+Creating playlist: "🎵 App Testing" with 18 tracks.
+Playlist "🎵 App Testing" created successfully.
+Creating playlist: "$Audio_Files" with 16 tracks.
+Playlist "$Audio_Files" created successfully.
+Creating playlist: "Builds @ 3-24-25" with 10 tracks.
+Playlist "Builds @ 3-24-25" created successfully.
+No tracks found for folder: /Music/Performance_Mix%
+Creating playlist: "Regression Jams (2025)" with 16 tracks.
+Playlist "Regression Jams (2025)" created successfully.
+Creating playlist: "Rhythm.Checks" with 77 tracks.
+Playlist "Rhythm.Checks" created successfully.
+Creating playlist: "Sanity-Smoke#Tunes" with 100 tracks.
+Playlist "Sanity-Smoke#Tunes" created successfully.
+Creating playlist: "Test Tracks_01" with 12 tracks.
+Playlist "Test Tracks_01" created successfully.
+Creating playlist: "Test-Compositions_v2.1" with 12 tracks.
+Playlist "Test-Compositions_v2.1" created successfully.
+No tracks found for folder: /Music/UAT & Live Gig
