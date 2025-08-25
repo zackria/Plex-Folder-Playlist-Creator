@@ -32,7 +32,7 @@ https://hub.docker.com/r/plexinc/pms-docker
   "/Music/Sanity-Smoke#Tunes",
   "/Music/Test Tracks_01",
   "/Music/Test-Compositions_v2.1",
-  "/Music/UAT & Live Gig",
+  "/Music/UAT & Live Gigs",
   "/Music/Single'Quote2",
   "/Music/Single`Quote"
 ]
