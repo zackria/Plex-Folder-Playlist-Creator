@@ -1,23 +1,32 @@
-const plexLocalAPI = require("../../js/plexapi.js");
-const { getAPIData } = require("./settingsManager");
+import * as plexLocalAPI from "../../js/plexapi.js";
+import { getAPIData } from "./settingsManager.js";
 
 /**
  * Tests connection to Plex server
  */
-async function testConnection() {
+export async function testConnection() {
+  console.log("[PlexManager] testConnection called.");
   const apiData = await getAPIData();
-  return plexLocalAPI.testConnection(
-    apiData.ipaddress,
-    apiData.port,
-    apiData.key,
-    apiData.timeout
-  );
+  console.log("[PlexManager] Using API data:", { ...apiData, key: "REDACTED" });
+  try {
+    const result = await plexLocalAPI.testConnection(
+      apiData.ipaddress,
+      apiData.port,
+      apiData.key,
+      apiData.timeout
+    );
+    console.log("[PlexManager] plexLocalAPI.testConnection result:", result);
+    return result;
+  } catch (error) {
+    console.error("[PlexManager] plexLocalAPI.testConnection failed:", error);
+    return { success: false, error: { message: error.message } };
+  }
 }
 
 /**
  * Gets all playlists from Plex server
  */
-async function getPlaylists() {
+export async function getPlaylists() {
   const apiData = await getAPIData();
   return plexLocalAPI.getPlaylist(apiData.ipaddress, apiData.port, apiData.key, apiData.timeout);
 }
@@ -25,7 +34,7 @@ async function getPlaylists() {
 /**
  * Creates M3U playlist
  */
-async function createM3UPlaylist(data) {
+export async function createM3UPlaylist(data) {
   const apiData = await getAPIData();
   return plexLocalAPI.createM3UPlaylist(
     apiData.ipaddress,
@@ -39,7 +48,7 @@ async function createM3UPlaylist(data) {
 /**
  * Creates playlist from folder
  */
-async function createPlaylist(data) {
+export async function createPlaylist(data) {
   const apiData = await getAPIData();
   return plexLocalAPI.createPlaylist(
     apiData.ipaddress,
@@ -53,7 +62,7 @@ async function createPlaylist(data) {
 /**
  * Creates multiple playlists in bulk
  */
-async function bulkPlaylist(data) {
+export async function bulkPlaylist(data) {
   const apiData = await getAPIData();
   return plexLocalAPI.bulkPlaylist(
     apiData.ipaddress,
@@ -67,7 +76,7 @@ async function bulkPlaylist(data) {
 /**
  * Refreshes Plex playlists
  */
-async function refreshPlaylists() {
+export async function refreshPlaylists() {
   const apiData = await getAPIData();
   return plexLocalAPI.refreshPlaylist(
     apiData.ipaddress,
@@ -80,7 +89,7 @@ async function refreshPlaylists() {
 /**
  * Deletes a playlist by ID
  */
-async function deletePlaylist(playlistId) {
+export async function deletePlaylist(playlistId) {
   const apiData = await getAPIData();
   return plexLocalAPI.deletePlaylist(
     apiData.ipaddress,
@@ -92,9 +101,9 @@ async function deletePlaylist(playlistId) {
 }
 
 /**
- * Deletes a playlist by ID
+ * Deletes all playlists
  */
-async function deleteAllPlaylist() {
+export async function deleteAllPlaylist() {
   const apiData = await getAPIData();
   return plexLocalAPI.deleteAllPlaylist(
     apiData.ipaddress,
@@ -105,9 +114,9 @@ async function deleteAllPlaylist() {
 }
 
 /**
- * Refreshes Plex playlists
+ * Creates recently played tracks playlist
  */
-async function createRecentlyPlayedPlaylist() {
+export async function createRecentlyPlayedPlaylist() {
   const apiData = await getAPIData();
   return plexLocalAPI.createRecentlyPlayedPlaylist(
     apiData.ipaddress,
@@ -118,9 +127,9 @@ async function createRecentlyPlayedPlaylist() {
 }
 
 /**
- * Refreshes Plex playlists
+ * Creates recently added tracks playlist
  */
-async function createRecentlyAddedPlaylist() {
+export async function createRecentlyAddedPlaylist() {
   const apiData = await getAPIData();
   return plexLocalAPI.createRecentlyAddedPlaylist(
     apiData.ipaddress,
@@ -133,7 +142,7 @@ async function createRecentlyAddedPlaylist() {
 /**
  * Deletes multiple playlists by IDs
  */
-async function deleteSelectedPlaylists(playlistIds) {
+export async function deleteSelectedPlaylists(playlistIds) {
   const apiData = await getAPIData();
   return plexLocalAPI.deleteSelectedPlaylists(
     apiData.ipaddress,
@@ -143,17 +152,3 @@ async function deleteSelectedPlaylists(playlistIds) {
     playlistIds
   );
 }
-
-module.exports = {
-  testConnection,
-  getPlaylists,
-  createM3UPlaylist,
-  createPlaylist,
-  bulkPlaylist,
-  refreshPlaylists,
-  deletePlaylist,
-  deleteAllPlaylist,
-  deleteSelectedPlaylists,
-  createRecentlyPlayedPlaylist,
-  createRecentlyAddedPlaylist
-};

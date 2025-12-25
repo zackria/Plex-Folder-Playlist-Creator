@@ -1,8 +1,9 @@
-const { ipcMain, BrowserWindow } = require("electron");
-const path = require("node:path");
-const { saveConfig, saveTheme, getAPIData } = require("./settingsManager");
-const { confirmDeletePlaylist, showVersionInfo } = require("./dialogManager");
-const {
+import { ipcMain, BrowserWindow } from "electron";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { saveConfig, saveTheme, getAPIData } from "./settingsManager.js";
+import { confirmDeletePlaylist, showVersionInfo } from "./dialogManager.js";
+import {
   testConnection,
   getPlaylists,
   createM3UPlaylist,
@@ -14,12 +15,14 @@ const {
   createRecentlyPlayedPlaylist,
   createRecentlyAddedPlaylist,
   deleteSelectedPlaylists,
-} = require("./plexManager");
+} from "./plexManager.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Sets up all IPC communication channels
  */
-function setupIPC(mainWindow) {
+export function setupIPC(mainWindow) {
   // Navigation
   ipcMain.on("navigate-to", async (event, page) => {
     const filePath = path.join(__dirname, "../../", `${page}.html`);
@@ -42,6 +45,7 @@ function setupIPC(mainWindow) {
 
   // Configuration
   ipcMain.handle("save-config", async (event, data) => {
+    console.log("[IPC] save-config called with:", data);
     const [apiKey, ipAddress, port, timeout] = [
       data[0], // Access array elements directly
       data[1],
@@ -49,7 +53,14 @@ function setupIPC(mainWindow) {
       data[3] || 60000, // Default timeout to 60 seconds if not provided
     ];
 
-    return saveConfig([apiKey, ipAddress, port, timeout]);
+    try {
+      await saveConfig([apiKey, ipAddress, port, timeout]);
+      console.log("[IPC] save-config successful.");
+      return true;
+    } catch (error) {
+      console.error("[IPC] save-config failed:", error);
+      throw error;
+    }
   });
 
   ipcMain.on("save-theme", (event, data) => {
@@ -95,7 +106,3 @@ function setupIPC(mainWindow) {
     return showVersionInfo(currentWindow);
   });
 }
-
-module.exports = {
-  setupIPC,
-};

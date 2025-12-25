@@ -37,7 +37,7 @@ function makeNumeric(id) {
   const element = document.getElementById(id);
   if (element) {
     element.addEventListener("input", (e) => {
-      e.target.value = e.target.value.replace(/\D/g, "");
+      e.target.value = e.target.value.replaceAll(/\D/g, "");
     });
   }
 }
@@ -202,12 +202,12 @@ async function handleFormSubmit(e) {
       );
     }
   } catch (error) {
-    console.error("Error testing connection:", error);
+    console.error("Error saving config:", error);
     displayMessage("progressbar", "none");
     displayMessage(
       "test-result-fail",
       "block",
-      "Connection Error!!! <br/> Please check your settings and try again."
+      `Connection Error!!! <br/> ${error.message || "Unknown error"}`
     );
   }
 }

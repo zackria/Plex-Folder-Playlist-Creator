@@ -1,36 +1,16 @@
 // Main export file that re-exports all Plex API functionality
-const { createPlexClient, testConnection } = require("./plexClient");
-const {
+export { createPlexClient, testConnection } from "./plexClient.js";
+export {
   getPlaylist,
   deletePlaylist,
   deleteAllPlaylist,
   deleteSelectedPlaylists,
   refreshPlaylist,
-} = require("./plexPlaylistOps");
-const {
+} from "./plexPlaylistOps.js";
+export {
   createM3UPlaylist,
   createPlaylist,
   bulkPlaylist,
   createRecentlyPlayedPlaylist,
   createRecentlyAddedPlaylist,
-} = require("./plexPlaylistCreate");
-
-module.exports = {
-  // Client functions
-  createPlexClient,
-  testConnection,
-
-  // Playlist operations
-  getPlaylist,
-  deletePlaylist,
-  deleteSelectedPlaylists,
-  deleteAllPlaylist,
-  refreshPlaylist,
-
-  // Playlist creation
-  createM3UPlaylist,
-  createPlaylist,
-  bulkPlaylist,
-  createRecentlyPlayedPlaylist,
-  createRecentlyAddedPlaylist,
-};
+} from "./plexPlaylistCreate.js";

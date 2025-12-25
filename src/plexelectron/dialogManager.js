@@ -1,13 +1,9 @@
-const { dialog } = require("electron");
-const { app } = require("electron");
+import { dialog, app } from "electron";
 
 /**
  * Shows a confirmation dialog for playlist deletion
  */
-/**
- * Shows a confirmation dialog for playlist deletion
- */
-async function confirmDeletePlaylist(window, data) {
+export async function confirmDeletePlaylist(window, data) {
   let message;
   if (!data || data.length === 0) {
     message = "Are you sure you want to delete all playlists?";
@@ -30,7 +26,7 @@ async function confirmDeletePlaylist(window, data) {
 /**
  * Shows app version information
  */
-async function showVersionInfo(window) {
+export async function showVersionInfo(window) {
   const version = app.getVersion();
   return dialog.showMessageBox(window, {
     type: "info",
@@ -39,8 +35,3 @@ async function showVersionInfo(window) {
     buttons: ["Ok"],
   });
 }
-
-module.exports = {
-  confirmDeletePlaylist,
-  showVersionInfo,
-};

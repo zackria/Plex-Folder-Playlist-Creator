@@ -1,15 +1,15 @@
-const path = require('node:path');
+import path from 'node:path';
 
 // Conservative limits to avoid excessive work on attacker-controlled inputs
-const MAX_NORMALIZE_LENGTH = 4096;
-const MAX_TOKEN_LENGTH = 512;
+export const MAX_NORMALIZE_LENGTH = 4096;
+export const MAX_TOKEN_LENGTH = 512;
 
-function safeTruncate(s, max) {
+export function safeTruncate(s, max) {
   if (typeof s !== 'string') return s;
   return s.length > max ? s.slice(0, max) : s;
 }
 
-function looksLikePercentEncoded(str) {
+export function looksLikePercentEncoded(str) {
   if (typeof str !== 'string') return false;
   for (let i = 0; i + 2 < str.length; i++) {
     if (str.codePointAt(i) === 37) { // '%'
@@ -81,7 +81,7 @@ function _decodeHtmlEntities(str) {
   return str.replaceAll(/&amp;/gi, '&').replaceAll(/&#x26;|&#38;/gi, '&');
 }
 
-function processNormalizedString(input) {
+export function processNormalizedString(input) {
   let str = input.replaceAll('\\', '/');
   str = _mapUnicodeSpacesToSpace(str);
   str = str.normalize('NFC');
@@ -99,7 +99,7 @@ function processNormalizedString(input) {
   return parts.join('/');
 }
 
-function normalizeForCompare(p) {
+export function normalizeForCompare(p) {
   if (!p) return '';
   const truncated = safeTruncate(p, MAX_NORMALIZE_LENGTH);
   let decoded = truncated;
@@ -116,7 +116,7 @@ function normalizeForCompare(p) {
   return processNormalizedString(decoded);
 }
 
-function normalizeForCompareNoDecode(p) {
+export function normalizeForCompareNoDecode(p) {
   if (!p) return '';
   const truncated = safeTruncate(p, MAX_NORMALIZE_LENGTH);
   // Decode HTML entities but do not run percent-decoding
@@ -124,14 +124,14 @@ function normalizeForCompareNoDecode(p) {
   return processNormalizedString(withEntitiesDecoded);
 }
 
-function trimTrailingDots(str) {
+export function trimTrailingDots(str) {
   if (!str) return str;
   let end = str.length - 1;
   while (end >= 0 && str[end] === '.') end--;
   return str.slice(0, end + 1);
 }
 
-function buildFolderPatterns(inputPath) {
+export function buildFolderPatterns(inputPath) {
   const patterns = new Set();
 
   // include both decoded and no-decode variants
@@ -179,7 +179,7 @@ function buildFolderPatterns(inputPath) {
   return Array.from(patterns);
 }
 
-function normalizeToken(s) {
+export function normalizeToken(s) {
   s = safeTruncate(s || '', MAX_TOKEN_LENGTH);
   s = s.toLowerCase().normalize('NFC');
   let out = '';
@@ -194,16 +194,3 @@ function normalizeToken(s) {
   }
   return out;
 }
-
-module.exports = {
-  MAX_NORMALIZE_LENGTH,
-  MAX_TOKEN_LENGTH,
-  safeTruncate,
-  looksLikePercentEncoded,
-  normalizeForCompare,
-  normalizeForCompareNoDecode,
-  trimTrailingDots,
-  buildFolderPatterns,
-  normalizeToken,
-};
-

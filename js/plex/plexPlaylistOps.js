@@ -1,9 +1,9 @@
-const { createPlexClient, createPlexClientWithTimeout } = require("./plexClient");
+import { createPlexClient, createPlexClientWithTimeout } from "./plexClient.js";
 
 /**
  * Gets all playlists from the Plex server
  */
-async function getPlaylist(hostname, port, plextoken, timeout) {
+export async function getPlaylist(hostname, port, plextoken, timeout) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
 
   try {
@@ -22,7 +22,7 @@ async function getPlaylist(hostname, port, plextoken, timeout) {
 /**
  * Deletes a playlist by ID
  */
-async function deletePlaylist(hostname, port, plextoken, timeout, playlistId) {
+export async function deletePlaylist(hostname, port, plextoken, timeout, playlistId) {
   if (!playlistId) {
     console.error("Error: Playlist ID is required to delete a playlist.");
     return false;
@@ -51,7 +51,7 @@ async function deletePlaylist(hostname, port, plextoken, timeout, playlistId) {
 /**
  * Deletes All Playlists
  */
-async function deleteAllPlaylist(hostname, port, plextoken, timeout) {
+export async function deleteAllPlaylist(hostname, port, plextoken, timeout) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
 
   try {
@@ -73,7 +73,7 @@ async function deleteAllPlaylist(hostname, port, plextoken, timeout) {
 /**
  * Refreshes the Plex library
  */
-async function refreshPlaylist(hostname, port, plextoken, timeout) {
+export async function refreshPlaylist(hostname, port, plextoken, timeout) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
 
   try {
@@ -88,7 +88,7 @@ async function refreshPlaylist(hostname, port, plextoken, timeout) {
 /**
  * Deletes selected playlists by IDs
  */
-async function deleteSelectedPlaylists(hostname, port, plextoken, timeout, playlistIds) {
+export async function deleteSelectedPlaylists(hostname, port, plextoken, timeout, playlistIds) {
   if (!Array.isArray(playlistIds) || playlistIds.length === 0) {
     console.error('Error: No playlist IDs provided for deletion.');
     return false;
@@ -106,11 +106,3 @@ async function deleteSelectedPlaylists(hostname, port, plextoken, timeout, playl
     return false;
   }
 }
-
-module.exports = {
-  getPlaylist,
-  deletePlaylist,
-  deleteAllPlaylist,
-  refreshPlaylist,
-  deleteSelectedPlaylists,
-};

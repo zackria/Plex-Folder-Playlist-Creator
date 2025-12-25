@@ -3,6 +3,7 @@
   "version": "1.0.5",
   "description": "Plex Folder Playlist Creator App",
   "main": "main.js",
+  "type": "module",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",

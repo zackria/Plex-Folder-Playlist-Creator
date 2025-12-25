@@ -1,6 +1,9 @@
+import { XMLParser } from "fast-xml-parser";
+import os from "node:os";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
 const fetch = require("node-fetch");
-const { XMLParser } = require("fast-xml-parser");
-const os = require("node:os");
 
 const CLIENT_IDENTIFIER = "PFPC-" + (os.hostname() || "node") + "-" + Date.now().toString(36);
 
@@ -32,7 +35,7 @@ function defaultTimeoutMs(timeout) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 60000;
 }
 
-function createPlexClient(hostname, port, plextoken, timeoutMs) {
+export function createPlexClient(hostname, port, plextoken, timeoutMs) {
   validateHostname(hostname);
   const baseUrl = buildBaseUrl(hostname, port);
   const options = {
@@ -184,29 +187,26 @@ function createPlexClient(hostname, port, plextoken, timeoutMs) {
   };
 }
 
-function createPlexClientWithTimeout(hostname, port, plextoken, timeout) {
+export function createPlexClientWithTimeout(hostname, port, plextoken, timeout) {
   validateHostname(hostname);
   return createPlexClient(hostname, port, plextoken, timeout);
 }
 
-async function testConnection(hostname, port, plextoken, timeout) {
+export async function testConnection(hostname, port, plextoken, timeout) {
+  console.log(`[PlexClient] Testing connection to ${hostname}:${port}...`);
   try {
     const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
     const serverInfo = await client.query("/");
+    console.log("[PlexClient] Connection successful.");
     return { success: true, data: serverInfo };
   } catch (error) {
-    console.error("Error in plexClient.js at testConnection: Error connecting to Plex server:", error);
+    console.error(`[PlexClient] Connection failed for ${hostname}:${port}:`, error);
     const safeError = {
       message: error?.message ?? String(error),
       name: error?.name ?? "Error",
-      statusCode: error?.statusCode ?? null,
+      stack: error?.stack,
+      statusCode: error?.statusCode ?? error?.response?.statusCode ?? null,
     };
     return { success: false, error: safeError };
   }
 }
-
-module.exports = {
-  createPlexClient,
-  createPlexClientWithTimeout,
-  testConnection,
-};

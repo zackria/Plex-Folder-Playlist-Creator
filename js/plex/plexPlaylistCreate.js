@@ -1,6 +1,6 @@
-const path = require("node:path");
-const { createPlexClient, createPlexClientWithTimeout } = require("./plexClient");
-const normalizeUtils = require("./normalizeUtils");
+import path from "node:path";
+import { createPlexClient, createPlexClientWithTimeout } from "./plexClient.js";
+import * as normalizeUtils from "./normalizeUtils.js";
 
 const {
   safeTruncate,
@@ -11,6 +11,7 @@ const {
   buildFolderPatterns,
   normalizeToken,
 } = normalizeUtils;
+
 function buildUriFromItemKeys(machineIdentifier, itemKeys) {
   return `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(",")}`;
 }
@@ -29,7 +30,7 @@ async function postPlaylistByKeys(client, machineIdentifier, playlistName, itemK
   await client.postQuery(queryPath);
 }
 
-function findPlaylistTracks(allTracks, playlistPath) {
+export function findPlaylistTracks(allTracks, playlistPath) {
   const patterns = buildFolderPatterns(playlistPath);
 
   let found = allTracks.filter((track) =>
@@ -130,12 +131,11 @@ async function fetchRecentTracks(client, sortField, limit = 100) {
   recentTracks.sort((a, b) => b[sortField] - a[sortField]);
   return recentTracks.slice(0, limit);
 }
-// --- end helpers ---
 
 /**
  * Creates a playlist from an M3U file
  */
-async function createM3UPlaylist(hostname, port, plextoken, timeout, parametersArray) {
+export async function createM3UPlaylist(hostname, port, plextoken, timeout, parametersArray) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
 
@@ -192,7 +192,7 @@ async function createM3UPlaylist(hostname, port, plextoken, timeout, parametersA
 /**
  * Creates a playlist from a folder
  */
-async function createPlaylist(hostname, port, plextoken, timeout, parametersArray) {
+export async function createPlaylist(hostname, port, plextoken, timeout, parametersArray) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
 
@@ -276,7 +276,7 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
 /**
  * Creates multiple playlists from an array of folders
  */
-async function bulkPlaylist(hostname, port, plextoken, timeout, playlistArray) {
+export async function bulkPlaylist(hostname, port, plextoken, timeout, playlistArray) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
 
@@ -351,7 +351,7 @@ async function bulkPlaylist(hostname, port, plextoken, timeout, playlistArray) {
 /**
  * Creates a playlist of recently played tracks. If the playlist name already exists, it will be deleted first.
  */
-async function createRecentlyPlayedPlaylist(
+export async function createRecentlyPlayedPlaylist(
   hostname,
   port,
   plextoken,
@@ -412,7 +412,7 @@ async function createRecentlyPlayedPlaylist(
 /**
  * Creates a playlist of recently added tracks. If the playlist name already exists, it will be deleted first.
  */
-async function createRecentlyAddedPlaylist(
+export async function createRecentlyAddedPlaylist(
   hostname,
   port,
   plextoken,
@@ -455,11 +455,3 @@ async function createRecentlyAddedPlaylist(
     return retunMessage;
   }
 }
-module.exports = {
-  createM3UPlaylist,
-  createPlaylist,
-  bulkPlaylist,
-  createRecentlyPlayedPlaylist,
-  createRecentlyAddedPlaylist,
-  findPlaylistTracks,
-};
