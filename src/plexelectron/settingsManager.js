@@ -9,13 +9,14 @@ const settings = require("electron-settings");
  */
 export async function getAPIData() {
   console.log("[Settings] settings object:", typeof settings, Object.keys(settings));
-  const [ipAddress, port, apiKey, theme, versionNo, timeout] = await Promise.all([
+  const [ipAddress, port, apiKey, theme, versionNo, timeout, enableConsole] = await Promise.all([
     settings.get("key.ipAddress"),
     settings.get("key.port"),
     settings.get("key.apiKey"),
     settings.get("userPreferences.theme"),
     settings.get("userPreferences.versionNo"),
     settings.get("key.timeout"), // Retrieve timeout
+    settings.get("key.enableConsole"), // Retrieve enableConsole
   ]);
 
 
@@ -36,6 +37,7 @@ export async function getAPIData() {
     theme: theme,
     versionNo: versionNo,
     timeout: timeoutValue,
+    enableConsole: enableConsole !== false, // Default to true if not set
   };
 }
 
@@ -55,6 +57,7 @@ export async function saveConfig(data) {
       ipAddress: data[1],
       port: data[2],
       timeout: timeoutToSave, // Save numeric timeout when valid
+      enableConsole: data[4], // Save enableConsole
     });
     console.log("[Settings] settings.set successful.");
     return true;

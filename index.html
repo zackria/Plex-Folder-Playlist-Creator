@@ -102,6 +102,10 @@
             value="60000" required />
           <div class="invalid-feedback alert alert-danger">Timeout is required (e.g. 60000)</div>
         </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="enableConsole" checked />
+          <label class="form-check-label text-dark" for="enableConsole">Enable Console Logging (Debug/Info)</label>
+        </div>
         <div class="row">
           <div class="col-12 col-md-4 mb-2">
             <button type="submit" class="btn btn-save w-100">Save</button>
@@ -141,6 +145,7 @@
       document.getElementById("port").value = data.port;
       document.getElementById("apiKey").value = data.key;
       document.getElementById("timeout").value = data.timeout;
+      document.getElementById("enableConsole").checked = data.enableConsole !== "false";
       document.getElementById("themeid").value = data.theme;
     });
   </script>

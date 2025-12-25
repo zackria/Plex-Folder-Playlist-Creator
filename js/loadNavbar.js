@@ -1,4 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Check global console logging configuration
+  if (globalThis.electronData?.data?.enableConsole === "false") {
+    const noop = () => { };
+    console.log = noop;
+    console.info = noop;
+    console.warn = noop;
+    console.debug = noop;
+  }
+
   // Bind page listeners immediately
   addEventListeners();
 
@@ -180,6 +189,7 @@ async function handleFormSubmit(e) {
     document.getElementById("port").value,
     // include timeout input so backend receives UI value (may be a string)
     (document.getElementById("timeout") ? document.getElementById("timeout").value.trim() : undefined),
+    (document.getElementById("enableConsole") ? document.getElementById("enableConsole").checked : true),
   ];
 
   displayMessage("progressbar", "block");

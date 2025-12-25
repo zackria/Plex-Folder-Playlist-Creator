@@ -1,4 +1,5 @@
 import { createPlexClientWithTimeout } from "./plexClient.js";
+import logger from "./logger.js";
 
 /**
  * Gets all playlists from the Plex server
@@ -11,7 +12,7 @@ export async function getPlaylist(hostname, port, plextoken, timeout) {
     const playlists = result.MediaContainer.Metadata || [];
     return playlists;
   } catch (error) {
-    console.error(
+    logger.error(
       "Error in plexPlaylistOps.js at playlist operations: Error connecting to Plex server:",
       error
     );
@@ -24,7 +25,7 @@ export async function getPlaylist(hostname, port, plextoken, timeout) {
  */
 export async function deletePlaylist(hostname, port, plextoken, timeout, playlistId) {
   if (!playlistId) {
-    console.error("Error: Playlist ID is required to delete a playlist.");
+    logger.error("Error: Playlist ID is required to delete a playlist.");
     return false;
   }
 
@@ -35,11 +36,11 @@ export async function deletePlaylist(hostname, port, plextoken, timeout, playlis
     return true;
   } catch (error) {
     if (error.response?.statusCode === 404) {
-      console.error(
+      logger.error(
         `Error in plexPlaylistOps.js at playlist operations: Playlist with ID ${playlistId} not found on the server.`
       );
     } else {
-      console.error(
+      logger.error(
         `Error in plexPlaylistOps.js at playlist operations: Error deleting playlist with ID ${playlistId}:`,
         error.message
       );
@@ -62,7 +63,7 @@ export async function deleteAllPlaylist(hostname, port, plextoken, timeout) {
     }
     return true;
   } catch (error) {
-    console.error(
+    logger.error(
       `Error in plexPlaylistOps.js at playlist operations: Error deleting playlists:`,
       error.message
     );
@@ -80,7 +81,7 @@ export async function refreshPlaylist(hostname, port, plextoken, timeout) {
     await client.perform("/library/sections/all/refresh");
     return true;
   } catch (error) {
-    console.error(`Error refreshing playlist: `, error.message);
+    logger.error(`Error refreshing playlist: `, error.message);
     return false;
   }
 }
@@ -90,7 +91,7 @@ export async function refreshPlaylist(hostname, port, plextoken, timeout) {
  */
 export async function deleteSelectedPlaylists(hostname, port, plextoken, timeout, playlistIds) {
   if (!Array.isArray(playlistIds) || playlistIds.length === 0) {
-    console.error('Error: No playlist IDs provided for deletion.');
+    logger.error('Error: No playlist IDs provided for deletion.');
     return false;
   }
 
@@ -102,7 +103,7 @@ export async function deleteSelectedPlaylists(hostname, port, plextoken, timeout
     }
     return true;
   } catch (error) {
-    console.error('Error deleting selected playlists:', error.message);
+    logger.error('Error deleting selected playlists:', error.message);
     return false;
   }
 }

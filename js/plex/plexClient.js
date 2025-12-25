@@ -2,6 +2,8 @@ import { XMLParser } from "fast-xml-parser";
 import os from "node:os";
 import { createRequire } from "node:module";
 
+import logger from "./logger.js";
+
 const require = createRequire(import.meta.url);
 const fetch = require("node-fetch");
 
@@ -92,10 +94,10 @@ export function createPlexClient(hostname, port, plextoken, timeoutMs) {
       const url = buildUrl(baseUrl, path, plextoken);
       // Mask token in logs
       const maskedUrl = url.replace(/X-Plex-Token=[^&]+/, "X-Plex-Token=REDACTED");
-      console.log(`[PlexClient] Querying: ${maskedUrl}`);
+      logger.log(`[PlexClient] Querying: ${maskedUrl}`);
       try {
         const res = await fetch(url, { method: "GET", headers, timeout });
-        console.log(`[PlexClient] Response Status: ${res.status}`);
+        logger.log(`[PlexClient] Response Status: ${res.status}`);
 
         if (!res.ok) {
           throw createError(res);
@@ -104,7 +106,7 @@ export function createPlexClient(hostname, port, plextoken, timeoutMs) {
         const text = await res.text();
         // Check for empty response
         if (!text || text.trim() === "") {
-          console.warn("[PlexClient] Empty response text received.");
+          logger.warn("[PlexClient] Empty response text received.");
           return {};
         }
 
@@ -132,11 +134,11 @@ export function createPlexClient(hostname, port, plextoken, timeoutMs) {
           return parsed;
         } catch (e) {
           // Fallback for non-XML responses
-          console.warn("[PlexClient] Parsing failed, returning text:", e.message);
+          logger.warn("[PlexClient] Parsing failed, returning text:", e.message);
           return text;
         }
       } catch (err) {
-        console.error(`[PlexClient] Request failed: ${err.message}`);
+        logger.error(`[PlexClient] Request failed: ${err.message}`);
         throw err;
       }
     },
@@ -153,7 +155,7 @@ export function createPlexClient(hostname, port, plextoken, timeoutMs) {
       try {
         return parser.parse(text);
       } catch (e) {
-        console.warn("[PlexClient] postQuery parsing failed, returning text:", e.message);
+        logger.warn("[PlexClient] postQuery parsing failed, returning text:", e.message);
         return text;
       }
     },
@@ -180,7 +182,7 @@ export function createPlexClient(hostname, port, plextoken, timeoutMs) {
       try {
         return parser.parse(text);
       } catch (e) {
-        console.warn("[PlexClient] perform parsing failed, returning text:", e.message);
+        logger.warn("[PlexClient] perform parsing failed, returning text:", e.message);
         return text;
       }
     },
@@ -193,14 +195,14 @@ export function createPlexClientWithTimeout(hostname, port, plextoken, timeout) 
 }
 
 export async function testConnection(hostname, port, plextoken, timeout) {
-  console.log(`[PlexClient] Testing connection to ${hostname}:${port}...`);
+  logger.log(`[PlexClient] Testing connection to ${hostname}:${port}...`);
   try {
     const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
     const serverInfo = await client.query("/");
-    console.log("[PlexClient] Connection successful.");
+    logger.log("[PlexClient] Connection successful.");
     return { success: true, data: serverInfo };
   } catch (error) {
-    console.error(`[PlexClient] Connection failed for ${hostname}:${port}:`, error);
+    logger.error(`[PlexClient] Connection failed for ${hostname}:${port}:`, error);
     const safeError = {
       message: error?.message ?? String(error),
       name: error?.name ?? "Error",

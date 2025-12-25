@@ -46,15 +46,16 @@ export function setupIPC(mainWindow) {
   // Configuration
   ipcMain.handle("save-config", async (event, data) => {
     console.log("[IPC] save-config called with:", data);
-    const [apiKey, ipAddress, port, timeout] = [
+    const [apiKey, ipAddress, port, timeout, enableConsole] = [
       data[0], // Access array elements directly
       data[1],
       data[2],
       data[3] || 60000, // Default timeout to 60 seconds if not provided
+      data[4], // enableConsole
     ];
 
     try {
-      await saveConfig([apiKey, ipAddress, port, timeout]);
+      await saveConfig([apiKey, ipAddress, port, timeout, enableConsole]);
       console.log("[IPC] save-config successful.");
       return true;
     } catch (error) {

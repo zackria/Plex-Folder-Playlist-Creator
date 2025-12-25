@@ -1,6 +1,7 @@
 import path from "node:path";
 import { createPlexClientWithTimeout } from "./plexClient.js";
 import * as normalizeUtils from "./normalizeUtils.js";
+import logger from "./logger.js";
 
 const {
   safeTruncate,
@@ -50,7 +51,7 @@ export function findPlaylistTracks(allTracks, playlistPath) {
         variants.add(file);
         // single decode if looks percent encoded
         if (looksLikePercentEncoded(file)) {
-          try { variants.add(decodeURIComponent(file)); } catch (e) { console.debug('decodeURIComponent failed (single):', e.message); }
+          try { variants.add(decodeURIComponent(file)); } catch (e) { logger.log('decodeURIComponent failed (single):', e.message); }
         }
         // double-decode only if it looks double-encoded (contains %25)
         try {
@@ -59,7 +60,7 @@ export function findPlaylistTracks(allTracks, playlistPath) {
           }
         } catch (e) {
           // Log once per file to avoid extremely noisy output
-          console.debug('double-decode failed for file (skipping double-decode):', e?.message?.slice(0, 200));
+          logger.log('double-decode failed for file (skipping double-decode):', e?.message?.slice(0, 200));
         }
 
         // common replacements
@@ -74,7 +75,7 @@ export function findPlaylistTracks(allTracks, playlistPath) {
           if (patterns.some((p) => vn.includes(p))) return true;
         }
       } catch (e) {
-        console.debug('aggressive match generation failed:', e?.message);
+        logger.log('aggressive match generation failed:', e?.message);
       }
 
       return false;
@@ -161,7 +162,7 @@ export async function createM3UPlaylist(hostname, port, plextoken, timeout, para
     );
 
     if (!musicLibrary) {
-      console.error(`Music library ${library} not found.`);
+      logger.error(`Music library ${library} not found.`);
       retunMessage.message += `Music library ${library} not found. <br/>`;
       retunMessage.status = "error";
       return retunMessage;
@@ -199,7 +200,7 @@ export async function createPlaylist(hostname, port, plextoken, timeout, paramet
   // Safely extract and trim playlistPath
   const playlistPath = parametersArray[0] ? parametersArray[0].trim() : "";
   if (!playlistPath) {
-    console.error("Error: Playlist path is required.");
+    logger.error("Error: Playlist path is required.");
     retunMessage.status = "error";
     retunMessage.message = "Playlist path is required.";
     return retunMessage;
@@ -229,7 +230,7 @@ export async function createPlaylist(hostname, port, plextoken, timeout, paramet
     );
 
     if (!musicLibrary) {
-      console.error(`Music library "${library}" not found.`);
+      logger.error(`Music library "${library}" not found.`);
       retunMessage.message += `Music library "${library}" not found. <br/>`;
       retunMessage.status = "error";
       return retunMessage;
@@ -245,11 +246,11 @@ export async function createPlaylist(hostname, port, plextoken, timeout, paramet
 
     if (foundPlaylistTracks.length === 0) {
       const patterns = buildFolderPatterns(playlistPath);
-      console.warn(`No tracks found for folder: ${playlistPath}`);
-      console.warn(`Tried patterns: ${patterns.join(" | ")}`);
+      logger.warn(`No tracks found for folder: ${playlistPath}`);
+      logger.warn(`Tried patterns: ${patterns.join(" | ")}`);
       const sample = tracks.MediaContainer.Metadata?.[0]?.Media?.[0]?.Part?.[0]?.file;
       if (sample) {
-        console.warn(`Example library file path: ${sample}`);
+        logger.warn(`Example library file path: ${sample}`);
       }
       retunMessage.message += `No tracks found for folder: ${playlistPath} <br/>`;
       retunMessage.status = "error";
@@ -298,7 +299,7 @@ export async function bulkPlaylist(hostname, port, plextoken, timeout, playlistA
     );
 
     if (!musicLibrary) {
-      console.error(`Music library "Music" not found.`);
+      logger.error(`Music library "Music" not found.`);
       retunMessage.status = "error";
       retunMessage.message += `Music library "Music" not found. <br/>`;
       return retunMessage;
@@ -343,7 +344,7 @@ export async function bulkPlaylist(hostname, port, plextoken, timeout, playlistA
   } catch (error) {
     retunMessage.status = "error";
     retunMessage.message += `Error creating playlist: ${error.message}`;
-    console.error(`Error creating playlist: `, error.message);
+    logger.error(`Error creating playlist: `, error.message);
     return retunMessage;
   }
 }
@@ -399,7 +400,7 @@ export async function createRecentlyPlayedPlaylist(
     retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentTracks.length} tracks. <br/>`;
     return retunMessage;
   } catch (error) {
-    console.error(
+    logger.error(
       `Error creating recently played playlist "${playlistName}":`,
       error.message
     );
@@ -446,7 +447,7 @@ export async function createRecentlyAddedPlaylist(
     retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentTracks.length} tracks. <br/>`;
     return retunMessage;
   } catch (error) {
-    console.error(
+    logger.error(
       `Error creating recently added playlist "${playlistName}":`,
       error.message
     );
