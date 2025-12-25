@@ -1,6 +1,6 @@
 {
   "name": "PlexFolderPlaylistCreator",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Plex Folder Playlist Creator App",
   "main": "main.js",
   "scripts": {
@@ -27,25 +27,33 @@
   "dependencies": {
     "electron-settings": "^4.0.4",
     "electron-squirrel-startup": "^1.0.1",
-    "plex-api": "^5.3.2"
+    "fast-xml-parser": "^4.0.11",
+    "node-fetch": "^2.6.12"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.8.3",
-    "@electron-forge/maker-deb": "^7.8.3",
-    "@electron-forge/maker-dmg": "^7.8.3",
-    "@electron-forge/maker-rpm": "^7.8.3",
-    "@electron-forge/maker-squirrel": "^7.8.3",
-    "@electron-forge/maker-wix": "^7.8.3",
-    "@electron-forge/maker-zip": "^7.8.3",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.8.3",
-    "@electron-forge/plugin-fuses": "^7.8.3",
+    "@electron-forge/maker-deb": "^7.10.2",
+    "@electron-forge/maker-dmg": "^7.10.2",
+    "@electron-forge/maker-rpm": "^7.10.2",
+    "@electron-forge/maker-squirrel": "^7.10.2",
+    "@electron-forge/maker-wix": "^7.10.2",
+    "@electron-forge/maker-zip": "^7.10.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
+    "@electron-forge/plugin-fuses": "^7.10.2",
     "@electron/fuses": "^1.0.0",
-    "@electron/osx-sign": "^2.0.0",
-    "electron": "^37.2.6",
+    "@electron/notarize": "^3.1.1",
+    "@electron/osx-sign": "^2.3.0",
+    "electron": "^39.2.7",
     "electron-builder": "^26.0.12",
-    "electron-notarize": "^1.2.2",
     "electron-reload": "^2.0.0-alpha.1",
     "electron-updater": "^6.6.2"
+  },
+  "overrides": {
+    "tmp": "^0.2.3",
+    "glob": "^7.2.3",
+    "rimraf": "^3.0.2",
+    "inflight": "^1.0.6",
+    "boolean": "^3.2.0"
   },
   "build": {
     "appId": "com.zackdawood.PlexFolderPlaylistCreator",

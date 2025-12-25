@@ -135,7 +135,3 @@ upload
 assets/Thumbs.db
 docs/testcases/~$Testcases.xlsx
 backups
-
-debug_tracks.js
-debug_playlist_parsing.js
-debug_live_playlists.js
