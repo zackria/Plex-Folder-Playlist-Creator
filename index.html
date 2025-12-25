@@ -1,82 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Plex Folder Playlist</title>
-    <link href="./css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
-    <link href="./css/toggle.css" rel="stylesheet" />
-  </head>
-  <body>
-    <!-- Placeholder for Navbar -->
-    <div id="navbar"></div>
-    <div id="themeid" style="display: none;"></div>
-    <!-- Main Content -->
-    <div class="container mt-4">
-      <!-- Main Screen -->
-      <div id="mainScreen" class="content-screen">
-        <h2 class="text-dark">Plex Server Configuration</h2>
-        <form id="config-form" name="config-form" class="needs-validation" novalidate>
-          <div class="mb-3">
-            <label for="ipAddress" class="form-label text-dark">IP Address / Host Name</label>
-            <input type="text" class="form-control" id="ipAddress" placeholder="Enter IP Address / Host Name (e.g. 192.168.1.1 / hostname )" required />
-            <div class="invalid-feedback alert alert-danger">IP Address / Host Name is required (e.g. 192.168.1.1 / hostname)</div>
-          </div>
-          <div class="mb-3">
-            <label for="port" class="form-label text-dark">Port</label>
-            <input type="text" class="form-control" id="port" placeholder="Enter Port (e.g. 32400)" required />
-            <div class="invalid-feedback alert alert-danger">Port is required (e.g. 32400)</div>
-          </div>
-          <div class="mb-3">
-            <label for="apiKey" class="form-label text-dark">API Key</label>
-            <input type="text" class="form-control" id="apiKey" placeholder="Enter API Key (e.g. abc123)" required />
-            <div class="invalid-feedback alert alert-danger">API Key is required (e.g. abc123)</div>
-          </div>
-          <div class="mb-3">
-            <label for="timeout" class="form-label text-dark">Timeout (ms)</label>
-            <input type="number" class="form-control" id="timeout" placeholder="Enter Timeout in ms (e.g. 60000)" value="60000" required />
-            <div class="invalid-feedback alert alert-danger">Timeout is required (e.g. 60000)</div>
-          </div>
-          <div class="row">
-            <div class="col-12 col-md-4 mb-2">
-              <button type="submit" class="btn btn-primary w-100">Save</button>
-            </div>
-            <div class="col-12 col-md-4 mb-2">
-              <button type="reset" class="btn btn-primary w-100">Reset</button>
-            </div>
-          </div>
-        </form>
-        <br />
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plex Folder Playlist</title>
+  <link href="./css/bootstrap.min.css" rel="stylesheet" />
+  <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="./css/toggle.css" rel="stylesheet" />
+</head>
+
+<body>
+  <!-- Placeholder for Navbar -->
+  <div id="navbar"></div>
+  <div id="themeid" style="display: none;"></div>
+  <!-- Main Content -->
+  <div class="container mt-4">
+    <!-- Main Screen -->
+    <div id="mainScreen" class="content-screen">
+      <h2 class="text-dark">Plex Server Configuration</h2>
+      <form id="config-form" name="config-form" class="needs-validation" novalidate>
+        <div class="mb-3">
+          <label for="ipAddress" class="form-label text-dark">IP Address / Host Name</label>
+          <input type="text" class="form-control" id="ipAddress"
+            placeholder="Enter IP Address / Host Name (e.g. 192.168.1.1 / hostname )" required />
+          <div class="invalid-feedback alert alert-danger">IP Address / Host Name is required (e.g. 192.168.1.1 /
+            hostname)</div>
+        </div>
+        <div class="mb-3">
+          <label for="port" class="form-label text-dark">Port</label>
+          <input type="text" class="form-control" id="port" placeholder="Enter Port (e.g. 32400)" required />
+          <div class="invalid-feedback alert alert-danger">Port is required (e.g. 32400)</div>
+        </div>
+        <div class="mb-3">
+          <label for="apiKey" class="form-label text-dark">API Key</label>
+          <input type="text" class="form-control" id="apiKey" placeholder="Enter API Key (e.g. abc123)" required />
+          <div class="invalid-feedback alert alert-danger">API Key is required (e.g. abc123)</div>
+        </div>
+        <div class="mb-3">
+          <label for="timeout" class="form-label text-dark">Timeout (ms)</label>
+          <input type="number" class="form-control" id="timeout" placeholder="Enter Timeout in ms (e.g. 60000)"
+            value="60000" required />
+          <div class="invalid-feedback alert alert-danger">Timeout is required (e.g. 60000)</div>
+        </div>
         <div class="row">
           <div class="col-12 col-md-4 mb-2">
-            <button type="button" id="test-connection" class="btn btn-primary w-100">Test Connection</button>
+            <button type="submit" class="btn btn-primary w-100">Save</button>
           </div>
           <div class="col-12 col-md-4 mb-2">
-            <button id="go-to-actions" type="button" class="btn btn-primary w-100">Plex Playlist Actions</button>
-          </div>
-          <div class="col-12 col-md-4 mb-2">
-            <button type="button" id="refresh-playlists" class="btn btn-primary w-100">Refresh Playlists</button>
+            <button type="reset" class="btn btn-primary w-100">Reset</button>
           </div>
         </div>
-        <br />
-        <span id="progressbar" class="text-dark" style="display: none;">Processing please wait... &nbsp; <i class="loading"></i></span>
-        <div id="test-result" class="alert alert-success" style="display: none;"></div>
-        <div id="test-result-fail" class="alert alert-danger" style="display: none;"></div>
+      </form>
+      <br />
+      <div class="row">
+        <div class="col-12 col-md-4 mb-2">
+          <button type="button" id="test-connection" class="btn btn-primary w-100">Test Connection</button>
+        </div>
+        <div class="col-12 col-md-4 mb-2">
+          <button id="go-to-actions" type="button" class="btn btn-primary w-100">Plex Playlist Actions</button>
+        </div>
+        <div class="col-12 col-md-4 mb-2">
+          <button type="button" id="refresh-playlists" class="btn btn-primary w-100">Refresh Playlists</button>
+        </div>
       </div>
+      <br />
+      <span id="progressbar" class="text-dark" style="display: none;">Processing please wait... &nbsp; <i
+          class="loading"></i></span>
+      <div id="test-result" class="alert alert-success" style="display: none;"></div>
+      <div id="test-result-fail" class="alert alert-danger" style="display: none;"></div>
     </div>
+  </div>
 
-    <script src="./js/bootstrap.bundle.min.js"></script>
-    <script src="./js/loadNavbar.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const data = window.electronData.data;
-        document.getElementById("ipAddress").value = data.ipaddress;
-        document.getElementById("port").value = data.port;
-        document.getElementById("apiKey").value = data.key;
-        document.getElementById("timeout").value = data.timeout;
-        document.getElementById("themeid").value = data.theme;
-      });
-    </script>
-  </body>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/loadNavbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const data = globalThis.electronData.data;
+      document.getElementById("ipAddress").value = data.ipaddress;
+      document.getElementById("port").value = data.port;
+      document.getElementById("apiKey").value = data.key;
+      document.getElementById("timeout").value = data.timeout;
+      document.getElementById("themeid").value = data.theme;
+    });
+  </script>
+</body>
+
 </html>

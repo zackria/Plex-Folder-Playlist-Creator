@@ -1,5 +1,5 @@
 const { ipcMain, BrowserWindow } = require("electron");
-const path = require("path");
+const path = require("node:path");
 const { saveConfig, saveTheme, getAPIData } = require("./settingsManager");
 const { confirmDeletePlaylist, showVersionInfo } = require("./dialogManager");
 const {
@@ -26,7 +26,7 @@ function setupIPC(mainWindow) {
 
     // Get the current window from the event sender
     const currentWindow = BrowserWindow.fromWebContents(event.sender);
-    
+
     if (!currentWindow || currentWindow.isDestroyed()) {
       console.error("Current window is not available or has been destroyed.");
       return;

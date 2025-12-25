@@ -8,7 +8,7 @@ set -exuo pipefail
 
 input_file=$1
 
-if [ ! -f "$input_file" ]
+if [[ ! -f "$input_file" ]]
 then
     echo 'First argument must be path to binary'
     exit 1

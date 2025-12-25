@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 
 // Conservative limits to avoid excessive work on attacker-controlled inputs
 const MAX_NORMALIZE_LENGTH = 4096;
@@ -12,9 +12,9 @@ function safeTruncate(s, max) {
 function looksLikePercentEncoded(str) {
   if (typeof str !== 'string') return false;
   for (let i = 0; i + 2 < str.length; i++) {
-    if (str.charCodeAt(i) === 37) { // '%'
-      const a = str.charCodeAt(i + 1);
-      const b = str.charCodeAt(i + 2);
+    if (str.codePointAt(i) === 37) { // '%'
+      const a = str.codePointAt(i + 1);
+      const b = str.codePointAt(i + 2);
       const isHex = (cc) => (cc >= 48 && cc <= 57) || (cc >= 65 && cc <= 70) || (cc >= 97 && cc <= 102);
       if (isHex(a) && isHex(b)) return true;
     }
@@ -29,7 +29,7 @@ function _mapUnicodeSpacesToSpace(str) {
   let out = '';
   for (let i = 0; i < str.length; i++) {
     const ch = str[i];
-    const cp = str.charCodeAt(i);
+    const cp = str.codePointAt(i);
     out += _SPACE_SET.has(cp) ? ' ' : ch;
   }
   return out;
@@ -39,7 +39,7 @@ function _normalizeDashesToMinus(str) {
   let out = '';
   for (let i = 0; i < str.length; i++) {
     const ch = str[i];
-    const cp = str.charCodeAt(i);
+    const cp = str.codePointAt(i);
     out += _DASH_SET.has(cp) ? '-' : ch;
   }
   return out;
@@ -78,11 +78,11 @@ function _collapseSlashesAndTrim(str) {
 function _decodeHtmlEntities(str) {
   if (!str || typeof str !== 'string') return str;
   // common ampersand encodings from HTML/XML
-  return str.replace(/&amp;/gi, '&').replace(/&#x26;|&#38;/gi, '&');
+  return str.replaceAll(/&amp;/gi, '&').replaceAll(/&#x26;|&#38;/gi, '&');
 }
 
 function processNormalizedString(input) {
-  let str = input.replace(/\\/g, '/');
+  let str = input.replaceAll('\\', '/');
   str = _mapUnicodeSpacesToSpace(str);
   str = str.normalize('NFC');
   str = _normalizeDashesToMinus(str);
@@ -109,8 +109,8 @@ function normalizeForCompare(p) {
     try {
       decoded = decodeURIComponent(truncated);
     } catch (e) {
-  decoded = truncated;
-  console.warn('normalizeForCompare: failed to decode percent-encoding, using raw input', e?.message);
+      decoded = truncated;
+      console.warn('normalizeForCompare: failed to decode percent-encoding, using raw input', e?.message);
     }
   }
   return processNormalizedString(decoded);
@@ -153,26 +153,26 @@ function buildFolderPatterns(inputPath) {
   const extra = new Set();
   for (const p of patterns) {
     // percent-encode ampersand
-    extra.add(p.replace(/&/g, '%26'));
+    extra.add(p.replaceAll('&', '%26'));
     // plus for spaces
-    extra.add(p.replace(/ /g, '+'));
+    extra.add(p.replaceAll(' ', '+'));
     // percent-encode spaces as %20 and ampersand as %26
-    extra.add(p.replace(/ /g, '%20').replace(/&/g, '%26'));
-  // HTML-entity encoded ampersand (from XML escaping)
-  extra.add(p.replace(/&/g, '&amp;'));
-  // double-encoded percent sequences (e.g. %26 -> %2526)
-  extra.add(p.replace(/%26/g, '%2526'));
-  // alternate conversions between + and %20
-  extra.add(p.replace(/%20/g, '+'));
-  extra.add(p.replace(/\+/g, '%20'));
-  
-  // Handle cases where spaces around ampersand might be missing or different
-  extra.add(p.replace(/ & /g, '&'));          // "UAT & Live" -> "UAT&Live"
-  extra.add(p.replace(/ & /g, ' &'));         // "UAT & Live" -> "UAT &Live" 
-  extra.add(p.replace(/ & /g, '& '));         // "UAT & Live" -> "UAT& Live"
-  extra.add(p.replace(/ & /g, '%26'));        // "UAT & Live" -> "UAT%26Live"
-  extra.add(p.replace(/ & /g, ' %26 '));      // "UAT & Live" -> "UAT %26 Live"
-  extra.add(p.replace(/ & /g, '%20%26%20'));  // "UAT & Live" -> "UAT%20%26%20Live"
+    extra.add(p.replaceAll(' ', '%20').replaceAll('&', '%26'));
+    // HTML-entity encoded ampersand (from XML escaping)
+    extra.add(p.replaceAll('&', '&amp;'));
+    // double-encoded percent sequences (e.g. %26 -> %2526)
+    extra.add(p.replaceAll('%26', '%2526'));
+    // alternate conversions between + and %20
+    extra.add(p.replaceAll('%20', '+'));
+    extra.add(p.replaceAll('+', '%20'));
+
+    // Handle cases where spaces around ampersand might be missing or different
+    extra.add(p.replaceAll(' & ', '&'));          // "UAT & Live" -> "UAT&Live"
+    extra.add(p.replaceAll(' & ', ' &'));         // "UAT & Live" -> "UAT &Live" 
+    extra.add(p.replaceAll(' & ', '& '));         // "UAT & Live" -> "UAT& Live"
+    extra.add(p.replaceAll(' & ', '%26'));        // "UAT & Live" -> "UAT%26Live"
+    extra.add(p.replaceAll(' & ', ' %26 '));      // "UAT & Live" -> "UAT %26 Live"
+    extra.add(p.replaceAll(' & ', '%20%26%20'));  // "UAT & Live" -> "UAT%20%26%20Live"
   }
   for (const e of extra) patterns.add(e);
 
@@ -187,9 +187,9 @@ function normalizeToken(s) {
   const spaceSet = new Set([0x00A0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x200B, 0x202F, 0x205F, 0x3000]);
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
-    const cp = s.charCodeAt(i);
+    const cp = s.codePointAt(i);
     if (spaceSet.has(cp) || dashSet.has(cp)) continue;
-    const code = s.charCodeAt(i);
+    const code = s.codePointAt(i);
     if ((code >= 97 && code <= 122) || (code >= 48 && code <= 57)) out += ch;
   }
   return out;

@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require("node:path");
 const { createPlexClient, createPlexClientWithTimeout } = require("./plexClient");
 const normalizeUtils = require("./normalizeUtils");
 
@@ -58,22 +58,22 @@ function findPlaylistTracks(allTracks, playlistPath) {
           }
         } catch (e) {
           // Log once per file to avoid extremely noisy output
-          console.debug('double-decode failed for file (skipping double-decode):', String(e && e.message).slice(0,200));
+          console.debug('double-decode failed for file (skipping double-decode):', e?.message?.slice(0, 200));
         }
 
         // common replacements
-        variants.add(file.replace(/%26/g, '&'));
-        variants.add(file.replace(/\+/g, ' '));
-        variants.add(file.replace(/%20/g, ' '));
-        variants.add(file.replace(/&amp;/g, '&'));
-        variants.add(file.replace(/%2526/g, '%26'));
+        variants.add(file.replaceAll('%26', '&'));
+        variants.add(file.replaceAll('+', ' '));
+        variants.add(file.replaceAll('%20', ' '));
+        variants.add(file.replaceAll('&amp;', '&'));
+        variants.add(file.replaceAll('%2526', '%26'));
 
         for (const v of variants) {
           const vn = normalizeForCompareNoDecode(v);
           if (patterns.some((p) => vn.includes(p))) return true;
         }
       } catch (e) {
-        console.debug('aggressive match generation failed:', e && e.message);
+        console.debug('aggressive match generation failed:', e?.message);
       }
 
       return false;
@@ -238,7 +238,7 @@ async function createPlaylist(hostname, port, plextoken, timeout, parametersArra
     const tracks = await client.query(
       `/library/sections/${musicLibrary.key}/all?type=10`
     );
-  
+
 
     const allTracks = tracks.MediaContainer.Metadata || [];
     const foundPlaylistTracks = findPlaylistTracks(allTracks, playlistPath);
@@ -354,8 +354,8 @@ async function bulkPlaylist(hostname, port, plextoken, timeout, playlistArray) {
 async function createRecentlyPlayedPlaylist(
   hostname,
   port,
-  plextoken, 
-  timeout,  
+  plextoken,
+  timeout,
   parametersArray
 ) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);

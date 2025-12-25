@@ -22,7 +22,7 @@ async function getPlaylist(hostname, port, plextoken, timeout) {
 /**
  * Deletes a playlist by ID
  */
-async function deletePlaylist(hostname, port, plextoken,  timeout, playlistId) {
+async function deletePlaylist(hostname, port, plextoken, timeout, playlistId) {
   if (!playlistId) {
     console.error("Error: Playlist ID is required to delete a playlist.");
     return false;
@@ -34,7 +34,7 @@ async function deletePlaylist(hostname, port, plextoken,  timeout, playlistId) {
     await client.deleteQuery(`/playlists/${playlistId}`);
     return true;
   } catch (error) {
-    if (error.response && error.response.statusCode === 404) {
+    if (error.response?.statusCode === 404) {
       console.error(
         `Error in plexPlaylistOps.js at playlist operations: Playlist with ID ${playlistId} not found on the server.`
       );

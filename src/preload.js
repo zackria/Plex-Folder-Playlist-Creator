@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 // Read the data passed in the URL query string
-const urlParams = new URLSearchParams(window.location.search);
+const urlParams = new URLSearchParams(globalThis.location.search);
 const dataFromMain = Object.fromEntries(urlParams.entries());
 
 // Expose data to the renderer process

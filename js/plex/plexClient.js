@@ -1,6 +1,6 @@
 const fetch = require("node-fetch");
 const { XMLParser } = require("fast-xml-parser");
-const os = require("os");
+const os = require("node:os");
 
 const CLIENT_IDENTIFIER = "PFPC-" + (os.hostname() || "node") + "-" + Date.now().toString(36);
 
@@ -16,13 +16,15 @@ function buildBaseUrl(hostname, port) {
     return port ? `${hostname.replace(/\/$/, "")}:${port}` : hostname.replace(/\/$/, "");
   }
   const proto = port === 443 ? "https" : "http";
-  return `${proto}://${hostname}${port ? `:${port}` : ""}`;
+  const portSuffix = port ? `:${port}` : "";
+  return `${proto}://${hostname}${portSuffix}`;
 }
 
 function buildUrl(baseUrl, path, token) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const sep = normalizedPath.includes("?") ? "&" : "?";
-  return `${baseUrl}${normalizedPath}${token ? `${sep}X-Plex-Token=${encodeURIComponent(token)}` : ""}`;
+  const tokenQuery = token ? `${sep}X-Plex-Token=${encodeURIComponent(token)}` : "";
+  return `${baseUrl}${normalizedPath}${tokenQuery}`;
 }
 
 function defaultTimeoutMs(timeout) {
@@ -148,6 +150,7 @@ function createPlexClient(hostname, port, plextoken, timeoutMs) {
       try {
         return parser.parse(text);
       } catch (e) {
+        console.warn("[PlexClient] postQuery parsing failed, returning text:", e.message);
         return text;
       }
     },
@@ -174,6 +177,7 @@ function createPlexClient(hostname, port, plextoken, timeoutMs) {
       try {
         return parser.parse(text);
       } catch (e) {
+        console.warn("[PlexClient] perform parsing failed, returning text:", e.message);
         return text;
       }
     },

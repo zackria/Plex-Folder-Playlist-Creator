@@ -10,8 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
       addEventListeners();
       toggleTheme();
 
-      if (window.electronData && window.electronData.data) {
-        const themeData = window.electronData.data;
+      if (globalThis.electronData?.data) {
+        const themeData = globalThis.electronData.data;
         document.getElementById("versionNum").innerHTML =
           themeData.versionNo === undefined ? "" : themeData.versionNo;
 
@@ -74,7 +74,7 @@ function toggleTheme() {
     });
 
     const theme = isDarkMode ? "dark" : "light";
-    window.ipcRenderer.send("save-theme", theme);
+    globalThis.ipcRenderer.send("save-theme", theme);
   });
 }
 
@@ -150,7 +150,7 @@ function addEventListeners() {
 
 
 function navigateTo(destination) {
-  window.ipcRenderer.send("navigate-to", destination);
+  globalThis.ipcRenderer.send("navigate-to", destination);
 }
 
 async function handleFormSubmit(e) {
@@ -178,7 +178,7 @@ async function handleFormSubmit(e) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("save-config", data);
+    const result = await globalThis.ipcRenderer.invoke("save-config", data);
     displayMessage("progressbar", "none");
 
     if (result === false) {
@@ -220,8 +220,8 @@ async function handleM3UPlaylistFormSubmit(e) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("create-m3u-playlist", [
-      document.getElementById("mthreeuPath").value.replace(/['"]+/g, "").trim(),
+    const result = await globalThis.ipcRenderer.invoke("create-m3u-playlist", [
+      document.getElementById("mthreeuPath").value.replaceAll(/['"]+/g, "").trim(),
       document.getElementById("library").value.trim(),
     ]);
     displayMessage("progressbar", "none");
@@ -260,8 +260,8 @@ async function handlePlaylistFormSubmit(e) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("create-playlist", [
-      document.getElementById("folderPath").value.replace(/['"]+/g, "").trim(),
+    const result = await globalThis.ipcRenderer.invoke("create-playlist", [
+      document.getElementById("folderPath").value.replaceAll(/['"]+/g, "").trim(),
       document.getElementById("playlistName").value.trim(),
       document.getElementById("library").value.trim(),
     ]);
@@ -318,7 +318,7 @@ async function handleBulkPlaylistFormSubmit(e) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke(
+    const result = await globalThis.ipcRenderer.invoke(
       "bulk-playlist",
       jsonInput.value
     );
@@ -351,7 +351,7 @@ async function testConnection() {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("test-connection");
+    const result = await globalThis.ipcRenderer.invoke("test-connection");
     displayMessage("progressbar", "none");
 
     // Backwards compatible handling: some callers may still get `false`.
@@ -406,7 +406,7 @@ async function testConnection() {
 async function getVersion(e) {
   e.preventDefault();
   try {
-    await window.ipcRenderer.invoke("releaseVersion");
+    await globalThis.ipcRenderer.invoke("releaseVersion");
   } catch (error) {
     console.error("Error deleting playlist:", error);
   }
@@ -417,7 +417,7 @@ async function deleteAllPlaylist() {
   displayMessage("test-result", "none", "none");
 
   const parameters = [];
-  const response = await window.ipcRenderer.invoke("openDialog", parameters);
+  const response = await globalThis.ipcRenderer.invoke("openDialog", parameters);
 
   if (!response) {
     displayMessage(
@@ -432,20 +432,20 @@ async function deleteAllPlaylist() {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("delete-all-playlist");
+    const result = await globalThis.ipcRenderer.invoke("delete-all-playlist");
     displayMessage("progressbar", "none");
 
-    if (!result) {
-      displayMessage(
-        "test-result-fail",
-        "block",
-        `Error Playlists cannot be deleted <br/>`
-      );
-    } else {
+    if (result) {
       displayMessage(
         "test-result",
         "block",
         `Playlists deleted successfully!! <br/>`
+      );
+    } else {
+      displayMessage(
+        "test-result-fail",
+        "block",
+        `Error Playlists cannot be deleted <br/>`
       );
     }
 
@@ -468,7 +468,7 @@ async function deletePlaylist(rowid, playlistId) {
   const playlist_no = rowid.cells[1].textContent; // Index column (cell 1)
   const playlist_name = rowid.cells[2].textContent; // Title column (cell 2)
   const parameters = [playlist_no, playlistId, playlist_name];
-  const response = await window.ipcRenderer.invoke("openDialog", parameters);
+  const response = await globalThis.ipcRenderer.invoke("openDialog", parameters);
 
   if (!response) {
     displayMessage(
@@ -499,19 +499,13 @@ async function deletePlaylist(rowid, playlistId) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke(
+    const result = await globalThis.ipcRenderer.invoke(
       "delete-playlist",
       playlistId
     );
     displayMessage("progressbar", "none");
 
-    if (!result) {
-      displayMessage(
-        "test-result-fail",
-        "block",
-        `Error Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cannot be deleted <br/>`
-      );
-    } else {
+    if (result) {
       rowid.remove();
       displayMessage(
         "test-result",
@@ -519,6 +513,12 @@ async function deletePlaylist(rowid, playlistId) {
         `Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!! <br/>`
       );
       getPlaylist(`Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!!`);
+    } else {
+      displayMessage(
+        "test-result-fail",
+        "block",
+        `Error Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] cannot be deleted <br/>`
+      );
     }
   } catch (error) {
     console.error("Error deleting playlist:", error);
@@ -537,7 +537,7 @@ async function getPlaylist(additionalMessage) {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("get-playlists");
+    const result = await globalThis.ipcRenderer.invoke("get-playlists");
     displayMessage("progressbar", "none");
 
     if (result === false) {
@@ -572,7 +572,7 @@ async function refreshPlaylist() {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("refresh-playlists");
+    const result = await globalThis.ipcRenderer.invoke("refresh-playlists");
     displayMessage("progressbar", "none");
 
     if (result === false) {
@@ -607,7 +607,7 @@ async function recentPlayedPlaylist() {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("recent-played-playlists");
+    const result = await globalThis.ipcRenderer.invoke("recent-played-playlists");
     displayMessage("progressbar", "none");
 
     if (result === false) {
@@ -642,7 +642,7 @@ async function recentAddedPlaylist() {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await window.ipcRenderer.invoke("recent-added-playlists");
+    const result = await globalThis.ipcRenderer.invoke("recent-added-playlists");
     displayMessage("progressbar", "none");
 
     if (result === false) {
@@ -791,7 +791,7 @@ function deleteSelectedPlaylists(selectedIds) {
   displayMessage("test-result", "none", "none");
   displayMessage("progressbar", "block");
 
-  window.ipcRenderer.invoke('delete-selected-playlists', selectedIds)
+  globalThis.ipcRenderer.invoke('delete-selected-playlists', selectedIds)
     .then(response => {
       displayMessage("progressbar", "none");
       if (response.success) {

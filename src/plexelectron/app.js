@@ -12,7 +12,9 @@ try {
   console.warn("electron-squirrel-startup module not found, continuing without it:", error.message);
 }
 
-app.whenReady().then(async () => {
+(async () => {
+  await app.whenReady();
+
   mainWindow = createWindow();
   let apiData = await getAPIData();
   mainWindow.loadFile("index.html", { query: apiData });
@@ -33,7 +35,7 @@ app.whenReady().then(async () => {
       //mainWindow.webContents.openDevTools();
     }
   });
-});
+})();
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
