@@ -1,5 +1,5 @@
 import { app } from "electron";
-import { createRequire } from "module";
+import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const settings = require("electron-settings");

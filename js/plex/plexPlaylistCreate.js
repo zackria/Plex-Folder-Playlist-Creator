@@ -1,5 +1,5 @@
 import path from "node:path";
-import { createPlexClient, createPlexClientWithTimeout } from "./plexClient.js";
+import { createPlexClientWithTimeout } from "./plexClient.js";
 import * as normalizeUtils from "./normalizeUtils.js";
 
 const {

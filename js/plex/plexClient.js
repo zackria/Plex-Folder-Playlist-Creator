@@ -1,6 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import os from "node:os";
-import { createRequire } from "module";
+import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const fetch = require("node-fetch");

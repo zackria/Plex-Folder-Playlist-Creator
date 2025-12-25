@@ -2,7 +2,7 @@ import { app, BrowserWindow } from "electron";
 import { createWindow } from "./windowManager.js";
 import { getAPIData } from "./settingsManager.js";
 import { setupIPC } from "./ipcHandlers.js";
-import { createRequire } from "module";
+import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 let mainWindow;
