@@ -33,12 +33,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// ... (makeNumeric function remains same) ...
+function makeNumeric(id) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/\D/g, "");
+    });
+  }
+}
 
 function toggleTheme() {
   const toggle = document.getElementById("themeToggle");
   if (!toggle) return;
-  // ... rest of toggleTheme
+
   const body = document.body;
   const sunIcon = document.getElementById("sunIcon");
   const moonIcon = document.getElementById("moonIcon");
