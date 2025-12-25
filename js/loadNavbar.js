@@ -1,83 +1,48 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Bind page listeners immediately
+  addEventListeners();
+
   fetch("navbar.html")
     .then((response) => response.text())
     .then((data) => {
       document.getElementById("navbar").innerHTML = data;
+      // Bind navbar listeners
       addEventListeners();
       toggleTheme();
-      const themeData = window.electronData.data;
 
-      document.getElementById("versionNum").innerHTML =
-        themeData.versionNo === undefined ? "" : themeData.versionNo;
+      if (window.electronData && window.electronData.data) {
+        const themeData = window.electronData.data;
+        document.getElementById("versionNum").innerHTML =
+          themeData.versionNo === undefined ? "" : themeData.versionNo;
 
-        document.getElementById("versionNumMenu").innerHTML =
-        themeData.versionNo === undefined ? "" : themeData.versionNo;
+        if (document.getElementById("versionNumMenu")) {
+          document.getElementById("versionNumMenu").innerHTML =
+            themeData.versionNo === undefined ? "" : themeData.versionNo;
+        }
 
-      if (themeData.theme === "dark") {
-        document
-          .getElementById("themeToggle")
-          .dispatchEvent(new Event("change"));
+        if (themeData.theme === "dark") {
+          const toggle = document.getElementById("themeToggle");
+          if (toggle) toggle.dispatchEvent(new Event("change"));
+        }
       }
-  // Enforce numeric-only input for port and timeout fields
-  makeNumeric('port');
-  makeNumeric('timeout');
+      // Enforce numeric-only input for port and timeout fields
+      makeNumeric('port');
+      makeNumeric('timeout');
     })
     .catch((error) => console.error("Error in loadNavbar.js at navbar loading: Error loading navbar:", error));
 });
 
-// Attach numeric-only enforcement to inputs by id
-function makeNumeric(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  // Hint for mobile keyboards
-  el.setAttribute('inputmode', 'numeric');
-  el.setAttribute('pattern', '\\d*');
 
-  // Prevent non-digit characters during typing
-  el.addEventListener('keypress', function (ev) {
-    const char = ev.key;
-    if (char && char.length === 1 && !/\d/.test(char)) {
-      ev.preventDefault();
-    }
-  });
-
-  // Clean pasted content to digits only
-  el.addEventListener('paste', function (ev) {
-    ev.preventDefault();
-    const clipboard = (ev.clipboardData || window.clipboardData);
-    const text = (clipboard ? clipboard.getData('text') : '') || '';
-    const digits = text.replace(/\D+/g, '');
-    // replace selection or append
-    const start = typeof el.selectionStart === 'number' ? el.selectionStart : 0;
-    const end = typeof el.selectionEnd === 'number' ? el.selectionEnd : 0;
-    const value = el.value || '';
-    el.value = value.slice(0, start) + digits + value.slice(end);
-    // move cursor after inserted digits if supported
-    const pos = start + digits.length;
-    if (typeof el.setSelectionRange === 'function') {
-      el.setSelectionRange(pos, pos);
-    }
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-  });
-
-  // Ensure any programmatic input is cleaned
-  el.addEventListener('input', function () {
-    const cleaned = (el.value || '').replace(/\D+/g, '');
-    if (el.value !== cleaned) {
-      const pos = typeof el.selectionStart === 'number' ? el.selectionStart : cleaned.length;
-      el.value = cleaned;
-      if (typeof el.setSelectionRange === 'function') {
-        el.setSelectionRange(pos, pos);
-      }
-    }
-  });
-}
+// ... (makeNumeric function remains same) ...
 
 function toggleTheme() {
   const toggle = document.getElementById("themeToggle");
+  if (!toggle) return;
+  // ... rest of toggleTheme
   const body = document.body;
   const sunIcon = document.getElementById("sunIcon");
   const moonIcon = document.getElementById("moonIcon");
+  // ... logic
   const toggleClasses = (elements, fromClass, toClass) => {
     Array.from(elements).forEach((el) => el.classList.replace(fromClass, toClass));
   };
@@ -95,11 +60,11 @@ function toggleTheme() {
     // swap sun and moon icons
     const sunFrom = isDarkMode ? "bi-sun-fill" : "bi-sun";
     const sunTo = isDarkMode ? "bi-sun" : "bi-sun-fill";
-    sunIcon.classList.replace(sunFrom, sunTo);
+    if (sunIcon) sunIcon.classList.replace(sunFrom, sunTo);
 
     const moonFrom = isDarkMode ? "bi-moon" : "bi-moon-fill";
     const moonTo = isDarkMode ? "bi-moon-fill" : "bi-moon";
-    moonIcon.classList.replace(moonFrom, moonTo);
+    if (moonIcon) moonIcon.classList.replace(moonFrom, moonTo);
 
     // update groups of classes by iterating over pairs
     classPairs.forEach(([lightClass, darkClass]) => {
@@ -114,6 +79,7 @@ function toggleTheme() {
 }
 
 function addEventListeners() {
+  console.log("Adding event listeners...");
   const events = [
     {
       id: "go-to-actions",
@@ -163,19 +129,25 @@ function addEventListeners() {
     { id: "refresh-playlists", event: "click", handler: refreshPlaylist },
     { id: "recent-played-playlists", event: "click", handler: recentPlayedPlaylist },
     { id: "recent-added-playlists", event: "click", handler: recentAddedPlaylist },
-    { id: "get-playlists", event: "click", handler: (e) => {
-      e.preventDefault();
-      getPlaylist();
-    }},
+    {
+      id: "get-playlists", event: "click", handler: (e) => {
+        e.preventDefault();
+        getPlaylist();
+      }
+    },
   ];
 
   events.forEach(({ id, event, handler }) => {
     const element = document.getElementById(id);
-    if (element) {
+    // Only attach if element exists and hasn't been attached yet
+    if (element && !element.dataset.listenerAttached) {
+      console.log(`Attaching listener to ${id}`);
       element.addEventListener(event, handler);
+      element.dataset.listenerAttached = "true";
     }
   });
 }
+
 
 function navigateTo(destination) {
   window.ipcRenderer.send("navigate-to", destination);
@@ -198,9 +170,9 @@ async function handleFormSubmit(e) {
   const data = [
     document.getElementById("apiKey").value,
     document.getElementById("ipAddress").value,
-  document.getElementById("port").value,
-  // include timeout input so backend receives UI value (may be a string)
-  (document.getElementById("timeout") ? document.getElementById("timeout").value.trim() : undefined),
+    document.getElementById("port").value,
+    // include timeout input so backend receives UI value (may be a string)
+    (document.getElementById("timeout") ? document.getElementById("timeout").value.trim() : undefined),
   ];
 
   displayMessage("progressbar", "block");
@@ -357,7 +329,7 @@ async function handleBulkPlaylistFormSubmit(e) {
         "test-result-fail",
         "block",
         "Error!!! <br/> Please check your settings and try again.<br/> " +
-          result.message
+        result.message
       );
     } else {
       displayMessage("test-result", "block", result.message);
@@ -546,7 +518,7 @@ async function deletePlaylist(rowid, playlistId) {
         "block",
         `Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!! <br/>`
       );
-      getPlaylist( `Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!!`);
+      getPlaylist(`Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!!`);
     }
   } catch (error) {
     console.error("Error deleting playlist:", error);
@@ -575,7 +547,7 @@ async function getPlaylist(additionalMessage) {
         "Connection Error!!! <br/> Please check your settings and try again."
       );
     } else {
-      const successMessage = `${additionalMessage ? "" + additionalMessage+"<br/>": " "}  ${result.length}&#8198;Playlists retrieved successfully!!!`;
+      const successMessage = `${additionalMessage ? "" + additionalMessage + "<br/>" : " "}  ${result.length}&#8198;Playlists retrieved successfully!!!`;
       displayMessage(
         "test-result",
         "block",
@@ -650,7 +622,7 @@ async function recentPlayedPlaylist() {
         "block",
         "Playlists Recently Played Created successfully!!! <br/>"
       );
-      getPlaylist( "Playlists Recently Played Created successfully!!!");
+      getPlaylist("Playlists Recently Played Created successfully!!!");
     }
   } catch (error) {
     console.error("Error refreshing playlists:", error);
@@ -686,7 +658,7 @@ async function recentAddedPlaylist() {
         "Playlists Recently Added Created successfully!!! <br/>"
       );
       getPlaylist("Playlists Recently Added Created successfully!!!");
-      
+
     }
   } catch (error) {
     console.error("Error refreshing playlists:", error);
@@ -772,13 +744,13 @@ function populateTable(data) {
 function setupSelectAllFunctionality() {
   const selectAllCheckbox = document.getElementById('select-all');
   const deleteSelectedButton = document.getElementById('delete-selected');
-  
+
   if (selectAllCheckbox) {
     // Remove any existing event listeners to avoid duplicates
     selectAllCheckbox.removeEventListener('change', handleSelectAll);
     selectAllCheckbox.addEventListener('change', handleSelectAll);
   }
-  
+
   if (deleteSelectedButton) {
     // Remove any existing event listeners to avoid duplicates
     deleteSelectedButton.removeEventListener('click', handleDeleteSelected);

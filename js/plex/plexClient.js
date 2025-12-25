@@ -85,7 +85,9 @@ function createPlexClient(hostname, port, plextoken, timeoutMs) {
   return {
     async query(path) {
       const url = buildUrl(baseUrl, path, plextoken);
-      console.log(`[PlexClient] Querying: ${url}`);
+      // Mask token in logs
+      const maskedUrl = url.replace(/X-Plex-Token=[^&]+/, "X-Plex-Token=REDACTED");
+      console.log(`[PlexClient] Querying: ${maskedUrl}`);
       try {
         const res = await fetch(url, { method: "GET", headers, timeout });
         console.log(`[PlexClient] Response Status: ${res.status}`);

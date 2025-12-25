@@ -1,118 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Plex Folder Playlist</title>
-    <link href="./css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
 
-    <link href="./css/toggle.css" rel="stylesheet" />
-  </head>
-  <body>
-    <!-- Placeholder for Navbar -->
-    <div id="navbar"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plex Folder Playlist</title>
+  <link href="./css/bootstrap.min.css" rel="stylesheet" />
+  <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
 
-    <!-- Main Content -->
-    <div class="container mt-4">
-      <!-- Main Screen -->
-      <div id="mainScreen" class="content-screen">
-        <h2 class="text-dark">Create M3U Playlist</h2>
-        <form
-          id="mthreeuplaylist-form"
-          name="mthreeuplaylist-form"
-          class="needs-validation"
-          novalidate
-        >
-          <div>
-            <div class="mb-3">
-              <div class="input-group has-validation">
-                <label for="mthreeuPath" class="form-label text-dark"
-                  >M3U Path &nbsp;</label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="mthreeuPath"
-                  placeholder="Enter M3U Path to create playlist (Ex: /path/to/playlist.m3u)"
-                  required
-                />
-                <div class="invalid-feedback alert alert-danger">
-                  M3U Path is required to create playlist (Ex: /path/to/playlist.m3u)
-                </div>
-              </div>
-              <div>
-                <br />
-                <div class="mb-3">
-                  <label for="library" class="form-label text-dark"
-                    >Library Section Name &nbsp;</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="library"
-                    placeholder="Library to save Default: Music"
-                    value="Music"
-                  />
-                </div>
+  <link href="./css/toggle.css" rel="stylesheet" />
+</head>
+
+<body>
+  <!-- Placeholder for Navbar -->
+  <div id="navbar"></div>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    <!-- Main Screen -->
+    <div id="mainScreen" class="content-screen">
+      <h2 class="text-dark">Create M3U Playlist</h2>
+      <form id="mthreeuplaylist-form" name="mthreeuplaylist-form" class="needs-validation" novalidate>
+        <div>
+          <div class="mb-3">
+            <div class="input-group has-validation">
+              <label for="mthreeuPath" class="form-label text-dark">M3U Path &nbsp;</label>
+              <input type="text" class="form-control" id="mthreeuPath"
+                placeholder="Enter M3U Path to create playlist (Ex: /path/to/playlist.m3u)" required />
+              <div class="invalid-feedback alert alert-danger">
+                M3U Path is required to create playlist (Ex: /path/to/playlist.m3u)
               </div>
             </div>
-
-            <div class="row mt-3">
-              <div class="col-12 col-md-5 mb-2">
-                <button type="submit" class="btn btn-primary w-100">
-                  Create M3U Playlist
-                </button>
-              </div>
-              <div class="col-12 col-md-5 mb-2">
-                <button type="reset" class="btn btn-secondary w-100">
-                  Reset
-                </button>
-              </div>
-              <div class="col-12 col-md-5 mb-2">
-                <button
-                  type="button"
-                  id="go-toconfig"
-                  class="btn btn-secondary w-100"
-                >
-                  Update Configuration
-                </button>
-              </div>
-              <div class="col-12 col-md-5 mb-2">
-                <button
-                  type="button"
-                  id="refresh-playlists"
-                  class="btn btn-primary w-100"
-                >
-                  Refresh Playlists
-                </button>
+            <div>
+              <br />
+              <div class="mb-3">
+                <label for="library" class="form-label text-dark">Library Section Name &nbsp;</label>
+                <input type="text" class="form-control" id="library" placeholder="Library to save Default: Music"
+                  value="Music" />
               </div>
             </div>
           </div>
-          <div>
-            <br />
-            <span id="progressbar" style="display: none" class="text-dark"
-              >Processing please wait... &nbsp; <i class="loading"> </i>
-            </span>
+        </div>
 
-            <div
-              id="test-result"
-              class="alert alert-success"
-              style="display: none"
-            ></div>
-            <div
-              id="test-result-fail"
-              class="alert alert-danger"
-              style="display: none"
-            ></div>
+        <div class="row mt-3">
+          <div class="col-12 col-md-4 mb-2">
+            <button type="submit" class="btn btn-primary w-100">
+              Create M3U Playlist
+            </button>
           </div>
-        </form>
-      </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="reset" class="btn btn-primary w-100">
+              Reset
+            </button>
+          </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="refresh-playlists" class="btn btn-primary w-100">
+              Refresh Playlists
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-to-actions" class="btn btn-primary w-100">
+              Retrieve All Playlists
+            </button>
+          </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-to-create-playlist" class="btn btn-primary w-100">
+              Create Playlist from Folder
+            </button>
+          </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-to-bulk-playlist" class="btn btn-primary w-100">
+              Bulk Folder Playlist
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-toconfig" class="btn btn-primary w-100">
+              Update Configuration
+            </button>
+          </div>
+        </div>
+        <div>
+          <br />
+          <span id="progressbar" style="display: none" class="text-dark">Processing please wait... &nbsp; <i
+              class="loading"> </i>
+          </span>
+
+          <div id="test-result" class="alert alert-success" style="display: none"></div>
+          <div id="test-result-fail" class="alert alert-danger" style="display: none"></div>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <script src="./js/bootstrap.bundle.min.js"></script>
-    <script src="./js/loadNavbar.js"></script>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/loadNavbar.js"></script>
 
-    <script></script>
-  </body>
+  <script></script>
+</body>
+
 </html>

@@ -1,160 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Plex Folder Playlist</title>
-    <link href="./css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
-    <link href="./css/toggle.css" rel="stylesheet" />
-    <style>
-      #test-result {
-        max-height: 300px;
-        overflow-y: auto;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Placeholder for Navbar -->
-    <div id="navbar"></div>
 
-    <!-- Main Content -->
-    <div class="container mt-4">
-      <!-- Main Screen -->
-      <div id="mainScreen" class="content-screen">
-        <h2 class="text-dark">Create Bulk Playlist from folder</h2>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plex Folder Playlist</title>
+  <link href="./css/bootstrap.min.css" rel="stylesheet" />
+  <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="./css/toggle.css" rel="stylesheet" />
+  <style>
+    #test-result {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
 
-        <form
-          id="bulk-playlist-form"
-          name="bulk-playlist-form"
-          class="needs-validation"
-          novalidate
-        >
-          <div class="mb-3">
-            <div class="input-group has-validation">
-              <div class="container">
-                <div class="row">
-                  <div class="col">
-                    <label for="folderPath" class="form-label text-dark"
-                      >Folder Path &nbsp;</label
-                    >
-                    <textarea
-                      class="form-control"
-                      id="folderPath"
-                      name="folderPath"
-                      placeholder='[ "Folder1 Path", "Folder2 Path" ]'
-                      required
-                    ></textarea>
-                    <div
-                      id="feedback"
-                      class="invalid-feedback alert alert-danger"
-                    >
-                      Folder Path is required to create playlist
-                    </div>
+<body>
+  <!-- Placeholder for Navbar -->
+  <div id="navbar"></div>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    <!-- Main Screen -->
+    <div id="mainScreen" class="content-screen">
+      <h2 class="text-dark">Create Bulk Playlist from folder</h2>
+
+      <form id="bulk-playlist-form" name="bulk-playlist-form" class="needs-validation" novalidate>
+        <div class="mb-3">
+          <div class="input-group has-validation">
+            <div class="container">
+              <div class="row">
+                <div class="col">
+                  <label for="folderPath" class="form-label text-dark">Folder Path &nbsp;</label>
+                  <textarea class="form-control" id="folderPath" name="folderPath"
+                    placeholder='[ "Folder1 Path", "Folder2 Path" ]' required></textarea>
+                  <div id="feedback" class="invalid-feedback alert alert-danger">
+                    Folder Path is required to create playlist
                   </div>
                 </div>
-                <div class="row mt-3">
-                  <div class="col">
-                    <div
-                      id="feedbackDynamic"
-                      class="alert alert-danger"
-                      style="display: none"
-                    ></div>
-                  </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col">
+                  <div id="feedbackDynamic" class="alert alert-danger" style="display: none"></div>
                 </div>
-                <div>
-                  <br />
-                  <div class="mb-3">
-                    <label for="library" class="form-label text-dark"
-                      >Library Section Name &nbsp;</label
-                    >
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="library"
-                      placeholder="Library to save Default: Music"
-                      value="Music"
-                    />
-                  </div>
+              </div>
+              <div>
+                <br />
+                <div class="mb-3">
+                  <label for="library" class="form-label text-dark">Library Section Name &nbsp;</label>
+                  <input type="text" class="form-control" id="library" placeholder="Library to save Default: Music"
+                    value="Music" />
                 </div>
+              </div>
 
-                <div class="row mt-3">
-                  <div class="col-12 col-md-5 mb-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                      Create Playlist
-                    </button>
-                  </div>
-                  <div class="col-12 col-md-5 mb-2">
-                    <button type="reset" class="btn btn-secondary w-100">
-                      Reset
-                    </button>
-                  </div>
-                  <div class="col-12 col-md-5 mb-2">
-                    <button
-                      type="button"
-                      id="go-toconfig"
-                      class="btn btn-secondary w-100"
-                    >
-                      Update Configuration
-                    </button>
-                  </div>
-                  <div class="col-12 col-md-5 mb-2">
-                    <button
-                      type="button"
-                      id="refresh-playlists"
-                      class="btn btn-primary w-100"
-                    >
-                      Refresh Playlists
-                    </button>
-                  </div>
+              <div class="row mt-3">
+                <div class="col-12 col-md-4 mb-2">
+                  <button type="submit" class="btn btn-primary w-100">
+                    Create Playlist
+                  </button>
+                </div>
+                <div class="col-12 col-md-4 mb-2">
+                  <button type="reset" class="btn btn-primary w-100">
+                    Reset
+                  </button>
+                </div>
+                <div class="col-12 col-md-4 mb-2">
+                  <button type="button" id="refresh-playlists" class="btn btn-primary w-100">
+                    Refresh Playlists
+                  </button>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-md-4 mb-2">
+                  <button type="button" id="go-to-actions" class="btn btn-primary w-100">
+                    Retrieve All Playlists
+                  </button>
+                </div>
+                <div class="col-12 col-md-4 mb-2">
+                  <button type="button" id="go-to-m3u" class="btn btn-primary w-100">
+                    Create M3U Playlist
+                  </button>
+                </div>
+                <div class="col-12 col-md-4 mb-2">
+                  <button type="button" id="go-to-create-playlist" class="btn btn-primary w-100">
+                    Create Playlist from Folder
+                  </button>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-md-4 mb-2">
+                  <button type="button" id="go-toconfig" class="btn btn-primary w-100">
+                    Update Configuration
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </form>
-
-        <div class="mt-4">
-          <span id="progressbar" style="display: none" class="text-dark"
-            >Processing please wait... &nbsp; <i class="loading"></i
-          ></span>
-          <div
-            id="test-result"
-            class="alert alert-success"
-            style="display: none"
-          ></div>
-          <div
-            id="test-result-fail"
-            class="alert alert-danger"
-            style="display: none"
-          ></div>
         </div>
+      </form>
+
+      <div class="mt-4">
+        <span id="progressbar" style="display: none" class="text-dark">Processing please wait... &nbsp; <i
+            class="loading"></i></span>
+        <div id="test-result" class="alert alert-success" style="display: none"></div>
+        <div id="test-result-fail" class="alert alert-danger" style="display: none"></div>
       </div>
     </div>
+  </div>
 
-    <script src="./js/bootstrap.bundle.min.js"></script>
-    <script src="./js/loadNavbar.js"></script>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/loadNavbar.js"></script>
 
-    <script>
-      const jsonInput = document.getElementById("folderPath");
-      const feedback = document.getElementById("feedbackDynamic");
-      const form = document.getElementById("bulk-playlist-form");
+  <script>
+    const jsonInput = document.getElementById("folderPath");
+    const feedback = document.getElementById("feedbackDynamic");
+    const form = document.getElementById("bulk-playlist-form");
 
-      jsonInput.addEventListener("input", () => {
-        try {
-          // Parse the JSON to validate
-          JSON.parse(jsonInput.value);
-          feedback.textContent = "Valid JSON!";
-          feedback.classList.remove("alert-danger");
-          feedback.classList.add("alert-success");
-          feedback.style.display = "block";
-        } catch (error) {
-          feedback.textContent = "Invalid JSON: " + error.message;
+    jsonInput.addEventListener("input", () => {
+      try {
+        // Parse the JSON to validate
+        JSON.parse(jsonInput.value);
+        feedback.textContent = "Valid JSON!";
+        feedback.classList.remove("alert-danger");
+        feedback.classList.add("alert-success");
+        feedback.style.display = "block";
+      } catch (error) {
+        feedback.textContent = "Invalid JSON: " + error.message;
 
-          feedback.classList.remove("alert-success");
-          feedback.classList.add("alert-danger");
-          feedback.style.display = "block";
-        }
-      });
-    </script>
-  </body>
+        feedback.classList.remove("alert-success");
+        feedback.classList.add("alert-danger");
+        feedback.style.display = "block";
+      }
+    });
+  </script>
+</body>
+
 </html>

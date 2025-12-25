@@ -1,127 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Plex Folder Playlist</title>
-    <link href="./css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
 
-    <link href="./css/toggle.css" rel="stylesheet" />
-  </head>
-  <body>
-    <!-- Placeholder for Navbar -->
-    <div id="navbar"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plex Folder Playlist</title>
+  <link href="./css/bootstrap.min.css" rel="stylesheet" />
+  <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
 
-    <!-- Main Content -->
-    <div class="container mt-4">
-      <!-- Main Screen -->
-      <div id="mainScreen" class="content-screen">
-        <h2 class="text-dark">Create Playlist from folder</h2>
+  <link href="./css/toggle.css" rel="stylesheet" />
+</head>
 
-        <form
-          id="playlist-form"
-          name="playlist-form"
-          class="needs-validation"
-          novalidate
-        >
-          <div class="mb-3">
-            <div class="input-group has-validation">
-              <label for="folderPath" class="form-label text-dark"
-                >Folder Path* &nbsp;</label
-              >
-              <input
-                type="text"
-                class="form-control"
-                id="folderPath"
-                placeholder="Enter Folder Path to create playlist (Ex: /path/to/music/folder)"
-                required
-              />
-              <div class="invalid-feedback alert alert-danger">
-                Folder Path is required to create playlist (Ex: /path/to/music/folder)
-              </div>
+<body>
+  <!-- Placeholder for Navbar -->
+  <div id="navbar"></div>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    <!-- Main Screen -->
+    <div id="mainScreen" class="content-screen">
+      <h2 class="text-dark">Create Playlist from folder</h2>
+
+      <form id="playlist-form" name="playlist-form" class="needs-validation" novalidate>
+        <div class="mb-3">
+          <div class="input-group has-validation">
+            <label for="folderPath" class="form-label text-dark">Folder Path* &nbsp;</label>
+            <input type="text" class="form-control" id="folderPath"
+              placeholder="Enter Folder Path to create playlist (Ex: /path/to/music/folder)" required />
+            <div class="invalid-feedback alert alert-danger">
+              Folder Path is required to create playlist (Ex: /path/to/music/folder)
             </div>
           </div>
+        </div>
 
-          <div class="mb-3">
-            <label for="playlistName" class="form-label text-dark"
-              >Playlist Name &nbsp;</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="playlistName"
-              placeholder="Playlist name. Default's to folder name"
-              value=""
-            />
-          </div>
+        <div class="mb-3">
+          <label for="playlistName" class="form-label text-dark">Playlist Name &nbsp;</label>
+          <input type="text" class="form-control" id="playlistName"
+            placeholder="Playlist name. Default's to folder name" value="" />
+        </div>
 
-          <div class="mb-3">
-            <label for="library" class="form-label text-dark"
-              >Library Section Name &nbsp;</label
-            >
-            <input
-              type="text"
-              class="form-control"
-              id="library"
-              placeholder="Library to save Default: Music"
-              value="Music"
-            />
-          </div>
+        <div class="mb-3">
+          <label for="library" class="form-label text-dark">Library Section Name &nbsp;</label>
+          <input type="text" class="form-control" id="library" placeholder="Library to save Default: Music"
+            value="Music" />
+        </div>
 
-          <div class="row">
-            <div class="col-12 col-md-5 mb-2">
-              <button type="submit" class="btn btn-primary w-100">
-                Create Playlist
-              </button>
-            </div>
-            <div class="col-12 col-md-5 mb-2">
-              <button type="reset" class="btn btn-primary w-100">Reset</button>
-            </div>
-            <div class="col-12 col-md-5 mb-2">
-              <button
-                type="button"
-                id="go-toconfig"
-                class="btn btn-primary w-100"
-              >
-                Update Configuration
-              </button>
-            </div>
-            <div class="col-12 col-md-5 mb-2">
-              <button
-                type="button"
-                id="refresh-playlists"
-                class="btn btn-primary w-100"
-              >
-                Refresh Playlists
-              </button>
-            </div>
+        <div class="row">
+          <div class="col-12 col-md-4 mb-2">
+            <button type="submit" class="btn btn-primary w-100">
+              Create Playlist
+            </button>
           </div>
-        </form>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="reset" class="btn btn-primary w-100">Reset</button>
+          </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="refresh-playlists" class="btn btn-primary w-100">
+              Refresh Playlists
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-to-actions" class="btn btn-primary w-100">
+              Retrieve All Playlists
+            </button>
+          </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-to-m3u" class="btn btn-primary w-100">
+              Create M3U Playlist
+            </button>
+          </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-to-bulk-playlist" class="btn btn-primary w-100">
+              Bulk Folder Playlist
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-toconfig" class="btn btn-primary w-100">
+              Update Configuration
+            </button>
+          </div>
+        </div>
+      </form>
+      <br />
+
+      <div>
         <br />
 
-        <div>
-          <br />
+        <span id="progressbar" style="display: none" class="text-dark">Processing please wait... &nbsp; <i
+            class="loading"> </i>
+        </span>
 
-          <span id="progressbar" style="display: none" class="text-dark"
-            >Processing please wait... &nbsp; <i class="loading"> </i>
-          </span>
-
-          <div
-            id="test-result"
-            class="alert alert-success"
-            style="display: none"
-          ></div>
-          <div
-            id="test-result-fail"
-            class="alert alert-danger"
-            style="display: none"
-          ></div>
-        </div>
+        <div id="test-result" class="alert alert-success" style="display: none"></div>
+        <div id="test-result-fail" class="alert alert-danger" style="display: none"></div>
       </div>
     </div>
+  </div>
 
-    <script src="./js/bootstrap.bundle.min.js"></script>
-    <script src="./js/loadNavbar.js"></script>
-  </body>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/loadNavbar.js"></script>
+</body>
+
 </html>
