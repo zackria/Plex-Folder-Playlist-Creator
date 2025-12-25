@@ -25,7 +25,7 @@ app.on('ready', async () => {
   setupIPC(mainWindow);
 
   // Optional, remove for production
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 });
 
 app.on("activate", async () => {
@@ -35,7 +35,7 @@ app.on("activate", async () => {
     mainWindow.loadFile("index.html", { query: apiData }); // Load the content
 
     // Optional, remove for production
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
   }
 });
 

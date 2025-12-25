@@ -3,7 +3,7 @@
  * Allows toggling non-error logs via a global configuration.
  */
 
-let debugMode = true;
+let debugMode = false;
 
 // Attempt to self-initialize from global electron data if present (renderer process context)
 if (typeof globalThis !== "undefined" && globalThis.electronData?.data) {
