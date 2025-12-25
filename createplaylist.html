@@ -9,6 +9,51 @@
   <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
 
   <link href="./css/toggle.css" rel="stylesheet" />
+  <style>
+    .btn-create-folder {
+      background: linear-gradient(135deg, #f6d365 0%, #fda085 100%) !important;
+      border: none !important;
+      color: white !important;
+      transition: all 0.3s ease !important;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-create-folder:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(246, 211, 101, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .btn-reset {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+      border: none !important;
+      color: white !important;
+      transition: all 0.3s ease !important;
+      font-weight: 600;
+    }
+
+    .btn-reset:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .btn-refresh-playlists {
+      background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%) !important;
+      border: none !important;
+      color: white !important;
+      transition: all 0.3s ease !important;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-refresh-playlists:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
+      filter: brightness(1.1);
+    }
+  </style>
 </head>
 
 <body>
@@ -47,15 +92,15 @@
 
         <div class="row">
           <div class="col-12 col-md-4 mb-2">
-            <button type="submit" class="btn btn-primary w-100">
+            <button type="submit" class="btn btn-create-folder w-100">
               Create Playlist
             </button>
           </div>
           <div class="col-12 col-md-4 mb-2">
-            <button type="reset" class="btn btn-primary w-100">Reset</button>
+            <button type="reset" class="btn btn-reset w-100">Reset</button>
           </div>
           <div class="col-12 col-md-4 mb-2">
-            <button type="button" id="refresh-playlists" class="btn btn-primary w-100">
+            <button type="button" id="refresh-playlists" class="btn btn-refresh-playlists w-100">
               Refresh Playlists
             </button>
           </div>

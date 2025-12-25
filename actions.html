@@ -1,172 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Plex Folder Playlist</title>
-    <link href="./css/bootstrap.min.css" rel="stylesheet" />
-    <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
 
-    <link href="./css/toggle.css" rel="stylesheet" />
-    <style>
-      /* Style for fixed header */
-      .table-responsive {
-        position: relative;
-        overflow-y: auto;
-      }
-      .table-responsive thead {
-        position: sticky;
-        top: 0;
-        z-index: 1020; /* Higher z-index to appear above rows */
-        background-color: #343a40; /* Match the header background color */
-        color: #fff; /* Text color for visibility */
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Placeholder for Navbar -->
-    <div id="navbar"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plex Folder Playlist</title>
+  <link href="./css/bootstrap.min.css" rel="stylesheet" />
+  <link href="./css/bootstrap-icons.min.css" rel="stylesheet" />
 
-    <!-- Main Content -->
-    <div class="container mt-4">
-      <!-- Main Screen -->
-      <div id="mainScreen" class="content-screen">
-        <h2 class="text-dark">Retrieve All Playlists</h2>
-        <form id="config-form" name="config-form">
-          <div class="row">
-            <div class="col-12 col-md-4 mb-2">
-              <button type="button" id="get-playlists" class="btn btn-primary w-100">
-                Get Playlists
-              </button>
-            </div>
-            <div class="col-12 col-md-4 mb-2">
-              <button type="button" id="refresh-playlists" class="btn btn-primary w-100">
-                Refresh Playlists
-              </button>
-            </div>
-            <div class="col-12 col-md-4 mb-2">
-              <button type="button" id="go-toconfig" class="btn btn-primary w-100">
-                Update Configuration
-              </button>
-            </div>
+  <link href="./css/toggle.css" rel="stylesheet" />
+  <style>
+    /* Style for fixed header */
+    .table-responsive {
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .table-responsive thead {
+      position: sticky;
+      top: 0;
+      z-index: 1020;
+      /* Higher z-index to appear above rows */
+      background-color: #343a40;
+      /* Match the header background color */
+      color: #fff;
+      /* Text color for visibility */
+    }
+
+    .btn-get-playlists {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+      border: none !important;
+      color: white !important;
+      transition: all 0.3s ease !important;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-get-playlists:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .btn-refresh-playlists {
+      background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%) !important;
+      border: none !important;
+      color: white !important;
+      transition: all 0.3s ease !important;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-refresh-playlists:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
+      filter: brightness(1.1);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Placeholder for Navbar -->
+  <div id="navbar"></div>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    <!-- Main Screen -->
+    <div id="mainScreen" class="content-screen">
+      <h2 class="text-dark">Retrieve All Playlists</h2>
+      <form id="config-form" name="config-form">
+        <div class="row">
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="get-playlists" class="btn btn-get-playlists w-100">
+              Get Playlists
+            </button>
           </div>
-          <div class="row">
-             <div class="col-12 col-md-4 mb-2">
-              <button type="button" id="recent-added-playlists" class="btn btn-primary w-100">
-                Create Recently Added Playlists
-              </button>
-            </div>
-            <div class="col-12 col-md-4 mb-2">
-              <button type="button" id="recent-played-playlists" class="btn btn-primary w-100">
-                Create Recently Played Playlists
-              </button>
-            </div>
-            <div class="col-12 col-md-4 mb-2">
-              <button type="button" id="go-to-m3u" class="btn btn-primary w-100">
-                 Create M3U Playlist
-              </button>
-            </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="refresh-playlists" class="btn btn-refresh-playlists w-100">
+              Refresh Playlists
+            </button>
           </div>
-          <div class="row">
-            <div class="col-12 col-md-4 mb-2">
-              <button type="button" id="go-to-create-playlist" class="btn btn-primary w-100">
-                Create Playlist from Folder
-              </button>
-            </div>
-            <div class="col-12 col-md-4 mb-2">
-              <button type="button" id="go-to-bulk-playlist" class="btn btn-primary w-100">
-                Bulk Folder Playlist
-              </button>
-            </div>
-            <div class="col-12 col-md-4 mb-2"></div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-toconfig" class="btn btn-primary w-100">
+              Update Configuration
+            </button>
           </div>
-          <div>
-            <br />
+        </div>
+        <div class="row">
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="recent-added-playlists" class="btn btn-primary w-100">
+              Create Recently Added Playlists
+            </button>
+          </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="recent-played-playlists" class="btn btn-primary w-100">
+              Create Recently Played Playlists
+            </button>
+          </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-to-m3u" class="btn btn-primary w-100">
+              Create M3U Playlist
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-to-create-playlist" class="btn btn-primary w-100">
+              Create Playlist from Folder
+            </button>
+          </div>
+          <div class="col-12 col-md-4 mb-2">
+            <button type="button" id="go-to-bulk-playlist" class="btn btn-primary w-100">
+              Bulk Folder Playlist
+            </button>
+          </div>
+          <div class="col-12 col-md-4 mb-2"></div>
+        </div>
+        <div>
+          <br />
+          <div class="mb-3">
+            <label for="library" class="form-label text-dark">Library Section Name &nbsp;</label>
+            <input type="text" class="form-control" id="library" placeholder="Library to save Default: Music"
+              value="Music" />
+          </div>
+        </div>
+        <div>
+          <br />
+          <span id="progressbar" style="display: none" class="text-dark">Processing please wait... &nbsp; <i
+              class="loading"> </i>
+          </span>
+
+          <div id="test-result" class="alert alert-success" style="display: none"></div>
+          <div id="test-result-fail" class="alert alert-danger" style="display: none"></div>
+
+          <div class="container my-5">
+            <h2 class="text-center mb-4 text-dark">Playlists</h2>
             <div class="mb-3">
-              <label for="library" class="form-label text-dark"
-                >Library Section Name &nbsp;</label
-              >
-              <input
-                type="text"
-                class="form-control"
-                id="library"
-                placeholder="Library to save Default: Music"
-                value="Music"
-              />
+              <button id="delete-selected" class="btn btn-danger">
+                Delete Selected
+              </button>
+            </div>
+            <div class="mb-3">
+              <input type="text" id="searchInput" class="form-control" placeholder="Search Playlists..."
+                onkeyup="filterTable()" />
+            </div>
+            <div class="table-responsive" style="overflow-y: auto">
+              <table class="table table-striped table-bordered table-light" id="dataTable">
+                <thead class="table-light">
+                  <tr>
+                    <th class="text-start">
+                      <input type="checkbox" id="select-all" class="form-check-input"
+                        style="display: inline-block; transform: scale(1.2);" />
+                    </th>
+                    <th class="table-light">#</th>
+                    <th class="table-light">Title</th>
+                    <th class="table-light">Playlist ID</th>
+                    <th class="table-light">
+                      <button type="button" class="btn btn-primary btn-sm" onclick="deleteAllPlaylist()">
+                        DeleteAll
+                      </button>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Rows will be dynamically added here -->
+                </tbody>
+              </table>
             </div>
           </div>
-          <div>
-            <br />
-            <span id="progressbar" style="display: none" class="text-dark"
-              >Processing please wait... &nbsp; <i class="loading"> </i>
-            </span>
-
-            <div
-              id="test-result"
-              class="alert alert-success"
-              style="display: none"
-            ></div>
-            <div
-              id="test-result-fail"
-              class="alert alert-danger"
-              style="display: none"
-            ></div>
-
-            <div class="container my-5">
-              <h2 class="text-center mb-4 text-dark">Playlists</h2>
-              <div class="mb-3">
-                <button id="delete-selected" class="btn btn-danger">
-                  Delete Selected
-                </button>
-              </div>
-              <div class="mb-3">
-                <input
-                  type="text"
-                  id="searchInput"
-                  class="form-control"
-                  placeholder="Search Playlists..."
-                  onkeyup="filterTable()"
-                />
-              </div>
-              <div
-                class="table-responsive"
-                style="overflow-y: auto"
-              >
-                <table
-                  class="table table-striped table-bordered table-light"
-                  id="dataTable"
-                >
-                  <thead class="table-light">
-                    <tr>
-                      <th class="text-start">
-                        <input type="checkbox" id="select-all" class="form-check-input" style="display: inline-block; transform: scale(1.2);" />
-                      </th>
-                      <th class="table-light">#</th>
-                      <th class="table-light">Title</th>
-                      <th class="table-light">Playlist ID</th>
-                      <th class="table-light">
-                        <button
-                          type="button"
-                          class="btn btn-primary btn-sm"
-                          onclick="deleteAllPlaylist()"
-                        >
-                          DeleteAll
-                        </button>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <!-- Rows will be dynamically added here -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <script src="./js/bootstrap.bundle.min.js"></script>
-    <script src="./js/loadNavbar.js"></script>
-  </body>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/loadNavbar.js"></script>
+</body>
+
 </html>

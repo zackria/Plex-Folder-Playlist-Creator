@@ -13,6 +13,50 @@
       max-height: 300px;
       overflow-y: auto;
     }
+
+    .btn-create-bulk {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%) !important;
+      border: none !important;
+      color: #333 !important;
+      transition: all 0.3s ease !important;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-create-bulk:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+      filter: brightness(1.05);
+    }
+
+    .btn-reset {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+      border: none !important;
+      color: white !important;
+      transition: all 0.3s ease !important;
+      font-weight: 600;
+    }
+
+    .btn-reset:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .btn-refresh-playlists {
+      background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%) !important;
+      border: none !important;
+      color: white !important;
+      transition: all 0.3s ease !important;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-refresh-playlists:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
+      filter: brightness(1.1);
+    }
   </style>
 </head>
 
@@ -56,17 +100,17 @@
 
               <div class="row mt-3">
                 <div class="col-12 col-md-4 mb-2">
-                  <button type="submit" class="btn btn-primary w-100">
+                  <button type="submit" class="btn btn-create-bulk w-100">
                     Create Playlist
                   </button>
                 </div>
                 <div class="col-12 col-md-4 mb-2">
-                  <button type="reset" class="btn btn-primary w-100">
+                  <button type="reset" class="btn btn-reset w-100">
                     Reset
                   </button>
                 </div>
                 <div class="col-12 col-md-4 mb-2">
-                  <button type="button" id="refresh-playlists" class="btn btn-primary w-100">
+                  <button type="button" id="refresh-playlists" class="btn btn-refresh-playlists w-100">
                     Refresh Playlists
                   </button>
                 </div>
