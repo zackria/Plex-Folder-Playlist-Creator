@@ -10,7 +10,7 @@ const settings = require("electron-settings");
  */
 export async function getAPIData() {
   logger.log("[Settings] settings object:", typeof settings, Object.keys(settings));
-  const [ipAddress, port, apiKey, theme, versionNo, timeout, enableConsole] = await Promise.all([
+  const [ipAddress, port, apiKey, theme, versionNo, timeout] = await Promise.all([
     settings.get("key.ipAddress"),
     settings.get("key.port"),
     settings.get("key.apiKey"),

@@ -37,6 +37,29 @@ function defaultTimeoutMs(timeout) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 60000;
 }
 
+/**
+ * Normalizes Plex XML tags like Playlist, Directory, Track, and Video 
+ * into a single Metadata field for easier consumption.
+ */
+function applyPlexPolyfills(parsed) {
+  if (!parsed?.MediaContainer) return;
+
+  const container = parsed.MediaContainer;
+  const tagsToNormalize = ["Playlist", "Directory", "Track", "Video"];
+
+  for (const tag of tagsToNormalize) {
+    if (container[tag] && !container.Metadata) {
+      container.Metadata = Array.isArray(container[tag]) ? container[tag] : [container[tag]];
+    }
+  }
+
+  // Ensure Metadata is an array if it exists
+  if (container.Metadata && !Array.isArray(container.Metadata)) {
+    container.Metadata = [container.Metadata];
+  }
+}
+
+
 export function createPlexClient(hostname, port, plextoken, timeoutMs) {
   validateHostname(hostname);
   const baseUrl = buildBaseUrl(hostname, port);
@@ -112,34 +135,7 @@ export function createPlexClient(hostname, port, plextoken, timeoutMs) {
 
         try {
           const parsed = parser.parse(text);
-          // NEW: fast-xml-parser returns direct children as properties.
-          // If <Playlist> tags exist, they are under parsed.MediaContainer.Playlist
-          // Old plex-api might have normalized this to Metadata, but here we see raw structure is Playlist.
-          // We need to support both or verify where the caller expects it.
-          // Since existing code expects Metadata, let's polyfill it.
-          if (parsed.MediaContainer) {
-            // Polyfill: If Playlist exists but Metadata doesn't, map Playlist to Metadata
-            if (parsed.MediaContainer.Playlist && !parsed.MediaContainer.Metadata) {
-              parsed.MediaContainer.Metadata = Array.isArray(parsed.MediaContainer.Playlist) ? parsed.MediaContainer.Playlist : [parsed.MediaContainer.Playlist];
-            }
-            // Polyfill: If Directory exists but Metadata doesn't (some endpoints return Directory)
-            if (parsed.MediaContainer.Directory && !parsed.MediaContainer.Metadata) {
-              parsed.MediaContainer.Metadata = Array.isArray(parsed.MediaContainer.Directory) ? parsed.MediaContainer.Directory : [parsed.MediaContainer.Directory];
-            }
-            // Polyfill: If Track exists but Metadata doesn't (some endpoints return Track for type=10)
-            if (parsed.MediaContainer.Track && !parsed.MediaContainer.Metadata) {
-              parsed.MediaContainer.Metadata = Array.isArray(parsed.MediaContainer.Track) ? parsed.MediaContainer.Track : [parsed.MediaContainer.Track];
-            }
-            // Polyfill: If Video exists but Metadata doesn't (some endpoints return Video for type=1 or type=4)
-            if (parsed.MediaContainer.Video && !parsed.MediaContainer.Metadata) {
-              parsed.MediaContainer.Metadata = Array.isArray(parsed.MediaContainer.Video) ? parsed.MediaContainer.Video : [parsed.MediaContainer.Video];
-            }
-
-            // Ensure Metadata is an array if it exists
-            if (parsed.MediaContainer.Metadata && !Array.isArray(parsed.MediaContainer.Metadata)) {
-              parsed.MediaContainer.Metadata = [parsed.MediaContainer.Metadata];
-            }
-          }
+          applyPlexPolyfills(parsed);
           return parsed;
         } catch (e) {
           // Fallback for non-XML responses

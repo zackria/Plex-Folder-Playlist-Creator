@@ -66,9 +66,6 @@ async function getLibraryAndType(client, libraryTitle) {
   if (section.type === "movie") {
     mediaType = "1";
     playlistType = "video";
-  } else if (section.type === "artist") {
-    mediaType = "10";
-    playlistType = "audio";
   } else if (section.type === "show") {
     mediaType = "4"; // Episode
     playlistType = "video";
