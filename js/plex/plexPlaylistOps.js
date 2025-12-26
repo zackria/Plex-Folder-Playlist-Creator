@@ -74,11 +74,27 @@ export async function deleteAllPlaylist(hostname, port, plextoken, timeout) {
 /**
  * Refreshes the Plex library
  */
-export async function refreshPlaylist(hostname, port, plextoken, timeout) {
+export async function refreshPlaylist(hostname, port, plextoken, timeout, libraryName) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
 
   try {
-    await client.perform("/library/sections/all/refresh");
+    let refreshPath = "/library/sections/all/refresh";
+
+    if (libraryName) {
+      const sections = await client.query("/library/sections");
+      const section = sections?.MediaContainer?.Directory?.find(
+        (s) => s.title.trim().toLowerCase() === libraryName.trim().toLowerCase()
+      );
+
+      if (section) {
+        logger.log(`[refreshPlaylist] Refreshing specific library: "${section.title}" (ID: ${section.key})`);
+        refreshPath = `/library/sections/${section.key}/refresh`;
+      } else {
+        logger.warn(`[refreshPlaylist] Library "${libraryName}" not found. Refreshing all sections instead.`);
+      }
+    }
+
+    await client.perform(refreshPath);
     return true;
   } catch (error) {
     logger.error(`Error refreshing playlist: `, error.message);

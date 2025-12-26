@@ -3,6 +3,7 @@ import { createWindow } from "./windowManager.js";
 import { getAPIData } from "./settingsManager.js";
 import { setupIPC } from "./ipcHandlers.js";
 import { createRequire } from "node:module";
+import logger from "../../js/plex/logger.js";
 
 const require = createRequire(import.meta.url);
 let mainWindow;
@@ -13,7 +14,7 @@ try {
     app.quit();
   }
 } catch (error) {
-  console.warn("electron-squirrel-startup module not found, continuing without it:", error.message);
+  logger.warn("electron-squirrel-startup module not found, continuing without it:", error.message);
 }
 
 app.on('ready', async () => {

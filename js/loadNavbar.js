@@ -189,7 +189,6 @@ async function handleFormSubmit(e) {
     document.getElementById("port").value,
     // include timeout input so backend receives UI value (may be a string)
     (document.getElementById("timeout") ? document.getElementById("timeout").value.trim() : undefined),
-    (document.getElementById("enableConsole") ? document.getElementById("enableConsole").checked : true),
   ];
 
   displayMessage("progressbar", "block");
@@ -337,7 +336,10 @@ async function handleBulkPlaylistFormSubmit(e) {
   try {
     const result = await globalThis.ipcRenderer.invoke(
       "bulk-playlist",
-      jsonInput.value
+      [
+        jsonInput.value,
+        document.getElementById("library").value.trim() || "Music"
+      ]
     );
     displayMessage("progressbar", "none");
 
@@ -589,7 +591,10 @@ async function refreshPlaylist() {
   displayMessage("progressbar", "block");
 
   try {
-    const result = await globalThis.ipcRenderer.invoke("refresh-playlists");
+    const libraryElement = document.getElementById("library");
+    const libraryName = libraryElement ? libraryElement.value.trim() : "";
+
+    const result = await globalThis.ipcRenderer.invoke("refresh-playlists", libraryName);
     displayMessage("progressbar", "none");
 
     if (result === false) {
@@ -599,10 +604,13 @@ async function refreshPlaylist() {
         "Connection Error!!! <br/> Please check your settings and try again."
       );
     } else {
+      const msg = libraryName
+        ? `Library "${libraryName}" refreshed successfully!!! <br/>`
+        : "All libraries refreshed successfully!!! <br/>";
       displayMessage(
         "test-result",
         "block",
-        "Playlists refreshed successfully!!! <br/>"
+        msg
       );
     }
   } catch (error) {

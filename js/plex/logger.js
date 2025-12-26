@@ -1,22 +1,8 @@
-/**
- * Global logging utility for Plex API modules.
- * Allows toggling non-error logs via a global configuration.
- */
-
+// Set to true to enable INFO, WARN, and DEBUG logs; false for only ERROR logs.
 let debugMode = false;
 
-// Attempt to self-initialize from global electron data if present (renderer process context)
-if (typeof globalThis !== "undefined" && globalThis.electronData?.data) {
-    const flag = globalThis.electronData.data.enableConsole;
-    debugMode = flag !== false && flag !== "false";
-}
-
-/**
- * Sets the global debug mode (enable/disable console logging)
- * @param {boolean|string} enabled 
- */
 export function setDebugMode(enabled) {
-    debugMode = enabled !== false && enabled !== "false";
+    debugMode = !!enabled;
 }
 
 /**
@@ -53,10 +39,20 @@ export function error(...args) {
     console.error(...args);
 }
 
+/**
+ * Logs debug info if debugMode is enabled
+ */
+export function debug(...args) {
+    if (debugMode) {
+        console.debug(...args);
+    }
+}
+
 export default {
     setDebugMode,
     log,
     info,
     warn,
-    error
+    error,
+    debug
 };

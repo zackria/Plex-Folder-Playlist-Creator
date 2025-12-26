@@ -82,14 +82,15 @@ export async function bulkPlaylist(data) {
 /**
  * Refreshes Plex playlists
  */
-export async function refreshPlaylists() {
+export async function refreshPlaylists(libraryName) {
   const apiData = await getAPIData();
   logger.setDebugMode(apiData.enableConsole);
   return plexLocalAPI.refreshPlaylist(
     apiData.ipaddress,
     apiData.port,
     apiData.key,
-    apiData.timeout
+    apiData.timeout,
+    libraryName
   );
 }
 

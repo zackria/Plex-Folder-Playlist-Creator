@@ -16,6 +16,7 @@ import {
   createRecentlyAddedPlaylist,
   deleteSelectedPlaylists,
 } from "./plexManager.js";
+import logger from "../../js/plex/logger.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,7 +32,7 @@ export function setupIPC(mainWindow) {
     const currentWindow = BrowserWindow.fromWebContents(event.sender);
 
     if (!currentWindow || currentWindow.isDestroyed()) {
-      console.error("Current window is not available or has been destroyed.");
+      logger.error("Current window is not available or has been destroyed.");
       return;
     }
 
@@ -39,27 +40,26 @@ export function setupIPC(mainWindow) {
       let apiData = await getAPIData();
       await currentWindow.loadFile(filePath, { query: apiData });
     } catch (error) {
-      console.error("Error loading file in navigate-to handler:", error.message);
+      logger.error("Error loading file in navigate-to handler:", error.message);
     }
   });
 
   // Configuration
   ipcMain.handle("save-config", async (event, data) => {
-    console.log("[IPC] save-config called with:", data);
-    const [apiKey, ipAddress, port, timeout, enableConsole] = [
+    logger.log("[IPC] save-config called with:", data);
+    const [apiKey, ipAddress, port, timeout] = [
       data[0], // Access array elements directly
       data[1],
       data[2],
       data[3] || 60000, // Default timeout to 60 seconds if not provided
-      data[4], // enableConsole
     ];
 
     try {
-      await saveConfig([apiKey, ipAddress, port, timeout, enableConsole]);
-      console.log("[IPC] save-config successful.");
+      await saveConfig([apiKey, ipAddress, port, timeout]);
+      logger.log("[IPC] save-config successful.");
       return true;
     } catch (error) {
-      console.error("[IPC] save-config failed:", error);
+      logger.error("[IPC] save-config failed:", error);
       throw error;
     }
   });
@@ -78,7 +78,7 @@ export function setupIPC(mainWindow) {
   ipcMain.handle("recent-played-playlists", (event, data) => createRecentlyPlayedPlaylist(data));
   ipcMain.handle("recent-added-playlists", (event, data) => createRecentlyAddedPlaylist(data));
   ipcMain.handle("bulk-playlist", (event, data) => bulkPlaylist(data));
-  ipcMain.handle("refresh-playlists", refreshPlaylists);
+  ipcMain.handle("refresh-playlists", (event, data) => refreshPlaylists(data));
   ipcMain.handle("delete-playlist", (event, data) => deletePlaylist(data));
   ipcMain.handle("delete-all-playlist", (event, data) =>
     deleteAllPlaylist(data)
@@ -92,7 +92,7 @@ export function setupIPC(mainWindow) {
       const result = await deleteSelectedPlaylists(playlistIds);
       return { success: result };
     } catch (error) {
-      console.error('Error in delete-selected-playlists handler:', error);
+      logger.error('Error in delete-selected-playlists handler:', error);
       return { success: false, message: error.message };
     }
   });

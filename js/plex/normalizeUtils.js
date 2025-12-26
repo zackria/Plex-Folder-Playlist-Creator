@@ -156,6 +156,8 @@ export function buildFolderPatterns(inputPath) {
     extra.add(p.replaceAll('&', '%26'));
     // plus for spaces
     extra.add(p.replaceAll(' ', '+'));
+    // dots for spaces (common in movie/show titles/folders)
+    extra.add(p.replaceAll(' ', '.'));
     // percent-encode spaces as %20 and ampersand as %26
     extra.add(p.replaceAll(' ', '%20').replaceAll('&', '%26'));
     // HTML-entity encoded ampersand (from XML escaping)

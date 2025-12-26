@@ -120,15 +120,24 @@ export function createPlexClient(hostname, port, plextoken, timeoutMs) {
           if (parsed.MediaContainer) {
             // Polyfill: If Playlist exists but Metadata doesn't, map Playlist to Metadata
             if (parsed.MediaContainer.Playlist && !parsed.MediaContainer.Metadata) {
-              parsed.MediaContainer.Metadata = parsed.MediaContainer.Playlist;
+              parsed.MediaContainer.Metadata = Array.isArray(parsed.MediaContainer.Playlist) ? parsed.MediaContainer.Playlist : [parsed.MediaContainer.Playlist];
             }
             // Polyfill: If Directory exists but Metadata doesn't (some endpoints return Directory)
             if (parsed.MediaContainer.Directory && !parsed.MediaContainer.Metadata) {
-              parsed.MediaContainer.Metadata = parsed.MediaContainer.Directory;
+              parsed.MediaContainer.Metadata = Array.isArray(parsed.MediaContainer.Directory) ? parsed.MediaContainer.Directory : [parsed.MediaContainer.Directory];
             }
             // Polyfill: If Track exists but Metadata doesn't (some endpoints return Track for type=10)
             if (parsed.MediaContainer.Track && !parsed.MediaContainer.Metadata) {
-              parsed.MediaContainer.Metadata = parsed.MediaContainer.Track;
+              parsed.MediaContainer.Metadata = Array.isArray(parsed.MediaContainer.Track) ? parsed.MediaContainer.Track : [parsed.MediaContainer.Track];
+            }
+            // Polyfill: If Video exists but Metadata doesn't (some endpoints return Video for type=1 or type=4)
+            if (parsed.MediaContainer.Video && !parsed.MediaContainer.Metadata) {
+              parsed.MediaContainer.Metadata = Array.isArray(parsed.MediaContainer.Video) ? parsed.MediaContainer.Video : [parsed.MediaContainer.Video];
+            }
+
+            // Ensure Metadata is an array if it exists
+            if (parsed.MediaContainer.Metadata && !Array.isArray(parsed.MediaContainer.Metadata)) {
+              parsed.MediaContainer.Metadata = [parsed.MediaContainer.Metadata];
             }
           }
           return parsed;

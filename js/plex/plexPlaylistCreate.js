@@ -17,12 +17,12 @@ function buildUriFromItemKeys(machineIdentifier, itemKeys) {
   return `server://${machineIdentifier}/com.plexapp.plugins.library/library/metadata/${itemKeys.join(",")}`;
 }
 
-async function postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys) {
+async function postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys, type = "audio") {
   const uri = buildUriFromItemKeys(machineIdentifier, itemKeys);
   // Ensure the uri is passed safely as a query parameter. URLSearchParams
   // will percent-encode reserved characters so '&' and '%' in paths are safe.
   const queryParameters = new URLSearchParams({
-    type: "audio",
+    type,
     title: playlistName,
     smart: "0",
     uri,
@@ -31,8 +31,61 @@ async function postPlaylistByKeys(client, machineIdentifier, playlistName, itemK
   await client.postQuery(queryPath);
 }
 
+/**
+ * Helper to get library section and detect its media type
+ */
+async function getLibraryAndType(client, libraryTitle) {
+  const sections = await client.query("/library/sections");
+
+  if (!sections?.MediaContainer?.Directory) {
+    logger.error("[getLibraryAndType] No sections found in MediaContainer.");
+    return null;
+  }
+
+  logger.log(`[getLibraryAndType] Searching for library: "${libraryTitle}"`);
+
+  // Log all available sections for debugging
+  sections.MediaContainer.Directory.forEach(s => {
+    logger.log(`[getLibraryAndType] Available Library: Title="${s.title}", Type="${s.type}", Key="${s.key}"`);
+  });
+
+  const section = sections.MediaContainer.Directory.find(
+    (s) => s.title.trim().toLowerCase() === libraryTitle.trim().toLowerCase()
+  );
+
+  if (!section) {
+    logger.warn(`[getLibraryAndType] Library "${libraryTitle}" not found in available sections.`);
+    return null;
+  }
+
+  logger.log(`[getLibraryAndType] Found section: "${section.title}" (Type: ${section.type})`);
+
+  let mediaType = "10"; // Default to Track (Music)
+  let playlistType = "audio";
+
+  if (section.type === "movie") {
+    mediaType = "1";
+    playlistType = "video";
+  } else if (section.type === "artist") {
+    mediaType = "10";
+    playlistType = "audio";
+  } else if (section.type === "show") {
+    mediaType = "4"; // Episode
+    playlistType = "video";
+  }
+
+  logger.log(`[getLibraryAndType] Result: mediaType=${mediaType}, playlistType=${playlistType}`);
+  return { section, mediaType, playlistType };
+}
+
 export function findPlaylistTracks(allTracks, playlistPath) {
   const patterns = buildFolderPatterns(playlistPath);
+  logger.log(`[findPlaylistTracks] Searching ${allTracks.length} items for path: "${playlistPath}"`);
+
+  if (allTracks.length > 0) {
+    const sample = allTracks[0]?.Media?.[0]?.Part?.[0]?.file;
+    logger.log(`[findPlaylistTracks] Sample file path from library: "${sample}"`);
+  }
 
   let found = allTracks.filter((track) =>
     track?.Media?.[0]?.Part?.some((part) => {
@@ -110,27 +163,50 @@ async function checkAndDeletePlaylistIfExists(client, playlistName) {
   return false;
 }
 
-async function fetchRecentTracks(client, sortField, limit = 100) {
+async function fetchRecentItems(client, sortField, limit = 100) {
   const sections = await client.query("/library/sections");
-  const musicLibraries = sections.MediaContainer.Directory.filter(
-    (section) => section.type === "artist"
+
+  if (!sections?.MediaContainer?.Directory) return [];
+
+  const targetLibraries = sections.MediaContainer.Directory.filter(
+    (section) => section.type === "artist" || section.type === "movie" || section.type === "show"
   );
 
-  if (!musicLibraries.length) return [];
+  logger.log(`[fetchRecentItems] Found ${targetLibraries.length} candidate libraries: ${targetLibraries.map(l => l.title).join(", ")}`);
 
-  let recentTracks = [];
-  for (const library of musicLibraries) {
-    const tracks = await client.query(
-      `/library/sections/${library.key}/all?type=10&sort=${sortField}:desc&limit=50`
-    );
+  if (!targetLibraries.length) return [];
 
-    if (tracks.MediaContainer.Metadata) {
-      recentTracks.push(...tracks.MediaContainer.Metadata);
+  let recentItems = [];
+  for (const library of targetLibraries) {
+    try {
+      let type = "10"; // Default Music
+      let pType = "audio";
+
+      if (library.type === "movie") {
+        type = "1";
+        pType = "video";
+      } else if (library.type === "show") {
+        type = "4"; // Episode
+        pType = "video";
+      }
+
+      logger.log(`[fetchRecentItems] Querying library "${library.title}" (ID: ${library.key}, Category: ${library.type}) with item type: ${type}`);
+
+      const items = await client.query(
+        `/library/sections/${library.key}/all?type=${type}&sort=${sortField}:desc&limit=50&includeGuids=1`
+      );
+
+      if (items?.MediaContainer?.Metadata) {
+        items.MediaContainer.Metadata.forEach(item => item.playlistType = pType);
+        recentItems.push(...items.MediaContainer.Metadata);
+      }
+    } catch (err) {
+      logger.error(`[fetchRecentItems] Failed to fetch from library "${library.title}" (ID: ${library.key}):`, err.message);
     }
   }
 
-  recentTracks.sort((a, b) => b[sortField] - a[sortField]);
-  return recentTracks.slice(0, limit);
+  recentItems.sort((a, b) => b[sortField] - a[sortField]);
+  return recentItems.slice(0, limit);
 }
 
 /**
@@ -156,14 +232,11 @@ export async function createM3UPlaylist(hostname, port, plextoken, timeout, para
   retunMessage.message += `Library: ${library}. <br/>`;
 
   try {
-    const sections = await client.query("/library/sections");
-    const musicLibrary = sections.MediaContainer.Directory.find(
-      (section) => section.title === library
-    );
+    const libraryData = await getLibraryAndType(client, library);
 
-    if (!musicLibrary) {
-      logger.error(`Music library ${library} not found.`);
-      retunMessage.message += `Music library ${library} not found. <br/>`;
+    if (!libraryData) {
+      logger.error(`Library ${library} not found.`);
+      retunMessage.message += `Library ${library} not found. <br/>`;
       retunMessage.status = "error";
       return retunMessage;
     }
@@ -171,7 +244,7 @@ export async function createM3UPlaylist(hostname, port, plextoken, timeout, para
     // Ensure the path and sectionID are properly URL-encoded so that
     // folder names containing '&' or '%' don't break the query string.
     const uploadParams = new URLSearchParams({
-      sectionID: String(musicLibrary.key),
+      sectionID: String(libraryData.section.key),
       path: playlistPath,
     }).toString();
 
@@ -224,43 +297,55 @@ export async function createPlaylist(hostname, port, plextoken, timeout, paramet
     const serverInfo = await client.query("/");
     const machineIdentifier = serverInfo.MediaContainer.machineIdentifier;
 
-    const sections = await client.query("/library/sections");
-    const musicLibrary = sections.MediaContainer.Directory.find(
-      (section) => section.title === library
-    );
+    const libraryData = await getLibraryAndType(client, library);
 
-    if (!musicLibrary) {
-      logger.error(`Music library "${library}" not found.`);
-      retunMessage.message += `Music library "${library}" not found. <br/>`;
+    if (!libraryData) {
+      logger.error(`Library "${library}" not found.`);
+      retunMessage.message += `Library "${library}" not found. <br/>`;
       retunMessage.status = "error";
       return retunMessage;
     }
 
-    const tracks = await client.query(
-      `/library/sections/${musicLibrary.key}/all?type=10`
+    // Try to fetch items. For movie and show libraries, we might try to fetch without type filter if filtered query returns 0
+    let items = await client.query(
+      `/library/sections/${libraryData.section.key}/all?type=${libraryData.mediaType}`
     );
 
+    let allItems = items?.MediaContainer?.Metadata || [];
 
-    const allTracks = tracks.MediaContainer.Metadata || [];
-    const foundPlaylistTracks = findPlaylistTracks(allTracks, playlistPath);
+    // If no items found with type filter, try fetching everything to see what types are present
+    if (allItems.length === 0) {
+      logger.warn(`[createPlaylist] No items found with type=${libraryData.mediaType}. Retrying without type filter...`);
+      const unfilteredItems = await client.query(`/library/sections/${libraryData.section.key}/all?includeGuids=1&limit=100`);
+      const rawItems = unfilteredItems?.MediaContainer?.Metadata || [];
+      if (rawItems.length > 0) {
+        const types = Array.from(new Set(rawItems.map(i => i.type)));
+        logger.log(`[createPlaylist] Found ${rawItems.length} items without filter. Present types: ${types.join(", ")}`);
+        // If the library is supposed to be movie but items are something else, we might want to adapt
+        // or just use these items for matching.
+        allItems = rawItems;
+      }
+    }
+    logger.log(`[createPlaylist] Total items fetched from library: ${allItems.length}`);
+    const foundItems = findPlaylistTracks(allItems, playlistPath);
 
-    if (foundPlaylistTracks.length === 0) {
+    if (foundItems.length === 0) {
       const patterns = buildFolderPatterns(playlistPath);
-      logger.warn(`No tracks found for folder: ${playlistPath}`);
+      logger.warn(`No items found for folder: ${playlistPath}`);
       logger.warn(`Tried patterns: ${patterns.join(" | ")}`);
-      const sample = tracks.MediaContainer.Metadata?.[0]?.Media?.[0]?.Part?.[0]?.file;
+      const sample = items.MediaContainer.Metadata?.[0]?.Media?.[0]?.Part?.[0]?.file;
       if (sample) {
         logger.warn(`Example library file path: ${sample}`);
       }
-      retunMessage.message += `No tracks found for folder: ${playlistPath} <br/>`;
+      retunMessage.message += `No items found for folder: ${playlistPath}. <br/>Tried searching in library: ${library} (ID: ${libraryData.section.key}, Type: ${libraryData.section.type})<br/>`;
       retunMessage.status = "error";
       return retunMessage;
     }
 
-    retunMessage.message += `Creating playlist: "${playlistName}" with ${foundPlaylistTracks.length} tracks. <br/>`;
+    retunMessage.message += `Creating playlist: "${playlistName}" with ${foundItems.length} items. <br/>`;
 
-    const itemKeys = foundPlaylistTracks.map((track) => track.ratingKey);
-    await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys);
+    const itemKeys = foundItems.map((item) => item.ratingKey);
+    await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys, libraryData.playlistType);
 
     return retunMessage;
   } catch (error) {
@@ -277,12 +362,21 @@ export async function createPlaylist(hostname, port, plextoken, timeout, paramet
 /**
  * Creates multiple playlists from an array of folders
  */
-export async function bulkPlaylist(hostname, port, plextoken, timeout, playlistArray) {
+export async function bulkPlaylist(hostname, port, plextoken, timeout, parameters) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
 
-  // Validate the playlistArray
-  if (!playlistArray) {
+  // Determine if parameters is an array (new format) or a string (old format)
+  let playlistArrayStr, libraryName;
+  if (Array.isArray(parameters)) {
+    playlistArrayStr = parameters[0];
+    libraryName = parameters[1] || "Music";
+  } else {
+    playlistArrayStr = parameters;
+    libraryName = "Music";
+  }
+
+  if (!playlistArrayStr) {
     retunMessage.status = "error";
     retunMessage.message = "Playlist array is required.";
     return retunMessage;
@@ -292,51 +386,59 @@ export async function bulkPlaylist(hostname, port, plextoken, timeout, playlistA
     const serverInfo = await client.query("/");
     const machineIdentifier = serverInfo.MediaContainer.machineIdentifier;
 
-    const sections = await client.query("/library/sections");
+    const libraryData = await getLibraryAndType(client, libraryName);
 
-    const musicLibrary = sections.MediaContainer.Directory.find(
-      (section) => section.title === "Music"
-    );
-
-    if (!musicLibrary) {
-      logger.error(`Music library "Music" not found.`);
+    if (!libraryData) {
+      logger.error(`Library "${libraryName}" not found.`);
       retunMessage.status = "error";
-      retunMessage.message += `Music library "Music" not found. <br/>`;
+      retunMessage.message += `Library "${libraryName}" not found. <br/>`;
       return retunMessage;
     }
 
-    const tracks = await client.query(
-      `/library/sections/${musicLibrary.key}/all?type=10`
+    // Try to fetch items.
+    let items = await client.query(
+      `/library/sections/${libraryData.section.key}/all?type=${libraryData.mediaType}`
     );
 
-    const configData = JSON.parse(playlistArray);
+    let allItems = items?.MediaContainer?.Metadata || [];
+
+    // Retry without type filter if 0 items found
+    if (allItems.length === 0) {
+      logger.warn(`[bulkPlaylist] No items found in "${libraryName}" with type=${libraryData.mediaType}. Retrying without type filter...`);
+      const unfilteredItems = await client.query(`/library/sections/${libraryData.section.key}/all?includeGuids=1&limit=200`);
+      const rawItems = unfilteredItems?.MediaContainer?.Metadata || [];
+      if (rawItems.length > 0) {
+        const types = Array.from(new Set(rawItems.map(i => i.type)));
+        logger.log(`[bulkPlaylist] Found ${rawItems.length} items without filter. Present types: ${types.join(", ")}`);
+        allItems = rawItems;
+      }
+    }
+
+    const configData = JSON.parse(playlistArrayStr);
     const playlistFolders = Array.isArray(configData)
       ? configData
       : [configData];
 
+    logger.log(`[bulkPlaylist] Processing ${playlistFolders.length} folders in library "${libraryName}" (ID: ${libraryData.section.key})`);
+
     for (const playlistFolder of playlistFolders) {
-      // Skip null or undefined playlist folders
       if (!playlistFolder) {
-        retunMessage.message +=
-          "Skipping undefined playlist folder entry.<br/>";
+        retunMessage.message += "Skipping empty folder path entry.<br/>";
         continue;
       }
 
       const playlistName = path.basename(playlistFolder);
+      const foundItems = findPlaylistTracks(allItems, playlistFolder);
 
-      // use helper to find matching tracks
-      const allTracks = tracks.MediaContainer.Metadata || [];
-      const foundPlaylistTracks = findPlaylistTracks(allTracks, playlistFolder);
-
-      if (foundPlaylistTracks.length === 0) {
-        retunMessage.message += "No tracks found for folder: " + playlistFolder + " <br/>";
+      if (foundItems.length === 0) {
+        retunMessage.message += `No items found in library "${libraryName}" for folder: ${playlistFolder}<br/>`;
         continue;
       }
 
-      retunMessage.message += `Creating playlist: "${playlistName}" with ${foundPlaylistTracks.length} tracks. <br/>`;
+      retunMessage.message += `Creating playlist: "${playlistName}" with ${foundItems.length} items. <br/>`;
 
-      const itemKeys = foundPlaylistTracks.map((track) => track.ratingKey);
-      await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys);
+      const itemKeys = foundItems.map((item) => item.ratingKey);
+      await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys, libraryData.playlistType);
       retunMessage.message += `Playlist "${playlistName}" created successfully.<br/>`;
     }
 
@@ -383,21 +485,24 @@ export async function createRecentlyPlayedPlaylist(
       return retunMessage;
     }
 
-    // Fetch recently played tracks from each music library
-    let recentTracks = await fetchRecentTracks(client, "lastViewedAt", 100);
-    recentTracks = recentTracks.filter((t) => t.lastViewedAt);
+    // Fetch recently items from both music and movie libraries
+    let recentItems = await fetchRecentItems(client, "lastViewedAt", 100);
+    recentItems = recentItems.filter((t) => t.lastViewedAt);
 
-    if (recentTracks.length === 0) {
-      retunMessage.message += "No recently played tracks found. <br/>";
+    if (recentItems.length === 0) {
+      retunMessage.message += "No recently played items found. <br/>";
       retunMessage.status = "warning";
       return retunMessage;
     }
 
-    retunMessage.message += `Found ${recentTracks.length} recently played tracks. <br/>`;
+    retunMessage.message += `Found ${recentItems.length} recently played items. <br/>`;
 
-    const itemKeys = recentTracks.map((track) => track.ratingKey);
-    await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys);
-    retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentTracks.length} tracks. <br/>`;
+    // Since items might come from different playlist types, we need to group them
+    // For now, let's just create one playlist based on the majority or first item's type
+    const mainType = recentItems[0].playlistType || "audio";
+    const itemKeys = recentItems.map((item) => item.ratingKey);
+    await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys, mainType);
+    retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentItems.length} items. <br/>`;
     return retunMessage;
   } catch (error) {
     logger.error(
@@ -432,19 +537,20 @@ export async function createRecentlyAddedPlaylist(
     const deleted = await checkAndDeletePlaylistIfExists(client, playlistName);
     if (deleted) retunMessage.message += `Existing playlist "${playlistName}" deleted. <br/>`;
 
-    let recentTracks = await fetchRecentTracks(client, "addedAt", 100);
+    let recentItems = await fetchRecentItems(client, "addedAt", 100);
 
-    if (recentTracks.length === 0) {
-      retunMessage.message += "No recently added tracks found. <br/>";
+    if (recentItems.length === 0) {
+      retunMessage.message += "No recently added items found. <br/>";
       retunMessage.status = "warning";
       return retunMessage;
     }
 
-    retunMessage.message += `Found ${recentTracks.length} recently added tracks. <br/>`;
+    retunMessage.message += `Found ${recentItems.length} recently added items. <br/>`;
 
-    const itemKeys = recentTracks.map((track) => track.ratingKey);
-    await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys);
-    retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentTracks.length} tracks. <br/>`;
+    const mainType = recentItems[0].playlistType || "audio";
+    const itemKeys = recentItems.map((item) => item.ratingKey);
+    await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys, mainType);
+    retunMessage.message += `Playlist "${playlistName}" created successfully with ${recentItems.length} items. <br/>`;
     return retunMessage;
   } catch (error) {
     logger.error(

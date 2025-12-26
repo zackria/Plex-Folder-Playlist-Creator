@@ -1,5 +1,6 @@
 import { app } from "electron";
 import { createRequire } from "node:module";
+import logger from "../../js/plex/logger.js";
 
 const require = createRequire(import.meta.url);
 const settings = require("electron-settings");
@@ -8,7 +9,7 @@ const settings = require("electron-settings");
  * Gets API connection data and user preferences from settings
  */
 export async function getAPIData() {
-  console.log("[Settings] settings object:", typeof settings, Object.keys(settings));
+  logger.log("[Settings] settings object:", typeof settings, Object.keys(settings));
   const [ipAddress, port, apiKey, theme, versionNo, timeout, enableConsole] = await Promise.all([
     settings.get("key.ipAddress"),
     settings.get("key.port"),
@@ -16,7 +17,6 @@ export async function getAPIData() {
     settings.get("userPreferences.theme"),
     settings.get("userPreferences.versionNo"),
     settings.get("key.timeout"), // Retrieve timeout
-    settings.get("key.enableConsole"), // Retrieve enableConsole
   ]);
 
 
@@ -37,7 +37,6 @@ export async function getAPIData() {
     theme: theme,
     versionNo: versionNo,
     timeout: timeoutValue,
-    enableConsole: enableConsole !== false, // Default to true if not set
   };
 }
 
@@ -45,7 +44,7 @@ export async function getAPIData() {
  * Saves API connection configuration
  */
 export async function saveConfig(data) {
-  console.log("[Settings] saveConfig called with:", data);
+  logger.log("[Settings] saveConfig called with:", data);
   // Coerce timeout to a number when saving so later reads are numeric.
   const rawTimeout = data[3];
   const parsed = Number(rawTimeout);
@@ -57,9 +56,8 @@ export async function saveConfig(data) {
       ipAddress: data[1],
       port: data[2],
       timeout: timeoutToSave, // Save numeric timeout when valid
-      enableConsole: data[4], // Save enableConsole
     });
-    console.log("[Settings] settings.set successful.");
+    logger.log("[Settings] settings.set successful.");
     return true;
   } catch (error) {
     console.error("[Settings] settings.set failed:", error);
