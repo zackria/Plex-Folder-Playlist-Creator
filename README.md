@@ -30,8 +30,8 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 - Plex Integration: Optionally connect to a Plex Media Server to fetch metadata and sync playlists.
 
 ### Build using 
-- #### Node JS v22.13.0 (lts/jod)
-- #### NPM 11.0.0
+- #### Node JS v25.2.1 (lts/jod)
+- #### NPM 11.7.0
 
 #### How to find Host IP, PORT, and PLEX TOKEN 
 - How to find HOST IP & PORT NUMBER [Refer to this Link](FINDHOST_PORT.md)
