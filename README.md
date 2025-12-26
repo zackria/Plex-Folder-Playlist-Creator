@@ -11,8 +11,8 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 ![alt text](./img/01PlexFolderPlaylist.png)
 
 ## Features
-- Folder Scanning: Easily scan folders to detect media files (currently supports only audio and MP3 files on Plex).
-- Playlist Generation: Automatically create playlists in supported formats.
+- Folder Scanning: Scan folders to detect media files (Supports Music, Movies, and TV Shows via Plex).
+- Playlist Generation: Automatically create playlists directly in Plex (Supports Music and Video for folders; Music only for M3U).
 - Persistent Settings: Save and load user preferences using electron-settings.
 - Plex Integration: Connect to Plex Media Server for enhanced media metadata and playlist synchronization.
 - Cross-Platform: Runs seamlessly on Windows, Mac, and Linux.
@@ -25,8 +25,8 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 - Save Settings: User preferences (e.g., Host IP, Port, Plex token, theme) are saved for future use.
 - Test the Connection: Test the connection and read metadata.
 - Get Playlists: Retrieve the playlists.
-- Create Playlist: A playlist file is generated automatically based on the media in the specific folder.
-- Bulk Playlist Creation: Multiple playlist files are generated automatically based on the media in the specific folders.
+- Create Playlist: Generate Plex playlists automatically from single folders. Supports Music, Movies, and TV Shows.
+- Bulk Playlist Creation: Generate multiple Plex playlists in one go from a collection of folders. Supports Music, Movies, and TV Shows.
 - Plex Integration: Optionally connect to a Plex Media Server to fetch metadata and sync playlists.
 
 ### Build using 
@@ -67,11 +67,15 @@ This app leverages the following key libraries to deliver its functionality:
      A simple, persistent, and type-safe settings manager for Electron applications.
      Used for saving and retrieving user preferences like default folder paths and playlist configurations.
 
-2. [plex-api](https://github.com/phillipj/node-plex-api) `^5.3.2`
-     A lightweight and simple Node.js wrapper for interacting with the Plex Media Server API.
-     Used for fetching metadata and integrating playlists with Plex.
+2. [fast-xml-parser](https://github.com/NaturalIntelligence/fast-xml-parser) `^4.0.11`
+     A fast and lightweight XML/JSON parser.
+     Used for parsing Plex XML responses into JavaScript objects.
 
-3. [Bootstrap](https://getbootstrap.com/)
+3. [node-fetch](https://github.com/node-fetch/node-fetch) `^2.6.12`
+     A light-weight module that brings the Fetch API to Node.js.
+     Used for making robust HTTP requests to the Plex Media Server.
+
+4. [Bootstrap](https://getbootstrap.com/)
      A powerful front-end framework for building responsive, mobile-first web interfaces.
      Used to create a modern, sleek, and responsive desktop app design.
 
@@ -166,6 +170,7 @@ Please follow these steps [WINDOWSCERT.md](./WINDOWSCERT.md)
 - Additional themes and customization options for the UI.
 
 ## Known Limitations
-- The app is currently tested only for MP3 files and audio formats.
-- Testing for video and other file formats is pending.
+- **M3U Playlist**: Currently only supports audio files (MP3/FLAC/etc). Video support for M3U is not yet implemented.
+- **Plex Matching**: Relies on file paths matching between your local system and Plex.
+- **Symlink/Alias**: Supports standard Unix Symlinks; macOS Finder Aliases are supported when running on macOS.
 
