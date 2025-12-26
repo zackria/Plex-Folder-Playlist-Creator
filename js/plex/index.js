@@ -6,6 +6,7 @@ export {
   deleteAllPlaylist,
   deleteSelectedPlaylists,
   refreshPlaylist,
+  getLibraries,
 } from "./plexPlaylistOps.js";
 export {
   createM3UPlaylist,

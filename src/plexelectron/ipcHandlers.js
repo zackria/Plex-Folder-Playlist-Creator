@@ -15,6 +15,7 @@ import {
   createRecentlyPlayedPlaylist,
   createRecentlyAddedPlaylist,
   deleteSelectedPlaylists,
+  getLibraries,
 } from "./plexManager.js";
 import logger from "../../js/plex/logger.js";
 
@@ -78,6 +79,7 @@ export function setupIPC(mainWindow) {
   ipcMain.handle("recent-played-playlists", (event, data) => createRecentlyPlayedPlaylist(data));
   ipcMain.handle("recent-added-playlists", (event, data) => createRecentlyAddedPlaylist(data));
   ipcMain.handle("bulk-playlist", (event, data) => bulkPlaylist(data));
+  ipcMain.handle("get-libraries", (event) => getLibraries());
   ipcMain.handle("refresh-playlists", (event, data) => refreshPlaylists(data));
   ipcMain.handle("delete-playlist", (event, data) => deletePlaylist(data));
   ipcMain.handle("delete-all-playlist", (event, data) =>

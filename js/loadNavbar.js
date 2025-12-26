@@ -37,6 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Enforce numeric-only input for port and timeout fields
       makeNumeric('port');
       makeNumeric('timeout');
+
+      // Initialize library dropdown if library input exists
+      initializeLibraryDropdown();
     })
     .catch((error) => console.error("Error in loadNavbar.js at navbar loading: Error loading navbar:", error));
 });
@@ -48,6 +51,42 @@ function makeNumeric(id) {
     element.addEventListener("input", (e) => {
       e.target.value = e.target.value.replaceAll(/\D/g, "");
     });
+  }
+}
+
+async function initializeLibraryDropdown() {
+  const libraryInput = document.getElementById("library");
+  if (!libraryInput) return;
+
+  // Create datalist if it doesn't exist
+  let datalist = document.getElementById("libraryList");
+  if (!datalist) {
+    datalist = document.createElement("datalist");
+    datalist.id = "libraryList";
+    document.body.appendChild(datalist);
+  }
+  libraryInput.setAttribute("list", "libraryList");
+
+  // Set a helpful placeholder if it's the default
+  if (libraryInput.placeholder === "Library name (e.g., Music or Movies)") {
+    libraryInput.placeholder = "Select or type library name...";
+  }
+
+  try {
+    const libraries = await globalThis.ipcRenderer.invoke("get-libraries");
+    if (Array.isArray(libraries) && libraries.length > 0) {
+      datalist.innerHTML = "";
+      libraries.forEach((lib) => {
+        const option = document.createElement("option");
+        option.value = lib.title;
+        datalist.appendChild(option);
+      });
+      console.log(`[initializeLibraryDropdown] Populated ${libraries.length} libraries.`);
+    } else {
+      console.warn("[initializeLibraryDropdown] No libraries returned or connection not configured.");
+    }
+  } catch (error) {
+    console.error("[initializeLibraryDropdown] Error fetching libraries:", error);
   }
 }
 

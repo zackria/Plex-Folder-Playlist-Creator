@@ -165,3 +165,17 @@ export async function deleteSelectedPlaylists(playlistIds) {
     playlistIds
   );
 }
+
+/**
+ * Gets all library sections
+ */
+export async function getLibraries() {
+  const apiData = await getAPIData();
+  logger.setDebugMode(apiData.enableConsole);
+  return plexLocalAPI.getLibraries(
+    apiData.ipaddress,
+    apiData.port,
+    apiData.key,
+    apiData.timeout
+  );
+}

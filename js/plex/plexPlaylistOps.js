@@ -123,3 +123,18 @@ export async function deleteSelectedPlaylists(hostname, port, plextoken, timeout
     return false;
   }
 }
+
+/**
+ * Gets all libraries from the Plex server
+ */
+export async function getLibraries(hostname, port, plextoken, timeout) {
+  const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
+
+  try {
+    const result = await client.query("/library/sections");
+    return result?.MediaContainer?.Directory || [];
+  } catch (error) {
+    logger.error("Error fetching libraries:", error.message);
+    return [];
+  }
+}
