@@ -2,6 +2,7 @@ import path from "node:path";
 import { createPlexClientWithTimeout } from "./plexClient.js";
 import * as normalizeUtils from "./normalizeUtils.js";
 import logger from "./logger.js";
+import { scanFolderRealPaths } from "./pathUtils.js";
 
 const {
   safeTruncate,
@@ -145,6 +146,73 @@ export function findPlaylistTracks(allTracks, playlistPath) {
     });
   }
 
+  return found;
+}
+
+/**
+ * Finds playlist tracks by scanning folder and resolving symlinks.
+ * 
+ * This is for playlist folders that contain SYMLINKS to tracks, not copies.
+ * Steps:
+ * 1. Scan the folder to find all files (including symlinks)
+ * 2. Resolve each symlink to its real path
+ * 3. Match those real paths exactly against Plex library
+ * 
+ * @param {Array} allTracks - All tracks from Plex library
+ * @param {string} playlistPath - Path to folder containing symlinks
+ * @returns {Array} Matched tracks
+ */
+export function findPlaylistTracksBySymlinks(allTracks, playlistPath) {
+  logger.log(`[findPlaylistTracksBySymlinks] Scanning folder for symlinked tracks: "${playlistPath}"`);
+  
+  // Scan folder and get real paths of all audio files
+  const realPaths = scanFolderRealPaths(playlistPath, { recursive: false });
+  
+  if (realPaths.length === 0) {
+    logger.warn(`[findPlaylistTracksBySymlinks] No audio files found in folder`);
+    return [];
+  }
+  
+  logger.log(`[findPlaylistTracksBySymlinks] Found ${realPaths.length} files, matching against ${allTracks.length} library tracks`);
+  
+  // Normalize all real paths for comparison (handle encoding variations)
+  const normalizedRealPathsMap = new Map();
+  realPaths.forEach(realPath => {
+    const normalized = normalizeForCompare(realPath);
+    normalizedRealPathsMap.set(normalized, realPath);
+    
+    // Also try without decoding for paths with literal % or &
+    const normalizedRaw = normalizeForCompareNoDecode(realPath);
+    if (normalizedRaw !== normalized) {
+      normalizedRealPathsMap.set(normalizedRaw, realPath);
+    }
+  });
+  
+  // Match tracks by exact path comparison
+  const found = allTracks.filter((track) => {
+    return track?.Media?.[0]?.Part?.some((part) => {
+      const file = part.file || "";
+      const fileNorm = normalizeForCompare(file);
+      const fileNormRaw = normalizeForCompareNoDecode(file);
+      
+      if (normalizedRealPathsMap.has(fileNorm) || normalizedRealPathsMap.has(fileNormRaw)) {
+        return true;
+      }
+      
+      return false;
+    });
+  });
+  
+  logger.log(`[findPlaylistTracksBySymlinks] Matched ${found.length}/${realPaths.length} tracks`);
+  
+  if (found.length === 0 && realPaths.length > 0) {
+    logger.warn(`[findPlaylistTracksBySymlinks] No matches! Sample real path: "${realPaths[0]}"`);
+    if (allTracks.length > 0) {
+      const sample = allTracks[0]?.Media?.[0]?.Part?.[0]?.file;
+      logger.warn(`[findPlaylistTracksBySymlinks] Sample Plex path: "${sample}"`);
+    }
+  }
+  
   return found;
 }
 
@@ -324,7 +392,15 @@ export async function createPlaylist(hostname, port, plextoken, timeout, paramet
       }
     }
     logger.log(`[createPlaylist] Total items fetched from library: ${allItems.length}`);
-    const foundItems = findPlaylistTracks(allItems, playlistPath);
+    
+    // Try standard path matching first
+    let foundItems = findPlaylistTracks(allItems, playlistPath);
+    
+    // If no matches, try symlink resolution
+    if (foundItems.length === 0) {
+      logger.log(`[createPlaylist] No matches with standard path matching, trying symlink resolution...`);
+      foundItems = findPlaylistTracksBySymlinks(allItems, playlistPath);
+    }
 
     if (foundItems.length === 0) {
       const patterns = buildFolderPatterns(playlistPath);
@@ -425,7 +501,15 @@ export async function bulkPlaylist(hostname, port, plextoken, timeout, parameter
       }
 
       const playlistName = path.basename(playlistFolder);
-      const foundItems = findPlaylistTracks(allItems, playlistFolder);
+      
+      // Try standard path matching first
+      let foundItems = findPlaylistTracks(allItems, playlistFolder);
+      
+      // If no matches, try symlink resolution
+      if (foundItems.length === 0) {
+        logger.log(`[bulkPlaylist] No matches for "${playlistFolder}" with standard matching, trying symlinks...`);
+        foundItems = findPlaylistTracksBySymlinks(allItems, playlistFolder);
+      }
 
       if (foundItems.length === 0) {
         retunMessage.message += `No items found in library "${libraryName}" for folder: ${playlistFolder}<br/>`;

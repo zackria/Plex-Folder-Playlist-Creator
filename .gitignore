@@ -139,3 +139,7 @@ backups
 debug_tracks.js
 debug_playlist_parsing.js
 debug_live_playlists.js
+
+# Local helper scripts
+npm-run.sh
+start-app.sh

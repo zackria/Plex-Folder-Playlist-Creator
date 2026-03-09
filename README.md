@@ -13,6 +13,7 @@ Plex Folder Playlist Creator is a modern desktop application built with Electron
 ## Features
 - Folder Scanning: Scan folders to detect media files (Supports Music, Movies, and TV Shows via Plex).
 - Playlist Generation: Automatically create playlists directly in Plex (Supports Music and Video for folders; Music only for M3U).
+- **Symlink Support**: Create playlists from folders containing symlinks to tracks - avoid file duplication, use same track in multiple playlists. [Learn more](docs/SYMLINKS.md)
 - Persistent Settings: Save and load user preferences using electron-settings.
 - Plex Integration: Connect to Plex Media Server for enhanced media metadata and playlist synchronization.
 - Cross-Platform: Runs seamlessly on Windows, Mac, and Linux.

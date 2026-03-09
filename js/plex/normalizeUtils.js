@@ -109,8 +109,13 @@ export function normalizeForCompare(p) {
     try {
       decoded = decodeURIComponent(truncated);
     } catch (e) {
+      // Path has % followed by hex digits but isn't valid URI encoding
+      // This is common with symlinks - just use the raw path
       decoded = truncated;
-      console.warn('normalizeForCompare: failed to decode percent-encoding, using raw input', e?.message);
+      // Only log in debug mode to avoid console noise
+      if (process.env.DEBUG_NORMALIZE) {
+        console.warn('normalizeForCompare: malformed percent-encoding in path, using raw input:', truncated.substring(0, 100));
+      }
     }
   }
   return processNormalizedString(decoded);
