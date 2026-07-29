@@ -2,7 +2,7 @@ import path from "node:path";
 import { createPlexClientWithTimeout } from "./plexClient.js";
 import * as normalizeUtils from "./normalizeUtils.js";
 import logger from "./logger.js";
-import { scanFolderRealPaths } from "./pathUtils.js";
+import { scanFolderRealPaths, stripWrappingQuotes } from "./pathUtils.js";
 
 const {
   safeTruncate,
@@ -282,7 +282,7 @@ export async function createM3UPlaylist(hostname, port, plextoken, timeout, para
   let retunMessage = { status: "success", message: "" };
 
   // Safely extract and trim playlistPath
-  const playlistPath = parametersArray[0] ? parametersArray[0].trim() : "";
+  const playlistPath = parametersArray[0] ? stripWrappingQuotes(parametersArray[0]) : "";
   if (!playlistPath) {
     retunMessage.status = "error";
     retunMessage.message = "Playlist path is required.";
@@ -336,7 +336,7 @@ export async function createPlaylist(hostname, port, plextoken, timeout, paramet
   let retunMessage = { status: "success", message: "" };
 
   // Safely extract and trim playlistPath
-  const playlistPath = parametersArray[0] ? parametersArray[0].trim() : "";
+  const playlistPath = parametersArray[0] ? stripWrappingQuotes(parametersArray[0]) : "";
   if (!playlistPath) {
     logger.error("Error: Playlist path is required.");
     retunMessage.status = "error";
@@ -494,7 +494,11 @@ export async function bulkPlaylist(hostname, port, plextoken, timeout, parameter
 
     logger.log(`[bulkPlaylist] Processing ${playlistFolders.length} folders in library "${libraryName}" (ID: ${libraryData.section.key})`);
 
-    for (const playlistFolder of playlistFolders) {
+    for (const rawPlaylistFolder of playlistFolders) {
+      const playlistFolder = typeof rawPlaylistFolder === "string"
+        ? stripWrappingQuotes(rawPlaylistFolder)
+        : rawPlaylistFolder;
+
       if (!playlistFolder) {
         retunMessage.message += "Skipping empty folder path entry.<br/>";
         continue;

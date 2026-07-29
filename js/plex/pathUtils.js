@@ -40,6 +40,32 @@ export function resolveSymlinks(inputPath) {
 }
 
 /**
+ * Strips wrapping quote characters some tools add around paths containing
+ * spaces or special characters (e.g. `ls`'s shell-quoting style, common
+ * when a path list is built by copy-pasting a directory listing). Only
+ * strips when both the leading and trailing character match, so a path
+ * that legitimately starts and ends with a quote is left untouched.
+ *
+ * @param {string} inputPath - Path that may be wrapped in quotes
+ * @returns {string} Path with matching wrapping quotes removed
+ */
+export function stripWrappingQuotes(inputPath) {
+  if (!inputPath || typeof inputPath !== 'string') {
+    return inputPath;
+  }
+
+  const trimmed = inputPath.trim();
+  const first = trimmed[0];
+  const last = trimmed.at(-1);
+
+  if (trimmed.length >= 2 && (first === "'" || first === '"') && first === last) {
+    return trimmed.slice(1, -1);
+  }
+
+  return trimmed;
+}
+
+/**
  * Normalizes and resolves a playlist path for Plex matching.
  * 
  * Steps:
@@ -168,5 +194,6 @@ export default {
   resolveSymlinks,
   preparePlexPath,
   isSymlink,
-  scanFolderRealPaths
+  scanFolderRealPaths,
+  stripWrappingQuotes
 };
