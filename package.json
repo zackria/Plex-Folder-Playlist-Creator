@@ -28,7 +28,7 @@
   "dependencies": {
     "electron-settings": "^4.0.4",
     "electron-squirrel-startup": "^1.0.1",
-    "fast-xml-parser": "^4.0.11",
+    "fast-xml-parser": "^5.10.1",
     "node-fetch": "^2.6.12"
   },
   "devDependencies": {
@@ -51,10 +51,13 @@
   },
   "overrides": {
     "tmp": "^0.2.3",
-    "glob": "^7.2.3",
-    "rimraf": "^3.0.2",
+    "glob": "^11.0.0",
+    "rimraf": "^6.0.0",
     "inflight": "^1.0.6",
-    "boolean": "^3.2.0"
+    "boolean": "^3.2.0",
+    "tar": "^7.5.22",
+    "brace-expansion": "^5.0.8",
+    "minimatch": "^10.2.6"
   },
   "build": {
     "appId": "com.zackdawood.PlexFolderPlaylistCreator",
@@ -96,5 +99,11 @@
       "publisherDisplayName": "Zack Dawood",
       "applicationId": "ZackDawood.PlexFolderPlaylistCreator"
     }
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true,
+    "@bitdisaster/exe-icon-extractor@1.0.10": true,
+    "electron@39.8.10": true,
+    "fsevents@2.3.3": true
   }
 }
