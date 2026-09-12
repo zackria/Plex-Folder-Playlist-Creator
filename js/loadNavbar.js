@@ -11,10 +11,25 @@ document.addEventListener("DOMContentLoaded", () => {
   // Bind page listeners immediately
   addEventListeners();
 
+  // Strip script tags and inline event handlers before injecting fetched
+  // markup, so a compromised/tampered navbar.html cannot execute arbitrary JS.
+  const sanitizeNavbarHtml = (html) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll("script").forEach((el) => el.remove());
+    doc.querySelectorAll("*").forEach((el) => {
+      [...el.attributes].forEach((attr) => {
+        if (/^on/i.test(attr.name) || attr.name === "srcdoc") {
+          el.removeAttribute(attr.name);
+        }
+      });
+    });
+    return doc.body.innerHTML;
+  };
+
   fetch("navbar.html")
     .then((response) => response.text())
     .then((data) => {
-      document.getElementById("navbar").innerHTML = data;
+      document.getElementById("navbar").innerHTML = sanitizeNavbarHtml(data);
       // Bind navbar listeners
       addEventListeners();
       toggleTheme();
