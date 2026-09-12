@@ -60,9 +60,9 @@ test('scanFolderRealPaths rejects relative and traversal paths', () => {
 });
 
 test('scanFolderRealPaths scans an absolute directory without escaping it', () => {
-  const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'plex-path-scan-test-'));
+  const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'plex path #%-scan-test-'));
   try {
-    const trackPath = path.join(testDir, 'track.mp3');
+    const trackPath = path.join(testDir, 'track #100%.mp3');
     const ignoredPath = path.join(testDir, 'notes.txt');
     fs.writeFileSync(trackPath, '');
     fs.writeFileSync(ignoredPath, '');

@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import * as logger from './logger.js';
 
 /**
@@ -36,7 +37,7 @@ function validatePath(inputPath) {
   // ensures an input such as /allowed/music/../../private is never accepted
   // by a filesystem operation under the guise of its normalized value.
   const segments = inputPath.split(/[\\/]+/u);
-  if (segments.some((segment) => segment === '..')) {
+  if (segments.includes('..')) {
     throw new Error('Path traversal segments are not allowed');
   }
 
@@ -253,17 +254,22 @@ export function scanFolderRealPaths(folderPath, options = {}) {
     const validatedFolder = validatePath(folderPath);
     const resolvedFolder = fs.realpathSync(validatedFolder);
 
-    // Validate the fully resolved path before using it to read the
-    // filesystem: it must actually be a directory, not a file or
-    // something else a crafted input could resolve to.
-    if (!fs.statSync(resolvedFolder).isDirectory()) {
+    // Convert the validated canonical path to an encoded file URL before it
+    // reaches a filesystem API. This avoids passing renderer-controlled path
+    // text directly to stat/readdir and safely represents characters such as
+    // '#', '%' and spaces on every supported platform.
+    const resolvedFolderUrl = pathToFileURL(resolvedFolder);
+
+    // realpathSync above proves the target exists; stat verifies that the
+    // resolved target is a directory rather than a file or special node.
+    if (!fs.statSync(resolvedFolderUrl).isDirectory()) {
       logger.warn(`[pathUtils] "${resolvedFolder}" is not a directory, skipping scan`);
       return [];
     }
 
     logger.log(`[pathUtils] Scanning playlist folder: "${resolvedFolder}"`);
 
-    const entries = fs.readdirSync(resolvedFolder, { withFileTypes: true });
+    const entries = fs.readdirSync(resolvedFolderUrl, { withFileTypes: true });
 
     for (const entry of entries) {
       try {
