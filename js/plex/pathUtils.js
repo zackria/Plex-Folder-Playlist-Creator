@@ -26,15 +26,38 @@ function validatePath(inputPath) {
     throw new Error('Path contains an invalid NUL byte');
   }
 
-  // path.resolve() canonicalizes ".." and "." segments against cwd,
-  // producing a fully-qualified absolute path with no traversal segments
-  // left in it.
-  const resolved = path.resolve(inputPath);
-  if (!path.isAbsolute(resolved)) {
-    throw new Error(`Path "${inputPath}" did not resolve to an absolute path`);
+  // Folder paths arrive over IPC. Requiring an absolute path prevents their
+  // interpretation relative to the application's working directory.
+  if (!path.isAbsolute(inputPath)) {
+    throw new Error('Path must be absolute');
   }
 
-  return resolved;
+  // Reject traversal syntax rather than merely normalizing it away. This
+  // ensures an input such as /allowed/music/../../private is never accepted
+  // by a filesystem operation under the guise of its normalized value.
+  const segments = inputPath.split(/[\\/]+/u);
+  if (segments.some((segment) => segment === '..')) {
+    throw new Error('Path traversal segments are not allowed');
+  }
+
+  return path.normalize(inputPath);
+}
+
+/**
+ * Builds a child path and verifies that it remains inside its parent.
+ * Directory-entry names normally cannot contain separators, but retaining
+ * this invariant at the filesystem boundary protects against unexpected or
+ * mocked Dirent values as well.
+ */
+function resolveContainedPath(parentPath, entryName) {
+  const childPath = path.resolve(parentPath, entryName);
+  const relativePath = path.relative(parentPath, childPath);
+
+  if (relativePath === '..' || relativePath.startsWith(`..${path.sep}`) || path.isAbsolute(relativePath)) {
+    throw new Error(`Directory entry escapes the selected folder: "${entryName}"`);
+  }
+
+  return childPath;
 }
 
 /**
@@ -170,7 +193,7 @@ export function isSymlink(inputPath) {
  * @returns {string[]} Real paths contributed by this entry
  */
 function collectRealPathsForEntry(resolvedFolder, entry, { recursive, extensions }) {
-  const fullPath = path.join(resolvedFolder, entry.name);
+  const fullPath = resolveContainedPath(resolvedFolder, entry.name);
 
   if (entry.isDirectory() && recursive) {
     return scanFolderRealPaths(fullPath, { recursive, extensions });
