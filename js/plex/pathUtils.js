@@ -3,15 +3,50 @@ import path from 'node:path';
 import * as logger from './logger.js';
 
 /**
+ * Validates a user-supplied path before it is used in any filesystem call.
+ * This app intentionally lets users point at any file or folder on disk
+ * (there is no single safe "base" directory to confine paths to), but the
+ * raw string still comes straight from renderer text input, so it must be
+ * checked for the classic path-traversal poison inputs - embedded NUL
+ * bytes and non-string/empty values - and canonicalized to an absolute
+ * path before being handed to fs.*Sync().
+ *
+ * @param {string} inputPath - Raw, user-supplied path
+ * @returns {string} Canonicalized absolute path, safe to pass to fs calls
+ * @throws {Error} If the path is not a safe, well-formed filesystem path
+ */
+function validatePath(inputPath) {
+  if (typeof inputPath !== 'string' || inputPath.length === 0) {
+    throw new Error('Path must be a non-empty string');
+  }
+
+  // Poison null byte: some native fs implementations truncate at \0,
+  // which can be abused to bypass extension/suffix checks elsewhere.
+  if (inputPath.includes('\0')) {
+    throw new Error('Path contains an invalid NUL byte');
+  }
+
+  // path.resolve() canonicalizes ".." and "." segments against cwd,
+  // producing a fully-qualified absolute path with no traversal segments
+  // left in it.
+  const resolved = path.resolve(inputPath);
+  if (!path.isAbsolute(resolved)) {
+    throw new Error(`Path "${inputPath}" did not resolve to an absolute path`);
+  }
+
+  return resolved;
+}
+
+/**
  * Resolves symlinks and aliases to their real filesystem path.
  * Returns the original path if resolution fails or if in browser context.
- * 
+ *
  * Platform support:
  * - macOS: Handles Finder aliases and Unix symlinks
  * - Linux: Resolves symlinks created with ln -s
  * - Windows: Resolves symlinks, junction points, and hard links
  *   Note: Creating symlinks on Windows requires admin rights or Developer Mode
- * 
+ *
  * @param {string} inputPath - Path that may contain symlinks
  * @returns {string} Resolved real path, or original if unavailable
  */
@@ -27,7 +62,8 @@ export function resolveSymlinks(inputPath) {
   }
 
   try {
-    const realPath = fs.realpathSync(inputPath);
+    const validatedPath = validatePath(inputPath);
+    const realPath = fs.realpathSync(validatedPath);
     if (realPath !== inputPath) {
       logger.log(`[pathUtils] Resolved symlink: "${inputPath}" → "${realPath}"`);
     }
@@ -114,7 +150,8 @@ export function isSymlink(inputPath) {
   }
 
   try {
-    const stats = fs.lstatSync(inputPath);
+    const validatedPath = validatePath(inputPath);
+    const stats = fs.lstatSync(validatedPath);
     return stats.isSymbolicLink();
   } catch (err) {
     logger.debug(`[pathUtils] isSymlink: unable to stat "${inputPath}": ${err.message}`);
@@ -122,18 +159,6 @@ export function isSymlink(inputPath) {
   }
 }
 
-/**
- * Scans a folder and returns the real paths of all files (resolving symlinks).
- * 
- * This is the KEY function for symlink playlist support:
- * - Reads all files in the folder (including symlinks)
- * - Resolves each symlink to its real target path
- * - Returns the real paths that Plex has stored
- * 
- * @param {string} folderPath - Path to playlist folder
- * @param {object} options - { recursive: boolean, extensions: string[] }
- * @returns {string[]} Array of resolved real file paths
- */
 /**
  * Resolves a single directory entry to the real path(s) it represents,
  * recursing into subdirectories when requested and filtering by extension.
@@ -168,6 +193,18 @@ function collectRealPathsForEntry(resolvedFolder, entry, { recursive, extensions
   return [realPath];
 }
 
+/**
+ * Scans a folder and returns the real paths of all files (resolving symlinks).
+ *
+ * This is the KEY function for symlink playlist support:
+ * - Reads all files in the folder (including symlinks)
+ * - Resolves each symlink to its real target path
+ * - Returns the real paths that Plex has stored
+ *
+ * @param {string} folderPath - Path to playlist folder
+ * @param {object} options - { recursive: boolean, extensions: string[] }
+ * @returns {string[]} Array of resolved real file paths
+ */
 export function scanFolderRealPaths(folderPath, options = {}) {
   const {
     recursive = false,  // Don't recurse by default for playlists
@@ -188,8 +225,10 @@ export function scanFolderRealPaths(folderPath, options = {}) {
   const realPaths = [];
 
   try {
-    // First resolve the folder itself if it's a symlink
-    const resolvedFolder = fs.realpathSync(folderPath);
+    // Validate the raw user-supplied path before it touches the filesystem,
+    // then resolve the folder itself (in case it's a symlink).
+    const validatedFolder = validatePath(folderPath);
+    const resolvedFolder = fs.realpathSync(validatedFolder);
 
     // Validate the fully resolved path before using it to read the
     // filesystem: it must actually be a directory, not a file or

@@ -21,15 +21,17 @@ import logger from "../../js/plex/logger.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Fixed set of pages the renderer is allowed to navigate to. The page name
-// arrives over IPC from the renderer, so it must be checked against this
-// allowlist rather than used to build a filesystem path directly.
-const NAVIGABLE_PAGES = new Set([
-  "index",
-  "actions",
-  "createplaylist",
-  "bulkplaylist",
-  "m3uplaylist",
+// Fixed lookup table of pages the renderer is allowed to navigate to. The
+// page name arrives over IPC from the renderer, so it is used only as a key
+// into this table of hardcoded filenames - it is never concatenated into a
+// filesystem path itself, which rules out path traversal regardless of what
+// the renderer sends.
+const NAVIGABLE_PAGE_FILES = new Map([
+  ["index", "index.html"],
+  ["actions", "actions.html"],
+  ["createplaylist", "createplaylist.html"],
+  ["bulkplaylist", "bulkplaylist.html"],
+  ["m3uplaylist", "m3uplaylist.html"],
 ]);
 
 /**
@@ -38,11 +40,12 @@ const NAVIGABLE_PAGES = new Set([
 export function setupIPC(mainWindow) {
   // Navigation
   ipcMain.on("navigate-to", async (event, page) => {
-    if (!NAVIGABLE_PAGES.has(page)) {
+    const pageFile = NAVIGABLE_PAGE_FILES.get(page);
+    if (!pageFile) {
       logger.error(`Rejected navigate-to request for unknown page: ${page}`);
       return;
     }
-    const filePath = path.join(__dirname, "../../", `${page}.html`);
+    const filePath = path.join(__dirname, "../../", pageFile);
 
     // Get the current window from the event sender
     const currentWindow = BrowserWindow.fromWebContents(event.sender);

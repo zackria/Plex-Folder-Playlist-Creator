@@ -208,6 +208,31 @@ function navigateTo(destination) {
   globalThis.ipcRenderer.send("navigate-to", destination);
 }
 
+function clearResultMessages() {
+  displayMessage("test-result-fail", "none", "none");
+  displayMessage("test-result", "none", "none");
+}
+
+function setProgressVisible(isVisible) {
+  displayMessage("progressbar", isVisible ? "block" : "none");
+}
+
+function showConnectionError(message = "Connection Error!!! <br/> Please check your settings and try again.") {
+  displayMessage("test-result-fail", "block", message);
+}
+
+function prepareForm(form) {
+  if (!form.checkValidity()) {
+    form.classList.add("was-validated");
+    return false;
+  }
+
+  clearResultMessages();
+  form.classList.add("was-validated");
+  setProgressVisible(true);
+  return true;
+}
+
 async function handleFormSubmit(e) {
   e.preventDefault();
   const form = document.getElementById("config-form");
@@ -218,8 +243,7 @@ async function handleFormSubmit(e) {
     return;
   }
 
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
+  clearResultMessages();
 
   form.classList.add("was-validated");
   const data = [
@@ -230,11 +254,11 @@ async function handleFormSubmit(e) {
     (document.getElementById("timeout") ? document.getElementById("timeout").value.trim() : undefined),
   ];
 
-  displayMessage("progressbar", "block");
+  setProgressVisible(true);
 
   try {
     const result = await globalThis.ipcRenderer.invoke("save-config", data);
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
 
     if (result === false) {
       displayMessage(
@@ -251,7 +275,7 @@ async function handleFormSubmit(e) {
     }
   } catch (error) {
     console.error("Error saving config:", error);
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
     displayMessage(
       "test-result-fail",
       "block",
@@ -261,82 +285,47 @@ async function handleFormSubmit(e) {
 }
 
 async function handleM3UPlaylistFormSubmit(e) {
-  e.preventDefault();
-  const form = document.getElementById("mthreeuplaylist-form");
-
-  if (!form.checkValidity()) {
-    form.classList.add("was-validated");
-    return;
-  }
-
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
-  form.classList.add("was-validated");
-  displayMessage("progressbar", "block");
-
-  try {
-    const result = await globalThis.ipcRenderer.invoke("create-m3u-playlist", [
+  return handlePlaylistCreation(e, {
+    formId: "mthreeuplaylist-form",
+    channel: "create-m3u-playlist",
+    getArguments: () => [
       document.getElementById("mthreeuPath").value.replaceAll(/['"]+/g, "").trim(),
       document.getElementById("library").value.trim(),
-    ]);
-    displayMessage("progressbar", "none");
-
-    if (result.status === "error") {
-      displayMessage(
-        "test-result-fail",
-        "block",
-        "Playlist not created !!! <br/>" + result.message
-      );
-    } else {
-      displayMessage("test-result", "block", result.message);
-    }
-  } catch (error) {
-    console.error("Error testing connection:", error);
-    displayMessage("progressbar", "none");
-    displayMessage(
-      "test-result-fail",
-      "block",
-      "Playlist not created !!! <br/> Please check your folder path & connection settings and try again."
-    );
-  }
+    ],
+  });
 }
 
 async function handlePlaylistFormSubmit(e) {
-  e.preventDefault();
-  const form = document.getElementById("playlist-form");
-
-  if (!form.checkValidity()) {
-    form.classList.add("was-validated");
-    return;
-  }
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
-  form.classList.add("was-validated");
-  displayMessage("progressbar", "block");
-
-  try {
-    const result = await globalThis.ipcRenderer.invoke("create-playlist", [
+  return handlePlaylistCreation(e, {
+    formId: "playlist-form",
+    channel: "create-playlist",
+    getArguments: () => [
       document.getElementById("folderPath").value.replaceAll(/['"]+/g, "").trim(),
       document.getElementById("playlistName").value.trim(),
       document.getElementById("library").value.trim(),
-    ]);
-    displayMessage("progressbar", "none");
+    ],
+  });
+}
+
+async function handlePlaylistCreation(e, { formId, channel, getArguments }) {
+  e.preventDefault();
+  const form = document.getElementById(formId);
+
+  if (!prepareForm(form)) return;
+
+  try {
+    const result = await globalThis.ipcRenderer.invoke(channel, getArguments());
+    setProgressVisible(false);
 
     if (result.status === "error") {
-      displayMessage(
-        "test-result-fail",
-        "block",
-        "Playlist not created !!! <br/>" + result.message
-      );
+      showConnectionError("Playlist not created !!! <br/>" + result.message);
     } else {
       displayMessage("test-result", "block", result.message);
     }
   } catch (error) {
     console.error("Error testing connection:", error);
-    displayMessage("progressbar", "none");
-    displayMessage(
-      "test-result-fail",
-      "block",
+    setProgressVisible(false);
+    showConnectionError(
       "Playlist not created !!! <br/> Please check your folder path & connection settings and try again."
     );
   }
@@ -345,8 +334,7 @@ async function handlePlaylistFormSubmit(e) {
 async function handleBulkPlaylistFormSubmit(e) {
   e.preventDefault();
 
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
+  clearResultMessages();
 
   const form = document.getElementById("bulk-playlist-form");
   const jsonInput = document.getElementById("folderPath");
@@ -370,7 +358,7 @@ async function handleBulkPlaylistFormSubmit(e) {
   }
 
   form.classList.add("was-validated");
-  displayMessage("progressbar", "block");
+  setProgressVisible(true);
 
   try {
     const result = await globalThis.ipcRenderer.invoke(
@@ -380,7 +368,7 @@ async function handleBulkPlaylistFormSubmit(e) {
         document.getElementById("library").value.trim() || "Music"
       ]
     );
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
 
     if (result.status === "error") {
       displayMessage(
@@ -394,31 +382,22 @@ async function handleBulkPlaylistFormSubmit(e) {
     }
   } catch (error) {
     console.error("Error testing connection:", error);
-    displayMessage("progressbar", "none");
-    displayMessage(
-      "test-result-fail",
-      "block",
-      "Connection Error!!! <br/> Please check your settings and try again."
-    );
+    setProgressVisible(false);
+    showConnectionError();
   }
 }
 
 async function testConnection() {
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
-  displayMessage("progressbar", "block");
+  clearResultMessages();
+  setProgressVisible(true);
 
   try {
     const result = await globalThis.ipcRenderer.invoke("test-connection");
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
 
     // Backwards compatible handling: some callers may still get `false`.
     if (result === false) {
-      displayMessage(
-        "test-result-fail",
-        "block",
-        "Connection Error!!! <br/> Please check your settings and try again."
-      );
+      showConnectionError();
       return;
     }
 
@@ -449,15 +428,11 @@ async function testConnection() {
       }
     } else {
       // Unexpected shape — show generic error
-      displayMessage(
-        "test-result-fail",
-        "block",
-        "Connection Error!!! <br/> Please check your settings and try again."
-      );
+      showConnectionError();
     }
   } catch (error) {
     console.error("Error testing connection:", error);
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
   }
 }
 
@@ -471,8 +446,7 @@ async function getVersion(e) {
 }
 
 async function deleteAllPlaylist() {
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
+  clearResultMessages();
 
   const parameters = [];
   const response = await globalThis.ipcRenderer.invoke("openDialog", parameters);
@@ -487,11 +461,11 @@ async function deleteAllPlaylist() {
     return;
   }
 
-  displayMessage("progressbar", "block");
+  setProgressVisible(true);
 
   try {
     const result = await globalThis.ipcRenderer.invoke("delete-all-playlist");
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
 
     if (result) {
       displayMessage(
@@ -510,7 +484,7 @@ async function deleteAllPlaylist() {
     getPlaylist("Playlists deleted successfully!! ");
   } catch (error) {
     console.error("Error deleting playlist:", error);
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
     displayMessage(
       "test-result-fail",
       "block",
@@ -520,8 +494,7 @@ async function deleteAllPlaylist() {
 }
 
 async function deletePlaylist(rowid, playlistId) {
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
+  clearResultMessages();
 
   const playlist_no = rowid.cells[1].textContent; // Index column (cell 1)
   const playlist_name = rowid.cells[2].textContent; // Title column (cell 2)
@@ -554,14 +527,14 @@ async function deletePlaylist(rowid, playlistId) {
     return;
   }
 
-  displayMessage("progressbar", "block");
+  setProgressVisible(true);
 
   try {
     const result = await globalThis.ipcRenderer.invoke(
       "delete-playlist",
       playlistId
     );
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
 
     if (result) {
       rowid.remove();
@@ -580,7 +553,7 @@ async function deletePlaylist(rowid, playlistId) {
     }
   } catch (error) {
     console.error("Error deleting playlist:", error);
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
     displayMessage(
       "test-result-fail",
       "block",
@@ -590,20 +563,15 @@ async function deletePlaylist(rowid, playlistId) {
 }
 
 async function getPlaylist(additionalMessage) {
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
-  displayMessage("progressbar", "block");
+  clearResultMessages();
+  setProgressVisible(true);
 
   try {
     const result = await globalThis.ipcRenderer.invoke("get-playlists");
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
 
     if (result === false) {
-      displayMessage(
-        "test-result-fail",
-        "block",
-        "Connection Error!!! <br/> Please check your settings and try again."
-      );
+      showConnectionError();
     } else {
       const successMessage = `${additionalMessage ? "" + additionalMessage + "<br/>" : " "}  ${result.length}&#8198;Playlists retrieved successfully!!!`;
       displayMessage(
@@ -615,33 +583,24 @@ async function getPlaylist(additionalMessage) {
     }
   } catch (error) {
     console.error("Error getting playlists:", error);
-    displayMessage("progressbar", "none");
-    displayMessage(
-      "test-result-fail",
-      "block",
-      "Connection Error!!! <br/> Please check your settings and try again."
-    );
+    setProgressVisible(false);
+    showConnectionError();
   }
 }
 
 async function refreshPlaylist() {
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
-  displayMessage("progressbar", "block");
+  clearResultMessages();
+  setProgressVisible(true);
 
   try {
     const libraryElement = document.getElementById("library");
     const libraryName = libraryElement ? libraryElement.value.trim() : "";
 
     const result = await globalThis.ipcRenderer.invoke("refresh-playlists", libraryName);
-    displayMessage("progressbar", "none");
+    setProgressVisible(false);
 
     if (result === false) {
-      displayMessage(
-        "test-result-fail",
-        "block",
-        "Connection Error!!! <br/> Please check your settings and try again."
-      );
+      showConnectionError();
     } else {
       const msg = libraryName
         ? `Library "${libraryName}" refreshed successfully!!! <br/>`
@@ -654,84 +613,42 @@ async function refreshPlaylist() {
     }
   } catch (error) {
     console.error("Error refreshing playlists:", error);
-    displayMessage("progressbar", "none");
-    displayMessage(
-      "test-result-fail",
-      "block",
-      "Connection Error!!! <br/> Please check your settings and try again."
-    );
+    setProgressVisible(false);
+    showConnectionError();
   }
 }
 
 
 
 async function recentPlayedPlaylist() {
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
-  displayMessage("progressbar", "block");
-
-  try {
-    const result = await globalThis.ipcRenderer.invoke("recent-played-playlists");
-    displayMessage("progressbar", "none");
-
-    if (result === false) {
-      displayMessage(
-        "test-result-fail",
-        "block",
-        "Connection Error!!! <br/> Please check your settings and try again."
-      );
-    } else {
-      displayMessage(
-        "test-result",
-        "block",
-        "Playlists Recently Played Created successfully!!! <br/>"
-      );
-      getPlaylist("Playlists Recently Played Created successfully!!!");
-    }
-  } catch (error) {
-    console.error("Error refreshing playlists:", error);
-    displayMessage("progressbar", "none");
-    displayMessage(
-      "test-result-fail",
-      "block",
-      "Connection Error!!! <br/> Please check your settings and try again."
-    );
-  }
+  return createRecentPlaylist("played");
 }
 
 
 async function recentAddedPlaylist() {
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
-  displayMessage("progressbar", "block");
+  return createRecentPlaylist("added");
+}
+
+async function createRecentPlaylist(kind) {
+  clearResultMessages();
+  setProgressVisible(true);
 
   try {
-    const result = await globalThis.ipcRenderer.invoke("recent-added-playlists");
-    displayMessage("progressbar", "none");
+    const result = await globalThis.ipcRenderer.invoke(`recent-${kind}-playlists`);
+    setProgressVisible(false);
 
     if (result === false) {
-      displayMessage(
-        "test-result-fail",
-        "block",
-        "Connection Error!!! <br/> Please check your settings and try again."
-      );
+      showConnectionError();
     } else {
-      displayMessage(
-        "test-result",
-        "block",
-        "Playlists Recently Added Created successfully!!! <br/>"
-      );
-      getPlaylist("Playlists Recently Added Created successfully!!!");
-
+      const label = kind === "played" ? "Played" : "Added";
+      const message = `Playlists Recently ${label} Created successfully!!!`;
+      displayMessage("test-result", "block", `${message} <br/>`);
+      getPlaylist(message);
     }
   } catch (error) {
     console.error("Error refreshing playlists:", error);
-    displayMessage("progressbar", "none");
-    displayMessage(
-      "test-result-fail",
-      "block",
-      "Connection Error!!! <br/> Please check your settings and try again."
-    );
+    setProgressVisible(false);
+    showConnectionError();
   }
 }
 
@@ -851,13 +768,12 @@ function deleteSelectedPlaylists(selectedIds) {
     return;
   }
 
-  displayMessage("test-result-fail", "none", "none");
-  displayMessage("test-result", "none", "none");
-  displayMessage("progressbar", "block");
+  clearResultMessages();
+  setProgressVisible(true);
 
   globalThis.ipcRenderer.invoke('delete-selected-playlists', selectedIds)
     .then(response => {
-      displayMessage("progressbar", "none");
+      setProgressVisible(false);
       if (response.success) {
         displayMessage(
           "test-result",
@@ -877,7 +793,7 @@ function deleteSelectedPlaylists(selectedIds) {
     })
     .catch(error => {
       console.error('Error deleting selected playlists:', error);
-      displayMessage("progressbar", "none");
+      setProgressVisible(false);
       displayMessage(
         "test-result-fail",
         "block",
