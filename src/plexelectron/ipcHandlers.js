@@ -21,12 +21,27 @@ import logger from "../../js/plex/logger.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Fixed set of pages the renderer is allowed to navigate to. The page name
+// arrives over IPC from the renderer, so it must be checked against this
+// allowlist rather than used to build a filesystem path directly.
+const NAVIGABLE_PAGES = new Set([
+  "index",
+  "actions",
+  "createplaylist",
+  "bulkplaylist",
+  "m3uplaylist",
+]);
+
 /**
  * Sets up all IPC communication channels
  */
 export function setupIPC(mainWindow) {
   // Navigation
   ipcMain.on("navigate-to", async (event, page) => {
+    if (!NAVIGABLE_PAGES.has(page)) {
+      logger.error(`Rejected navigate-to request for unknown page: ${page}`);
+      return;
+    }
     const filePath = path.join(__dirname, "../../", `${page}.html`);
 
     // Get the current window from the event sender

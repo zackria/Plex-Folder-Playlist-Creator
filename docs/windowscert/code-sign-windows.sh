@@ -31,6 +31,6 @@ orig_file="${input_file}_unsigned"
 
 mv "$input_file" "$orig_file"
 
-osslsigncode sign -certs "./certs/sign.crt" -key "./certs/sign.key" -n "Hello Windows code signing" -i "https://victoronsoftware.com/" -t "http://timestamp.comodoca.com/authenticode" -in "$orig_file" -out "$input_file"
+osslsigncode sign -certs "./certs/sign.crt" -key "./certs/sign.key" -n "Hello Windows code signing" -i "https://victoronsoftware.com/" -t "https://timestamp.comodoca.com/authenticode" -in "$orig_file" -out "$input_file"
 
 rm "$orig_file"

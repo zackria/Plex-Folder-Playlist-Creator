@@ -194,12 +194,8 @@ export function findPlaylistTracksBySymlinks(allTracks, playlistPath) {
       const file = part.file || "";
       const fileNorm = normalizeForCompare(file);
       const fileNormRaw = normalizeForCompareNoDecode(file);
-      
-      if (normalizedRealPathsMap.has(fileNorm) || normalizedRealPathsMap.has(fileNormRaw)) {
-        return true;
-      }
-      
-      return false;
+
+      return normalizedRealPathsMap.has(fileNorm) || normalizedRealPathsMap.has(fileNormRaw);
     });
   });
   
@@ -272,6 +268,44 @@ async function fetchRecentItems(client, sortField, limit = 100) {
 
   recentItems.sort((a, b) => b[sortField] - a[sortField]);
   return recentItems.slice(0, limit);
+}
+
+/**
+ * Fetches items for a library section, retrying without the type filter
+ * if the type-filtered query comes back empty (useful when a section's
+ * actual item types don't match our type-to-section-kind assumption).
+ */
+async function fetchLibraryItemsWithFallback(client, section, mediaType, { limit = 100, logPrefix = "" } = {}) {
+  const items = await client.query(`/library/sections/${section.key}/all?type=${mediaType}`);
+  let allItems = items?.MediaContainer?.Metadata || [];
+
+  if (allItems.length === 0) {
+    logger.warn(`${logPrefix} No items found with type=${mediaType}. Retrying without type filter...`);
+    const unfilteredItems = await client.query(`/library/sections/${section.key}/all?includeGuids=1&limit=${limit}`);
+    const rawItems = unfilteredItems?.MediaContainer?.Metadata || [];
+    if (rawItems.length > 0) {
+      const types = Array.from(new Set(rawItems.map((i) => i.type)));
+      logger.log(`${logPrefix} Found ${rawItems.length} items without filter. Present types: ${types.join(", ")}`);
+      allItems = rawItems;
+    }
+  }
+
+  return { items, allItems };
+}
+
+/**
+ * Matches a playlist folder against library items, falling back to
+ * symlink-based resolution when the standard path match finds nothing.
+ */
+function matchFolderToLibraryItems(allItems, folderPath, logPrefix = "") {
+  let foundItems = findPlaylistTracks(allItems, folderPath);
+
+  if (foundItems.length === 0) {
+    logger.log(`${logPrefix} No matches for "${folderPath}" with standard matching, trying symlinks...`);
+    foundItems = findPlaylistTracksBySymlinks(allItems, folderPath);
+  }
+
+  return foundItems;
 }
 
 /**
@@ -372,35 +406,12 @@ export async function createPlaylist(hostname, port, plextoken, timeout, paramet
     }
 
     // Try to fetch items. For movie and show libraries, we might try to fetch without type filter if filtered query returns 0
-    let items = await client.query(
-      `/library/sections/${libraryData.section.key}/all?type=${libraryData.mediaType}`
+    const { items, allItems } = await fetchLibraryItemsWithFallback(
+      client, libraryData.section, libraryData.mediaType, { limit: 100, logPrefix: "[createPlaylist]" }
     );
-
-    let allItems = items?.MediaContainer?.Metadata || [];
-
-    // If no items found with type filter, try fetching everything to see what types are present
-    if (allItems.length === 0) {
-      logger.warn(`[createPlaylist] No items found with type=${libraryData.mediaType}. Retrying without type filter...`);
-      const unfilteredItems = await client.query(`/library/sections/${libraryData.section.key}/all?includeGuids=1&limit=100`);
-      const rawItems = unfilteredItems?.MediaContainer?.Metadata || [];
-      if (rawItems.length > 0) {
-        const types = Array.from(new Set(rawItems.map(i => i.type)));
-        logger.log(`[createPlaylist] Found ${rawItems.length} items without filter. Present types: ${types.join(", ")}`);
-        // If the library is supposed to be movie but items are something else, we might want to adapt
-        // or just use these items for matching.
-        allItems = rawItems;
-      }
-    }
     logger.log(`[createPlaylist] Total items fetched from library: ${allItems.length}`);
-    
-    // Try standard path matching first
-    let foundItems = findPlaylistTracks(allItems, playlistPath);
-    
-    // If no matches, try symlink resolution
-    if (foundItems.length === 0) {
-      logger.log(`[createPlaylist] No matches with standard path matching, trying symlink resolution...`);
-      foundItems = findPlaylistTracksBySymlinks(allItems, playlistPath);
-    }
+
+    const foundItems = matchFolderToLibraryItems(allItems, playlistPath, "[createPlaylist]");
 
     if (foundItems.length === 0) {
       const patterns = buildFolderPatterns(playlistPath);
@@ -433,21 +444,50 @@ export async function createPlaylist(hostname, port, plextoken, timeout, paramet
 }
 
 /**
+ * Determine if bulkPlaylist parameters is an array (new format) or a string (old format).
+ */
+function resolveBulkPlaylistParameters(parameters) {
+  if (Array.isArray(parameters)) {
+    return { playlistArrayStr: parameters[0], libraryName: parameters[1] || "Music" };
+  }
+  return { playlistArrayStr: parameters, libraryName: "Music" };
+}
+
+/**
+ * Creates a single playlist for one bulk-playlist folder entry and returns
+ * the status message for it. Extracted from bulkPlaylist's loop body to
+ * keep that function's cognitive complexity low.
+ */
+async function createPlaylistForBulkFolder(client, machineIdentifier, allItems, libraryData, libraryName, rawPlaylistFolder) {
+  const playlistFolder = typeof rawPlaylistFolder === "string"
+    ? stripWrappingQuotes(rawPlaylistFolder)
+    : rawPlaylistFolder;
+
+  if (!playlistFolder) {
+    return "Skipping empty folder path entry.<br/>";
+  }
+
+  const playlistName = path.basename(playlistFolder);
+  const foundItems = matchFolderToLibraryItems(allItems, playlistFolder, "[bulkPlaylist]");
+
+  if (foundItems.length === 0) {
+    return `No items found in library "${libraryName}" for folder: ${playlistFolder}<br/>`;
+  }
+
+  const itemKeys = foundItems.map((item) => item.ratingKey);
+  await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys, libraryData.playlistType);
+
+  return `Creating playlist: "${playlistName}" with ${foundItems.length} items. <br/>Playlist "${playlistName}" created successfully.<br/>`;
+}
+
+/**
  * Creates multiple playlists from an array of folders
  */
 export async function bulkPlaylist(hostname, port, plextoken, timeout, parameters) {
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
   let retunMessage = { status: "success", message: "" };
 
-  // Determine if parameters is an array (new format) or a string (old format)
-  let playlistArrayStr, libraryName;
-  if (Array.isArray(parameters)) {
-    playlistArrayStr = parameters[0];
-    libraryName = parameters[1] || "Music";
-  } else {
-    playlistArrayStr = parameters;
-    libraryName = "Music";
-  }
+  const { playlistArrayStr, libraryName } = resolveBulkPlaylistParameters(parameters);
 
   if (!playlistArrayStr) {
     retunMessage.status = "error";
@@ -468,24 +508,9 @@ export async function bulkPlaylist(hostname, port, plextoken, timeout, parameter
       return retunMessage;
     }
 
-    // Try to fetch items.
-    let items = await client.query(
-      `/library/sections/${libraryData.section.key}/all?type=${libraryData.mediaType}`
+    const { allItems } = await fetchLibraryItemsWithFallback(
+      client, libraryData.section, libraryData.mediaType, { limit: 200, logPrefix: "[bulkPlaylist]" }
     );
-
-    let allItems = items?.MediaContainer?.Metadata || [];
-
-    // Retry without type filter if 0 items found
-    if (allItems.length === 0) {
-      logger.warn(`[bulkPlaylist] No items found in "${libraryName}" with type=${libraryData.mediaType}. Retrying without type filter...`);
-      const unfilteredItems = await client.query(`/library/sections/${libraryData.section.key}/all?includeGuids=1&limit=200`);
-      const rawItems = unfilteredItems?.MediaContainer?.Metadata || [];
-      if (rawItems.length > 0) {
-        const types = Array.from(new Set(rawItems.map(i => i.type)));
-        logger.log(`[bulkPlaylist] Found ${rawItems.length} items without filter. Present types: ${types.join(", ")}`);
-        allItems = rawItems;
-      }
-    }
 
     const configData = JSON.parse(playlistArrayStr);
     const playlistFolders = Array.isArray(configData)
@@ -495,36 +520,9 @@ export async function bulkPlaylist(hostname, port, plextoken, timeout, parameter
     logger.log(`[bulkPlaylist] Processing ${playlistFolders.length} folders in library "${libraryName}" (ID: ${libraryData.section.key})`);
 
     for (const rawPlaylistFolder of playlistFolders) {
-      const playlistFolder = typeof rawPlaylistFolder === "string"
-        ? stripWrappingQuotes(rawPlaylistFolder)
-        : rawPlaylistFolder;
-
-      if (!playlistFolder) {
-        retunMessage.message += "Skipping empty folder path entry.<br/>";
-        continue;
-      }
-
-      const playlistName = path.basename(playlistFolder);
-      
-      // Try standard path matching first
-      let foundItems = findPlaylistTracks(allItems, playlistFolder);
-      
-      // If no matches, try symlink resolution
-      if (foundItems.length === 0) {
-        logger.log(`[bulkPlaylist] No matches for "${playlistFolder}" with standard matching, trying symlinks...`);
-        foundItems = findPlaylistTracksBySymlinks(allItems, playlistFolder);
-      }
-
-      if (foundItems.length === 0) {
-        retunMessage.message += `No items found in library "${libraryName}" for folder: ${playlistFolder}<br/>`;
-        continue;
-      }
-
-      retunMessage.message += `Creating playlist: "${playlistName}" with ${foundItems.length} items. <br/>`;
-
-      const itemKeys = foundItems.map((item) => item.ratingKey);
-      await postPlaylistByKeys(client, machineIdentifier, playlistName, itemKeys, libraryData.playlistType);
-      retunMessage.message += `Playlist "${playlistName}" created successfully.<br/>`;
+      retunMessage.message += await createPlaylistForBulkFolder(
+        client, machineIdentifier, allItems, libraryData, libraryName, rawPlaylistFolder
+      );
     }
 
     return retunMessage;

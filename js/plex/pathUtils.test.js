@@ -1,72 +1,55 @@
 /**
- * Manual test script for symlink resolution
- * Run with: node js/plex/pathUtils.test.js
+ * Tests for symlink resolution helpers.
+ * Run with: node --test js/plex/pathUtils.test.js
  */
 
-import { resolveSymlinks, preparePlexPath, isSymlink } from './pathUtils.js';
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-console.log('🔗 Testing Symlink Resolution\n');
+import { resolveSymlinks, preparePlexPath, isSymlink } from './pathUtils.js';
 
-// Test 1: Non-symlink path
-console.log('Test 1: Regular path');
-const regularPath = '/usr/bin';
-const resolved1 = resolveSymlinks(regularPath);
-console.log(`  Input:  ${regularPath}`);
-console.log(`  Output: ${resolved1}`);
-console.log(`  Status: ${resolved1 === regularPath ? '✅ PASS' : '❌ FAIL'}\n`);
+test('resolveSymlinks returns a regular (non-symlinked) path unchanged', () => {
+  const regularPath = '/usr/bin';
+  assert.equal(resolveSymlinks(regularPath), regularPath);
+});
 
-// Test 2: Null/undefined handling
-console.log('Test 2: Null/undefined handling');
-console.log(`  null → ${resolveSymlinks(null)}`);
-console.log(`  undefined → ${resolveSymlinks(undefined)}`);
-console.log(`  empty string → "${resolveSymlinks('')}"`);
-console.log(`  Status: ✅ PASS (no crash)\n`);
+test('resolveSymlinks handles null, undefined, and empty string without throwing', () => {
+  assert.equal(resolveSymlinks(null), null);
+  assert.equal(resolveSymlinks(undefined), undefined);
+  assert.equal(resolveSymlinks(''), '');
+});
 
-// Test 3: Non-existent path
-console.log('Test 3: Non-existent path');
-const fakePath = '/path/to/nowhere/that/does/not/exist';
-const resolved3 = resolveSymlinks(fakePath);
-console.log(`  Input:  ${fakePath}`);
-console.log(`  Output: ${resolved3}`);
-console.log(`  Status: ${resolved3 === fakePath ? '✅ PASS (returned original)' : '❌ FAIL'}\n`);
+test('resolveSymlinks returns the original path when it does not exist', () => {
+  const fakePath = '/path/to/nowhere/that/does/not/exist';
+  assert.equal(resolveSymlinks(fakePath), fakePath);
+});
 
-// Test 4: Create and test real symlink
-console.log('Test 4: Real symlink');
-try {
+test('resolveSymlinks and isSymlink resolve a real symlink to its target', () => {
   const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'plex-symlink-test-'));
-  const targetDir = path.join(testDir, 'real-folder');
-  const symlinkDir = path.join(testDir, 'link-folder');
-  
-  fs.mkdirSync(targetDir);
-  fs.symlinkSync(targetDir, symlinkDir);
-  
-  const resolved4 = resolveSymlinks(symlinkDir);
-  const prepared4 = preparePlexPath(symlinkDir);
-  const isSym = isSymlink(symlinkDir);
-  
-  console.log(`  Target:   ${targetDir}`);
-  console.log(`  Symlink:  ${symlinkDir}`);
-  console.log(`  Resolved: ${resolved4}`);
-  console.log(`  Prepared: ${prepared4}`);
-  console.log(`  isSymlink: ${isSym}`);
-  console.log(`  Status: ${resolved4 === targetDir && isSym ? '✅ PASS' : '❌ FAIL'}`);
-  
-  // Cleanup
-  fs.rmSync(testDir, { recursive: true, force: true });
-  console.log(`  Cleanup: ✅ Done\n`);
-} catch (err) {
-  console.error(`  ❌ ERROR: ${err.message}\n`);
-}
+  try {
+    const targetDir = path.join(testDir, 'real-folder');
+    const symlinkDir = path.join(testDir, 'link-folder');
 
-// Test 5: preparePlexPath integration
-console.log('Test 5: preparePlexPath with trailing slashes');
-const messyPath = '/home/user/music///';
-const cleaned = preparePlexPath(messyPath);
-console.log(`  Input:  "${messyPath}"`);
-console.log(`  Output: "${cleaned}"`);
-console.log(`  Status: ${!cleaned.endsWith('/') || cleaned === '/' ? '✅ PASS' : '❌ FAIL'}\n`);
+    fs.mkdirSync(targetDir);
+    fs.symlinkSync(targetDir, symlinkDir);
 
-console.log('✅ All tests completed!');
+    assert.equal(resolveSymlinks(symlinkDir), fs.realpathSync(targetDir));
+    assert.equal(isSymlink(symlinkDir), true);
+    assert.equal(isSymlink(targetDir), false);
+  } finally {
+    fs.rmSync(testDir, { recursive: true, force: true });
+  }
+});
+
+test('preparePlexPath strips trailing slashes', () => {
+  const messyPath = '/home/user/music///';
+  const cleaned = preparePlexPath(messyPath);
+  assert.equal(cleaned, '/home/user/music');
+});
+
+test('preparePlexPath preserves the root path', () => {
+  assert.equal(preparePlexPath('/'), '/');
+});

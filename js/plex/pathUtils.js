@@ -83,12 +83,18 @@ export function preparePlexPath(playlistPath) {
 
   // Resolve symlinks first
   const resolved = resolveSymlinks(playlistPath);
-  
-  // Normalize path (handles /../, /./, removes trailing slash except root)
+
+  // Normalize path (handles /../, /./), then strip any trailing separator
+  // left behind by normalize() (it collapses "///" to "/" but does not
+  // remove a single trailing slash), except for the root path itself.
   const normalized = path.normalize(resolved);
-  
-  logger.debug(`[pathUtils] preparePlexPath: "${playlistPath}" → "${normalized}"`);
-  return normalized;
+  let cleaned = normalized;
+  while (cleaned.length > 1 && (cleaned.endsWith('/') || cleaned.endsWith('\\'))) {
+    cleaned = cleaned.slice(0, -1);
+  }
+
+  logger.debug(`[pathUtils] preparePlexPath: "${playlistPath}" → "${cleaned}"`);
+  return cleaned;
 }
 
 /**
@@ -111,6 +117,7 @@ export function isSymlink(inputPath) {
     const stats = fs.lstatSync(inputPath);
     return stats.isSymbolicLink();
   } catch (err) {
+    logger.debug(`[pathUtils] isSymlink: unable to stat "${inputPath}": ${err.message}`);
     return false;
   }
 }
@@ -127,63 +134,87 @@ export function isSymlink(inputPath) {
  * @param {object} options - { recursive: boolean, extensions: string[] }
  * @returns {string[]} Array of resolved real file paths
  */
+/**
+ * Resolves a single directory entry to the real path(s) it represents,
+ * recursing into subdirectories when requested and filtering by extension.
+ * Extracted from scanFolderRealPaths to keep its cognitive complexity low.
+ *
+ * @param {string} resolvedFolder - Real path of the containing folder
+ * @param {import('node:fs').Dirent} entry - Directory entry being processed
+ * @param {{ recursive: boolean, extensions: string[] }} options
+ * @returns {string[]} Real paths contributed by this entry
+ */
+function collectRealPathsForEntry(resolvedFolder, entry, { recursive, extensions }) {
+  const fullPath = path.join(resolvedFolder, entry.name);
+
+  if (entry.isDirectory() && recursive) {
+    return scanFolderRealPaths(fullPath, { recursive, extensions });
+  }
+
+  if (!entry.isFile() && !entry.isSymbolicLink()) {
+    return [];
+  }
+
+  const realPath = fs.realpathSync(fullPath);
+  const ext = path.extname(realPath).toLowerCase();
+  if (extensions.length > 0 && !extensions.includes(ext)) {
+    return [];
+  }
+
+  if (fullPath !== realPath) {
+    logger.debug(`[pathUtils] Resolved symlink: "${entry.name}" → "${realPath}"`);
+  }
+
+  return [realPath];
+}
+
 export function scanFolderRealPaths(folderPath, options = {}) {
-  const { 
+  const {
     recursive = false,  // Don't recurse by default for playlists
     extensions = ['.mp3', '.flac', '.m4a', '.wav', '.ogg', '.aac', '.wma', '.ape', '.opus']
   } = options;
-  
+
   if (!folderPath || typeof folderPath !== 'string') {
     logger.warn('[pathUtils] scanFolderRealPaths: Invalid folder path');
     return [];
   }
-  
+
   // Check if fs methods are available (main process only)
   if (!fs?.readdirSync || !fs?.statSync || !fs?.realpathSync) {
     logger.warn('[pathUtils] File system methods unavailable (browser context?)');
     return [];
   }
-  
+
   const realPaths = [];
-  
+
   try {
     // First resolve the folder itself if it's a symlink
     const resolvedFolder = fs.realpathSync(folderPath);
+
+    // Validate the fully resolved path before using it to read the
+    // filesystem: it must actually be a directory, not a file or
+    // something else a crafted input could resolve to.
+    if (!fs.statSync(resolvedFolder).isDirectory()) {
+      logger.warn(`[pathUtils] "${resolvedFolder}" is not a directory, skipping scan`);
+      return [];
+    }
+
     logger.log(`[pathUtils] Scanning playlist folder: "${resolvedFolder}"`);
-    
+
     const entries = fs.readdirSync(resolvedFolder, { withFileTypes: true });
-    
+
     for (const entry of entries) {
-      const fullPath = path.join(resolvedFolder, entry.name);
-      
       try {
-        if (entry.isDirectory() && recursive) {
-          // Recurse into subdirectories
-          const subPaths = scanFolderRealPaths(fullPath, options);
-          realPaths.push(...subPaths);
-        } else if (entry.isFile() || entry.isSymbolicLink()) {
-          // Resolve symlink to real path
-          const realPath = fs.realpathSync(fullPath);
-          
-          // Filter by audio extension
-          const ext = path.extname(realPath).toLowerCase();
-          if (extensions.length === 0 || extensions.includes(ext)) {
-            realPaths.push(realPath);
-            
-            if (fullPath !== realPath) {
-              logger.debug(`[pathUtils] Resolved symlink: "${entry.name}" → "${realPath}"`);
-            }
-          }
-        }
+        realPaths.push(...collectRealPathsForEntry(resolvedFolder, entry, { recursive, extensions }));
       } catch (err) {
         logger.warn(`[pathUtils] Skipping "${entry.name}": ${err.message}`);
         // Continue processing other files even if one fails
       }
     }
-    
+
     logger.log(`[pathUtils] Found ${realPaths.length} audio files in folder`);
     return realPaths;
-    
+
   } catch (err) {
     logger.error(`[pathUtils] Failed to scan folder "${folderPath}": ${err.message}`);
     return [];
