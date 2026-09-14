@@ -2,15 +2,18 @@
   "name": "PlexFolderPlaylistCreator",
   "version": "1.0.5",
   "description": "Plex Folder Playlist Creator App",
+  "desktopName": "PlexFolderPlaylistCreator.desktop",
   "main": "main.js",
   "type": "module",
   "scripts": {
     "start": "electron .",
     "package": "electron-builder --dir",
     "make": "electron-builder",
-    "package-linux": "electron-builder --linux --config.icon=assets/PlexFolderPlaylistCreator.png",
-    "package-linux-deb": "electron-builder --linux deb --config.icon=assets/PlexFolderPlaylistCreator.png",
+    "package-linux": "electron-builder --linux",
+    "package-linux-deb": "electron-builder --linux deb",
     "package-linux-rpm": "electron-builder --linux rpm --config.icon=assets/PlexFolderPlaylistCreator.png",
+    "package-linux-appimage": "electron-builder --linux AppImage",
+    "package-linux-snap": "electron-builder --linux snap",
     "package-win": "electron-builder --win --config.icon=assets/PlexFolderPlaylistCreator-256.ico",
     "package-win-appx": "electron-builder --win appx --config.icon=assets/PlexFolderPlaylistCreator-256.ico",
     "package-win-msix": "electron-builder --win msi --config.icon=assets/PlexFolderPlaylistCreator-256.ico",
@@ -91,6 +94,22 @@
       "publisher": "CN=XXXX-XXXXX-XXXXX-XXXXX-XXXXX",
       "publisherDisplayName": "Zack Dawood",
       "applicationId": "ZackDawood.PlexFolderPlaylistCreator"
+    },
+    "linux": {
+      "icon": "assets/PlexFolderPlaylistCreator.png",
+      "category": "AudioVideo",
+      "maintainer": "Zack Dawood <zack@zackdawood.com>",
+      "synopsis": "Create Plex playlists from local folders",
+      "syncDesktopName": true,
+      "target": [
+        { "target": "deb", "arch": ["x64", "arm64"] },
+        { "target": "AppImage", "arch": ["x64", "arm64"] },
+        { "target": "snap", "arch": ["x64", "arm64"] }
+      ]
+    },
+    "snap": {
+      "confinement": "strict",
+      "plugs": ["default", "home", "removable-media", "network", "network-bind"]
     }
   },
   "allowScripts": {
