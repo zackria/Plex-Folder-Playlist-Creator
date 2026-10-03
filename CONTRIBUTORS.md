@@ -7,3 +7,4 @@ Thanks to everyone who has contributed to this project.
 - Co-authored contribution entry #5
 - Co-authored contribution entry #6
 - Co-authored contribution entry #7
+- Co-authored contribution entry #8
