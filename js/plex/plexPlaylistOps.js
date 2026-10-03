@@ -57,10 +57,9 @@ export async function deleteAllPlaylist(hostname, port, plextoken, timeout) {
 
   try {
     const playlists = await getPlaylist(hostname, port, plextoken, timeout);
-    // Use a for-of loop for simple iteration over playlists
-    for (const playlist of playlists) {
-      await client.deleteQuery(`/playlists/${playlist.ratingKey}`);
-    }
+    await Promise.all(
+      playlists.map((playlist) => client.deleteQuery(`/playlists/${playlist.ratingKey}`))
+    );
     return true;
   } catch (error) {
     logger.error(
@@ -114,9 +113,9 @@ export async function deleteSelectedPlaylists(hostname, port, plextoken, timeout
   const client = createPlexClientWithTimeout(hostname, port, plextoken, timeout);
 
   try {
-    for (const playlistId of playlistIds) {
-      await client.deleteQuery(`/playlists/${playlistId}`);
-    }
+    await Promise.all(
+      playlistIds.map((playlistId) => client.deleteQuery(`/playlists/${playlistId}`))
+    );
     return true;
   } catch (error) {
     logger.error('Error deleting selected playlists:', error.message);

@@ -237,35 +237,39 @@ async function fetchRecentItems(client, sortField, limit = 100) {
 
   if (!targetLibraries.length) return [];
 
-  let recentItems = [];
-  for (const library of targetLibraries) {
-    try {
-      let type = "10"; // Default Music
-      let pType = "audio";
+  const resultsPerLibrary = await Promise.all(
+    targetLibraries.map(async (library) => {
+      try {
+        let type = "10"; // Default Music
+        let pType = "audio";
 
-      if (library.type === "movie") {
-        type = "1";
-        pType = "video";
-      } else if (library.type === "show") {
-        type = "4"; // Episode
-        pType = "video";
+        if (library.type === "movie") {
+          type = "1";
+          pType = "video";
+        } else if (library.type === "show") {
+          type = "4"; // Episode
+          pType = "video";
+        }
+
+        logger.log(`[fetchRecentItems] Querying library "${library.title}" (ID: ${library.key}, Category: ${library.type}) with item type: ${type}`);
+
+        const items = await client.query(
+          `/library/sections/${library.key}/all?type=${type}&sort=${sortField}:desc&limit=50&includeGuids=1`
+        );
+
+        if (items?.MediaContainer?.Metadata) {
+          items.MediaContainer.Metadata.forEach(item => item.playlistType = pType);
+          return items.MediaContainer.Metadata;
+        }
+        return [];
+      } catch (err) {
+        logger.error(`[fetchRecentItems] Failed to fetch from library "${library.title}" (ID: ${library.key}):`, err.message);
+        return [];
       }
+    })
+  );
 
-      logger.log(`[fetchRecentItems] Querying library "${library.title}" (ID: ${library.key}, Category: ${library.type}) with item type: ${type}`);
-
-      const items = await client.query(
-        `/library/sections/${library.key}/all?type=${type}&sort=${sortField}:desc&limit=50&includeGuids=1`
-      );
-
-      if (items?.MediaContainer?.Metadata) {
-        items.MediaContainer.Metadata.forEach(item => item.playlistType = pType);
-        recentItems.push(...items.MediaContainer.Metadata);
-      }
-    } catch (err) {
-      logger.error(`[fetchRecentItems] Failed to fetch from library "${library.title}" (ID: ${library.key}):`, err.message);
-    }
-  }
-
+  const recentItems = resultsPerLibrary.flat();
   recentItems.sort((a, b) => b[sortField] - a[sortField]);
   return recentItems.slice(0, limit);
 }
@@ -519,11 +523,14 @@ export async function bulkPlaylist(hostname, port, plextoken, timeout, parameter
 
     logger.log(`[bulkPlaylist] Processing ${playlistFolders.length} folders in library "${libraryName}" (ID: ${libraryData.section.key})`);
 
-    for (const rawPlaylistFolder of playlistFolders) {
-      retunMessage.message += await createPlaylistForBulkFolder(
-        client, machineIdentifier, allItems, libraryData, libraryName, rawPlaylistFolder
-      );
-    }
+    const folderMessages = await Promise.all(
+      playlistFolders.map((rawPlaylistFolder) =>
+        createPlaylistForBulkFolder(
+          client, machineIdentifier, allItems, libraryData, libraryName, rawPlaylistFolder
+        )
+      )
+    );
+    retunMessage.message += folderMessages.join("");
 
     return retunMessage;
   } catch (error) {

@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fetch("navbar.html")
     .then((response) => response.text())
-    .then((data) => {
+    .then(async (data) => {
       document.getElementById("navbar").innerHTML = sanitizeNavbarHtml(data);
       // Bind navbar listeners
       addEventListeners();
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
       makeNumeric('timeout');
 
       // Initialize library dropdown if library input exists
-      initializeLibraryDropdown();
+      await initializeLibraryDropdown();
     })
     .catch((error) => console.error("Error in loadNavbar.js at navbar loading: Error loading navbar:", error));
 });
@@ -200,9 +200,9 @@ function addEventListeners() {
     { id: "recent-played-playlists", event: "click", handler: recentPlayedPlaylist },
     { id: "recent-added-playlists", event: "click", handler: recentAddedPlaylist },
     {
-      id: "get-playlists", event: "click", handler: (e) => {
+      id: "get-playlists", event: "click", handler: async (e) => {
         e.preventDefault();
-        getPlaylist();
+        await getPlaylist();
       }
     },
   ];
@@ -496,7 +496,7 @@ async function deleteAllPlaylist() {
       );
     }
 
-    getPlaylist("Playlists deleted successfully!! ");
+    await getPlaylist("Playlists deleted successfully!! ");
   } catch (error) {
     console.error("Error deleting playlist:", error);
     setProgressVisible(false);
@@ -558,7 +558,7 @@ async function deletePlaylist(rowid, playlistId) {
         "block",
         `Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!! <br/>`
       );
-      getPlaylist(`Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!!`);
+      await getPlaylist(`Playlist No: [${playlist_no}] Name: [${playlist_name}] and Id: [${playlistId}] deleted successfully!!`);
     } else {
       displayMessage(
         "test-result-fail",
@@ -658,7 +658,7 @@ async function createRecentPlaylist(kind) {
       const label = kind === "played" ? "Played" : "Added";
       const message = `Playlists Recently ${label} Created successfully!!!`;
       displayMessage("test-result", "block", `${message} <br/>`);
-      getPlaylist(message);
+      await getPlaylist(message);
     }
   } catch (error) {
     console.error("Error refreshing playlists:", error);
@@ -787,7 +787,7 @@ function deleteSelectedPlaylists(selectedIds) {
   setProgressVisible(true);
 
   globalThis.ipcRenderer.invoke('delete-selected-playlists', selectedIds)
-    .then(response => {
+    .then(async (response) => {
       setProgressVisible(false);
       if (response.success) {
         displayMessage(
@@ -797,7 +797,7 @@ function deleteSelectedPlaylists(selectedIds) {
         );
         const tableBody = document.querySelector('#dataTable tbody');
         tableBody.innerHTML = ''; // Clear the table body explicitly
-        getPlaylist(`${selectedIds.length} selected playlists deleted successfully!!`); // Reload and populate the table
+        await getPlaylist(`${selectedIds.length} selected playlists deleted successfully!!`); // Reload and populate the table
       } else {
         displayMessage(
           "test-result-fail",
