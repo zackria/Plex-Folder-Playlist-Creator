@@ -175,3 +175,6 @@ Please follow these steps [WINDOWSCERT.md](./WINDOWSCERT.md)
 - **Plex Matching**: Relies on file paths matching between your local system and Plex.
 - **Symlink/Alias**: Supports standard Unix Symlinks; macOS Finder Aliases are supported when running on macOS.
 
+## Contributors
+Thanks to everyone who has contributed to this project.
+
